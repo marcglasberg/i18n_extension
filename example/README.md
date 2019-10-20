@@ -1,0 +1,4 @@
+# example
+
+Internationalization example
+
