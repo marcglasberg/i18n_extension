@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+import 'package:i18n_extension/i18n_widget.dart';
 
 void main() {
   //
@@ -141,6 +142,34 @@ void main() {
         '-----------------------------\n'
         '  en_us | Goodbye.\n'
         '  pt_br | Adeus.\n'
+        '-----------------------------\n');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Translations with versions.", () {
+    I18n.define(Locale("en_us"));
+
+    var t = Translations("en_us") +
+        {
+          "en_us": "MyString".zero("Zero").one("One").two("Two").many("many"),
+          "pt_br": "MinhaString".zero("Zero").one("Um").two("Dois").many("Muitos"),
+        };
+
+    expect(t.length, 1);
+
+    expect(t.translations, {
+      "MyString": {
+        "en_us": "·MyString·0→Zero·1→One·2→Two·M→many",
+        "pt_br": "·MinhaString·0→Zero·1→Um·2→Dois·M→Muitos",
+      },
+    });
+
+    expect(
+        t.toString(),
+        '\nTranslations: ---------------\n'
+        '  en_us | ·MyString·0→Zero·1→One·2→Two·M→many\n'
+        '  pt_br | ·MinhaString·0→Zero·1→Um·2→Dois·M→Muitos\n'
         '-----------------------------\n');
   });
 
@@ -391,6 +420,63 @@ void main() {
   });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Translations with version.", () {
+    //
+    var text = "MyKey".versioned("x", "abc");
+    expect(text, "·MyKey·x→abc");
+
+    text = "MyKey".versioned("x", "abc").versioned("y", "def");
+    expect(text, "·MyKey·x→abc·y→def");
+
+    text = "MyKey".zero("abc").one("def").two("ghi").many("jkl").times(5, "mno");
+    expect(text, "·MyKey·0→abc·1→def·2→ghi·M→jkl·5→mno");
+
+    expect(text.number(0), "abc");
+    expect(text.version("0"), "abc");
+    expect(text.allVersions()["0"], "abc");
+
+    expect(text.number(1), "def");
+    expect(text.version("1"), "def");
+    expect(text.allVersions()["1"], "def");
+
+    expect(text.number(2), "ghi");
+    expect(text.version("2"), "ghi");
+    expect(text.allVersions()["2"], "ghi");
+
+    expect(text.number(3), "jkl");
+    expect(text.version("M"), "jkl");
+    expect(text.allVersions()["M"], "jkl");
+
+    expect(text.number(5), "mno");
+    expect(text.version("5"), "mno");
+    expect(text.allVersions()["5"], "mno");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Helper for related translations.", () {
+    //
+    I18n.define(Locale("en_us"));
+    var text = "There is 1 item.";
+    expect(text.number(0), "There are no items.");
+    expect(text.number(1), "There is 1 item.");
+    expect(text.number(2), "There are a pair of items.");
+    expect(text.number(3), "There are 3 items.");
+    expect(text.number(4), "There are 4 items.");
+    expect(text.number(5), "Yes, you reached 5 items.");
+
+    I18n.define(Locale("pt_br"));
+    text = "There is 1 item.";
+    expect(text.number(0), "Não há itens.");
+    expect(text.number(1), "Há 1 item.");
+    expect(text.number(2), "Há um par de itens.");
+    expect(text.number(3), "Há 3 itens.");
+    expect(text.number(4), "Há 4 itens.");
+    expect(text.number(5), "Sim, você alcançou 5 items.");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 extension Localization on String {
@@ -412,7 +498,27 @@ extension Localization on String {
       } +
       {
         "en_us": "XYZ",
+      } +
+      {
+        "en_us": "There is 1 item."
+            .zero("There are no items.")
+            .one("There is 1 item.")
+            .two("There are a pair of items.")
+            .times(5, "Yes, you reached 5 items.")
+            .many("There are %d items."),
+        "pt_br": "Há 1 item."
+            .zero("Não há itens.")
+            .one("Há 1 item.")
+            .two("Há um par de itens.")
+            .times(5, "Sim, você alcançou 5 items.")
+            .many("Há %d itens."),
       };
 
   String get i18n => localize(this, t);
+
+  String number(int value) => localizeNumber(value, this, t);
+
+  String version(String version) => localizeVersion(version, this, t);
+
+  Map<String, String> allVersions() => localizeAllVersions(this, t);
 }

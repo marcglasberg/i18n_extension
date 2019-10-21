@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'i18n_widget.dart';
+
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// To localize a translatable string, pass its [key] and the [translations] object.
+/// The locale may also be passed, but if it's null the locale in [I18n.localeStr] will be used.
 String localize(
   String key,
   ITranslations translations, {
@@ -22,10 +26,9 @@ String localize(
   else {
     locale = locale ?? I18n.localeStr;
 
-    // If the translation key is already in the language we want, use the key itself.
-    if (locale == translations.defaultLocaleStr) return key;
+    if (locale == null) throw TranslationsException("The locale is not defined.");
 
-    // Else, get the translated string in the language we want.
+    // Get the translated string in the language we want.
     String translatedString = translatedStringPerLocale[locale];
 
     // Return the translated string in the language we want.
@@ -41,6 +44,93 @@ String localize(
 
     return key;
   }
+}
+
+/// Returns the translated version for the number.
+/// After getting the version, substring %d will be replaced with the value.
+String localizeNumber(
+  int value,
+  String key,
+  ITranslations translations, {
+  String locale,
+}) {
+  assert(value != null);
+
+  Map<String, String> versions = localizeAllVersions(key, translations, locale: locale);
+
+  String text;
+
+  /// For number(0), returns the version 0, otherwise the version many, otherwise the unversioned.
+  if (value == 0)
+    text = versions["0"] ?? versions["M"] ?? versions[null];
+
+  /// For number(1), returns the version 1, otherwise the unversioned.
+  else if (value == 1)
+    text = versions["1"] ?? versions[null];
+
+  /// For number(2), returns the version 2, otherwise the version many, otherwise the unversioned.
+  else if (value == 2)
+    text = versions["2"] ?? versions["M"] ?? versions[null];
+
+  /// For number(<0 or >2), returns the version many, otherwise the unversioned.
+  else
+    text = versions[value.toString()] ?? versions["M"] ?? versions[null];
+
+  // ---
+
+  if (text == null) throw TranslationsException("No version found found.");
+
+  text = text.replaceAll("%d", value.toString());
+
+  return text;
+}
+
+String localizeVersion(
+  String version,
+  String key,
+  ITranslations translations, {
+  String locale,
+}) {
+  String total = localize(key, translations, locale: locale);
+  if (!total.startsWith("·"))
+    throw TranslationsException("This text has no versions for '$version'.");
+  List<String> parts = total.split("·");
+  for (int i = 2; i < parts.length; i++) {
+    var part = parts[i];
+    List<String> par = part.split("→");
+    if (par.length != 2 || par[0].isEmpty || par[1].isEmpty)
+      throw TranslationsException("Invalid text version for '$part'.");
+    String _version = par[0];
+    String text = par[1];
+    if (_version == version) return text;
+  }
+  throw TranslationsException("NAO ENCONTROU!!!");
+}
+
+/// Returns a map of all translated strings, where versions are the keys.
+/// In special, the unversioned text is returned indexed with a null key.
+Map<String, String> localizeAllVersions(
+  String key,
+  ITranslations translations, {
+  String locale,
+}) {
+  String total = localize(key, translations, locale: locale);
+  if (!total.startsWith("·")) throw TranslationsException("This text has no versions.");
+
+  Map<String, String> all = {null: total};
+
+  List<String> parts = total.split("·");
+  for (int i = 2; i < parts.length; i++) {
+    var part = parts[i];
+    List<String> par = part.split("→");
+    if (par.length != 2 || par[0].isEmpty || par[1].isEmpty)
+      throw TranslationsException("Invalid text version for '$part'.");
+    String version = par[0];
+    String text = par[1];
+    all[version] = text;
+  }
+
+  return all;
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,11 +245,26 @@ class Translations extends ITranslations {
 
   Translations operator +(Map<String, String> translations) {
     assert(this.translations != null);
+    // ---
     var defaultTranslation = translations[defaultLocaleStr];
+
     if (defaultTranslation == null)
       throw TranslationsException("No default translation for '$defaultLocaleStr'.");
-    this.translations[defaultTranslation] = translations;
+
+    String key = _getKey(defaultTranslation);
+
+    this.translations[key] = translations;
     return this;
+  }
+
+  /// If the translation does NOT start with "·", the translation is the key.
+  /// Otherwise, if the translation is something like "·MyKey·0→abc·1→def" the key is "Mykey".
+  static String _getKey(String translation) {
+    if (translation.startsWith("·")) {
+      List<String> parts = translation.split("·");
+      return parts[1];
+    } else
+      return translation;
   }
 
   /// Combine this translation with another translation.
@@ -179,8 +284,6 @@ class Translations extends ITranslations {
     }
     return this;
   }
-
-//  Map<String, String> operator [](String key) => translations[key];
 
   @override
   String toString() {
@@ -233,7 +336,7 @@ class TranslationsByLocale extends ITranslations {
     for (MapEntry<String, Map<String, String>> entry in translations.entries) {
       String locale = entry.key;
       for (MapEntry<String, String> entry2 in entry.value.entries) {
-        String key = entry2.key;
+        String key = Translations._getKey(entry2.key);
         String translatedString = entry2.value;
         byKey.add(locale: locale, key: key, translatedString: translatedString);
       }
@@ -277,41 +380,26 @@ class TranslationsByLocale extends ITranslations {
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class I18n extends StatelessWidget {
+extension Localization on String {
   //
-  static Locale _systemLocale;
-  static Locale _forcedLocale;
-
-  static Locale _locale;
-  static String _localeStr;
-
-  static Locale get locale => _locale;
-
-  static String get localeStr => _localeStr;
-
-  static void _refresh() {
-    _locale = _forcedLocale ?? _systemLocale;
-    _localeStr = locale.toString().toLowerCase();
+  String versioned(String identifier, String text) {
+    assert(identifier != null);
+    assert(text != null);
+    return ((!this.startsWith("·")) ? "·" : "") + "$this·$identifier→$text";
   }
 
-  final Widget child;
+  String zero(String text) => versioned("0", text);
 
-  I18n({
-    @required this.child,
-    Locale locale,
-  }) {
-    _forcedLocale = locale;
-    _refresh();
+  String one(String text) => versioned("1", text);
+
+  String two(String text) => versioned("2", text);
+
+  String times(int numberOfTimes, String text) {
+    assert(numberOfTimes != null && (numberOfTimes < 0 || numberOfTimes > 2));
+    return versioned(numberOfTimes.toString(), text);
   }
 
-  I18n.define(Locale locale) : this(child: null, locale: locale);
-
-  @override
-  Widget build(BuildContext context) {
-    _systemLocale = Localizations.localeOf(context, nullOk: true);
-    _refresh();
-    return child;
-  }
+  String many(String text) => versioned("M", text);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////
