@@ -107,7 +107,7 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  test("Add 2 translations in many languages.", () {
+  test("Add 2 translations in 2 languages.", () {
     I18n.define(Locale("en_us"));
 
     var t = Translations("en_us") +
@@ -140,6 +140,155 @@ void main() {
         '  pt_br | Olá.\n'
         '-----------------------------\n'
         '  en_us | Goodbye.\n'
+        '  pt_br | Adeus.\n'
+        '-----------------------------\n');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Combine 2 translations.", () {
+    I18n.define(Locale("en_us"));
+
+    var t1 = Translations("en_us") +
+        {
+          "en_us": "Hi.",
+          "pt_br": "Olá.",
+        };
+
+    var t2 = Translations("en_us") +
+        {
+          "en_us": "Goodbye.",
+          "pt_br": "Adeus.",
+        };
+
+    var t = t1 * t2;
+
+    expect(t.length, 2);
+
+    expect(t.translations, {
+      "Hi.": {
+        "en_us": "Hi.",
+        "pt_br": "Olá.",
+      },
+      "Goodbye.": {
+        "en_us": "Goodbye.",
+        "pt_br": "Adeus.",
+      }
+    });
+
+    expect(
+        t.toString(),
+        '\nTranslations: ---------------\n'
+        '  en_us | Hi.\n'
+        '  pt_br | Olá.\n'
+        '-----------------------------\n'
+        '  en_us | Goodbye.\n'
+        '  pt_br | Adeus.\n'
+        '-----------------------------\n');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Add 2 translations in 3 languages, by locale.", () {
+    I18n.define(Locale("en_us"));
+
+    var t = Translations.byLocale("en_us") +
+        {
+          "en_us": {
+            "Hi.": "Hi.",
+            "Goodbye.": "Goodbye.",
+          },
+          "es_es": {
+            "Hi.": "Hola.",
+            "Goodbye.": "Adiós.",
+          }
+        } +
+        {
+          "pt_br": {
+            "Hi.": "Olá.",
+            "Goodbye.": "Adeus.",
+          }
+        };
+
+    expect(t.length, 2);
+
+    expect(t.translations, {
+      "Hi.": {
+        "en_us": "Hi.",
+        "es_es": "Hola.",
+        "pt_br": "Olá.",
+      },
+      "Goodbye.": {
+        "en_us": "Goodbye.",
+        "es_es": "Adiós.",
+        "pt_br": "Adeus.",
+      }
+    });
+
+    expect(
+        t.toString(),
+        '\nTranslations: ---------------\n'
+        '  en_us | Hi.\n'
+        '  es_es | Hola.\n'
+        '  pt_br | Olá.\n'
+        '-----------------------------\n'
+        '  en_us | Goodbye.\n'
+        '  es_es | Adiós.\n'
+        '  pt_br | Adeus.\n'
+        '-----------------------------\n');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Combine 2 translations by locale.", () {
+    I18n.define(Locale("en_us"));
+
+    TranslationsByLocale t1 = Translations.byLocale("en_us") +
+        {
+          "en_us": {
+            "Hi.": "Hi.",
+            "Goodbye.": "Goodbye.",
+          },
+          "es_es": {
+            "Hi.": "Hola.",
+            "Goodbye.": "Adiós.",
+          }
+        };
+
+    TranslationsByLocale t2 = Translations.byLocale("en_us") +
+        {
+          "pt_br": {
+            "Hi.": "Olá.",
+            "Goodbye.": "Adeus.",
+          }
+        };
+
+    var t = t1 * t2;
+
+    expect(t.length, 2);
+
+    expect(t.translations, {
+      "Hi.": {
+        "en_us": "Hi.",
+        "es_es": "Hola.",
+        "pt_br": "Olá.",
+      },
+      "Goodbye.": {
+        "en_us": "Goodbye.",
+        "es_es": "Adiós.",
+        "pt_br": "Adeus.",
+      }
+    });
+
+    expect(
+        t.toString(),
+        '\nTranslations: ---------------\n'
+        '  en_us | Hi.\n'
+        '  es_es | Hola.\n'
+        '  pt_br | Olá.\n'
+        '-----------------------------\n'
+        '  en_us | Goodbye.\n'
+        '  es_es | Adiós.\n'
         '  pt_br | Adeus.\n'
         '-----------------------------\n');
   });
@@ -212,8 +361,8 @@ void main() {
     expect("Unknown text".i18n, "Unknown text");
 
     expect(Translations.missingKeys.length, 1);
-    expect(Translations.missingKeys[0].locale, "en_us");
-    expect(Translations.missingKeys[0].text, "Unknown text");
+    expect(Translations.missingKeys.single.locale, "en_us");
+    expect(Translations.missingKeys.single.text, "Unknown text");
     expect(Translations.missingTranslations, isEmpty);
 
     // ---------------
@@ -227,8 +376,8 @@ void main() {
     expect("Hi.".i18n, "Hi.");
 
     expect(Translations.missingKeys, isEmpty);
-    expect(Translations.missingTranslations[0].locale, "en_us");
-    expect(Translations.missingTranslations[0].text, "Hi.");
+    expect(Translations.missingTranslations.single.locale, "en_us");
+    expect(Translations.missingTranslations.single.text, "Hi.");
 
     // ---------------
   });

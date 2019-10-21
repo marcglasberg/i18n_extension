@@ -1,5 +1,6 @@
 # i18n_extension
 
+
 ## Translation and Internationalization (i18n) for Flutter
 
 If you have a widget with some text in it:
@@ -12,14 +13,13 @@ You can translate it by simply adding `.i18n` to the string:
 
 ```dart
 Text("Hello, how are you?".i18n)
-```
+```     
 
 If the current locale is, say, `'pt_BR'`, then the text in the screen should read
 `"Olá, como vai você?"`. And so on for any other locales you want to support.
 
-With the [`i18n_extension`](https://pub.dev/packages/async_redux/) package you can do just that.
 
-## Purpose
+## Good for simple or complex apps
 
 This package has you covered in all stages of your translation efforts:
 
@@ -34,6 +34,7 @@ or modify some of them, it will let you know what changed and how to fix it.
 
 4. Or you can easily integrate it with professional translation services, importing it from,
 or exporting it to any format you want.
+
 
 ## Setup
 
@@ -56,6 +57,7 @@ return I18n(
   locale: Locale("pt_br"),
   child: Scaffold( ... )
 ```
+
 
 ## Translating a widget
 
@@ -106,21 +108,29 @@ Brazilian Portuguese, and general Spanish, French and German.
 You can, however, translate as many strings as you want, by simply adding more
 **translation maps**:
 
-```dart
-static var t = Translations("en_us") +
-    {
-      "en_us": "Hello, how are you?",
-      "pt_br": "Olá, como vai você?",
-    } +
-    {
-      "en_us": "Hi",
-      "pt_br": "Olá",
-    } +
-    {
-      "en_us": "Goodbye",
-      "pt_br": "Adeus",
-    };
+```dart   
+import 'package:i18n_extension/i18n_extension.dart';
+
+extension Localization on String {
+
+    static var t = Translations("en_us") +
+        {
+          "en_us": "Hello, how are you?",
+          "pt_br": "Olá, como vai você?",
+        } +
+        {
+          "en_us": "Hi",
+          "pt_br": "Olá",
+        } +
+        {
+          "en_us": "Goodbye",
+          "pt_br": "Adeus",
+        };
+
+  String get i18n => localize(this, t);
+}
 ```
+
 
 ## Strings themselves are the translation keys
 
@@ -151,6 +161,7 @@ If the translation key is found, it will choose the language according to the fo
 
 4. If this is absent, it will use the key itself as the translation.
 
+
 ### Managing keys
 
 Other translation packages ask you to define key identifiers for each translation,
@@ -179,6 +190,13 @@ expect(Translations.missingKeys, isEmpty);
 expect(Translations.missingTranslations, isEmpty);
 ```
 
+Note: You can disable the recording of missing keys and translations by doing:
+```dart
+Translations.recordMissingKeys = false;
+Translations.recordMissingTranslations = false;
+```
+
+
 Another thing you may do if you want, is to throw an error if any translation is missing.
 To that end, inject callbacks into `Translations.missingKeyCallback` and
 `Translations.missingTranslationCallback`. For example:
@@ -194,10 +212,129 @@ Translations.missingTranslationCallback = (key, locale)
 Or instead of throwing you could log the problem,
 or send an email to the person responsible for the translations.
 
+
+### Defining translations by language instead of by key 
+
+As explained, by using the `Translations()` constructor 
+you define each key and then provide all its translations at the same time. 
+This is the easiest way when you are doing translations manually,
+for example, when you speak English and Spanish and are creating yourself the translations to your app.
+
+However, in other situations, such as when you are hiring professional translation services 
+or crowdsourcing translations, it may be easier if you can provide the translations by locale/language, 
+instead of by key. You can do that by using the `Translations.byLocale()` constructor.    
+
+```dart
+static var t = Translations.byLocale("en_us") +
+    {
+      "en_us": {
+        "Hi.": "Hi.",
+        "Goodbye.": "Goodbye.",
+      },
+      "es_es": {
+        "Hi.": "Hola.",
+        "Goodbye.": "Adiós.",
+      }
+    };
+```     
+
+You can also add maps using the `+` operator:
+                                  
+```dart
+static var t = Translations.byLocale("en_us") +
+    {
+      "en_us": {
+        "Hi.": "Hi.",
+        "Goodbye.": "Goodbye.",
+      },
+    } +
+    {
+      "es_es": {
+        "Hi.": "Hola.",
+        "Goodbye.": "Adiós.",
+      }
+    };
+```                                       
+
+Note above, since "en_us" is the default locale you don't need to provide translations for those. 
+  
+
+### Combining translations 
+
+To combine translations you can use the `*` operator. For example:
+
+```dart
+var t1 = Translations("en_us") +
+    {
+      "en_us": "Hi.",
+      "pt_br": "Olá.",
+    };
+
+var t2 = Translations("en_us") +
+    {
+      "en_us": "Goodbye.",
+      "pt_br": "Adeus.",
+    };
+
+var translations = t1 * t2;
+
+print(localize("Hi.", translations, locale: "pt_br");
+print(localize("Goodbye.", translations, locale: "pt_br");
+
+    
+```
+
+### Direct use of translation objects.
+
+If you have a translation object you can use the `localize` function directly to perform translations:
+
+```dart
+var translations = Translations("en_us") +
+    {
+      "en_us": "Hi",
+      "pt_br": "Olá",
+    };
+                                                    
+// Prints "Hi".                   
+print(localize("Hi", translations, locale: "en_us");
+
+// Prints "Olá".                   
+print(localize("Hi", translations, locale: "pt_br");
+
+// Prints "Hi".                   
+print(localize("Hi", translations, locale: "not valid");
+```  
+
+
 ### Importing and exporting
 
-[talk about .arb files, .json, and other formats]
+When you hire professional translation services, or want to implement crowdsourcing translations, 
+you will need to import/export to external formats like `.json` or `.arb` files.
 
-.......
+This is easy to do, because the Translation constructors use maps as input. So you can simply generate
+maps from any file format, and then use the `Translation()` or `Translation.byLocale()` constructors
+to create the translation objects.
+   
+**Note:** If you want to help by creating import methods from popular formats, please PR here: https://github.com/marcglasberg/i18n_extension.
+
+********
+
+*The Flutter packages I've authored:* 
+* <a href="https://pub.dev/packages/async_redux">async_redux</a>
+* <a href="https://pub.dev/packages/provider_for_redux">provider_for_redux</a>
+* <a href="https://pub.dev/packages/i18_extension">i18_extension</a>
+* <a href="https://pub.dev/packages/align_positioned">align_positioned</a>
+* <a href="https://pub.dev/packages/network_to_file_image">network_to_file_image</a>
+* <a href="https://pub.dev/packages/matrix4_transform">matrix4_transform</a> 
+* <a href="https://pub.dev/packages/back_button_interceptor">back_button_interceptor</a>
+* <a href="https://pub.dev/packages/indexed_list_view">indexed_list_view</a> 
+* <a href="https://pub.dev/packages/animated_size_and_fade">animated_size_and_fade</a>
+
+---<br>_Marcelo Glasberg:_<br>_https://github.com/marcglasberg_<br>
+_https://twitter.com/glasbergmarcelo_<br>
+_https://stackoverflow.com/users/3411681/marcg_<br>
+_https://medium.com/@marcglasberg_<br>
+
+
 
 

@@ -4,31 +4,41 @@ import 'package:flutter/material.dart';
 
 String localize(
   String key,
-  Translations translations,
-) {
+  ITranslations translations, {
+  String locale,
+}) {
   Map<String, String> translatedStringPerLocale = translations[key];
 
   if (translatedStringPerLocale == null) {
-    Translations.missingKeys
-        .add(TranslatedString(locale: translations.defaultLocaleStr, text: key));
+    if (Translations.recordMissingKeys)
+      Translations.missingKeys
+          .add(TranslatedString(locale: translations.defaultLocaleStr, text: key));
+
     Translations.missingKeyCallback(key, translations.defaultLocaleStr);
+
     return key;
   }
   //
   else {
+    locale = locale ?? I18n.localeStr;
+
     // If the translation key is already in the language we want, use the key itself.
-    if (I18n.localeStr == translations.defaultLocaleStr) return key;
+    if (locale == translations.defaultLocaleStr) return key;
 
     // Else, get the translated string in the language we want.
-    String translatedString = translatedStringPerLocale[I18n.localeStr];
+    String translatedString = translatedStringPerLocale[locale];
 
     // Return the translated string in the language we want.
     if (translatedString != null) return translatedString;
 
     // If there's no translated string in the language we want, we'll use the default.
-    Translations.missingTranslations
-        .add(TranslatedString(locale: translations.defaultLocaleStr, text: key));
+
+    if (Translations.recordMissingTranslations)
+      Translations.missingTranslations
+          .add(TranslatedString(locale: translations.defaultLocaleStr, text: key));
+
     Translations.missingTranslationCallback(key, translations.defaultLocaleStr);
+
     return key;
   }
 }
@@ -97,12 +107,29 @@ class TranslationsException {
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Translations {
+abstract class ITranslations {
+  Map<String, Map<String, String>> get translations;
+
+  String get defaultLocaleStr;
+
+  String get defaultLanguageStr;
+
+  int get length;
+
+  Map<String, String> operator [](String key) => translations[key];
+}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Translations extends ITranslations {
   //
   /// All missing keys and translations will be put here.
   /// This may be used in tests to make sure no translations are missing.
   static Set<TranslatedString> missingKeys = {};
   static Set<TranslatedString> missingTranslations = {};
+
+  static bool recordMissingKeys = true;
+  static bool recordMissingTranslations = true;
 
   /// Replace this to log missing keys.
   static void Function(String, String) missingKeyCallback =
@@ -117,9 +144,12 @@ class Translations {
   final String defaultLanguageStr;
 
   Translations(this.defaultLocaleStr)
-      : defaultLanguageStr = defaultLocaleStr.substring(0, 2),
-        assert(defaultLocaleStr != null && defaultLocaleStr.trim().isNotEmpty),
+      : assert(defaultLocaleStr != null && defaultLocaleStr.trim().isNotEmpty),
+        defaultLanguageStr = defaultLocaleStr.substring(0, 2),
         translations = Map<String, Map<String, String>>();
+
+  static TranslationsByLocale byLocale(String defaultLocaleStr) =>
+      TranslationsByLocale._(defaultLocaleStr);
 
   int get length => translations.length;
 
@@ -132,7 +162,25 @@ class Translations {
     return this;
   }
 
-  Map<String, String> operator [](String key) => translations[key];
+  /// Combine this translation with another translation.
+  Translations operator *(ITranslations translationsByLocale) {
+    if (translationsByLocale.defaultLocaleStr != defaultLocaleStr)
+      throw TranslationsException("Can't combine translations with different default locales: "
+          "'$defaultLocaleStr' and '${translationsByLocale.defaultLocaleStr}'.");
+    // ---
+
+    for (MapEntry<String, Map<String, String>> entry in translationsByLocale.translations.entries) {
+      var key = entry.key;
+      for (MapEntry<String, String> entry2 in entry.value.entries) {
+        String locale = entry2.key;
+        String translatedString = entry2.value;
+        add(locale: locale, key: key, translatedString: translatedString);
+      }
+    }
+    return this;
+  }
+
+//  Map<String, String> operator [](String key) => translations[key];
 
   @override
   String toString() {
@@ -151,6 +199,80 @@ class Translations {
       .map((entry) => TranslatedString(locale: entry.key, text: entry.value))
       .toList()
         ..sort(TranslatedString.comparable(defaultLocaleStr));
+
+  void add({
+    @required String locale,
+    @required String key,
+    @required String translatedString,
+  }) {
+    if (locale == null || locale.isEmpty) throw TranslationsException("Missing locale.");
+    if (key == null || key.isEmpty) throw TranslationsException("Missing key.");
+    if (translatedString == null || translatedString.isEmpty)
+      throw TranslationsException("Missing translatedString.");
+    // ---
+
+    Map<String, String> _translations = translations[key];
+    if (_translations == null) {
+      _translations = {};
+      translations[key] = _translations;
+    }
+    _translations[locale] = translatedString;
+  }
+}
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+
+class TranslationsByLocale extends ITranslations {
+  final Translations byKey;
+
+  Map<String, Map<String, String>> get translations => byKey.translations;
+
+  TranslationsByLocale._(String defaultLocaleStr) : byKey = Translations(defaultLocaleStr);
+
+  TranslationsByLocale operator +(Map<String, Map<String, String>> translations) {
+    for (MapEntry<String, Map<String, String>> entry in translations.entries) {
+      String locale = entry.key;
+      for (MapEntry<String, String> entry2 in entry.value.entries) {
+        String key = entry2.key;
+        String translatedString = entry2.value;
+        byKey.add(locale: locale, key: key, translatedString: translatedString);
+      }
+    }
+    return this;
+  }
+
+  /// Combine this translation with another translation.
+  TranslationsByLocale operator *(ITranslations translationsByLocale) {
+    if (translationsByLocale.defaultLocaleStr != defaultLocaleStr)
+      throw TranslationsException("Can't combine translations with different default locales: "
+          "'$defaultLocaleStr' and '${translationsByLocale.defaultLocaleStr}'.");
+    // ---
+
+    for (MapEntry<String, Map<String, String>> entry in translationsByLocale.translations.entries) {
+      var key = entry.key;
+      for (MapEntry<String, String> entry2 in entry.value.entries) {
+        String locale = entry2.key;
+        String translatedString = entry2.value;
+        byKey.add(locale: locale, key: key, translatedString: translatedString);
+      }
+    }
+    return this;
+  }
+
+  List<TranslatedString> _translatedStrings(Map<String, String> translation) =>
+      byKey._translatedStrings(translation);
+
+  @override
+  String get defaultLanguageStr => byKey.defaultLanguageStr;
+
+  @override
+  String get defaultLocaleStr => byKey.defaultLocaleStr;
+
+  @override
+  int get length => byKey.length;
+
+  @override
+  String toString() => byKey.toString();
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
