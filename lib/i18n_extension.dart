@@ -101,8 +101,8 @@ class Translations {
   //
   /// All missing keys and translations will be put here.
   /// This may be used in tests to make sure no translations are missing.
-  static List<TranslatedString> missingKeys = [];
-  static List<TranslatedString> missingTranslations = [];
+  static Set<TranslatedString> missingKeys = {};
+  static Set<TranslatedString> missingTranslations = {};
 
   /// Replace this to log missing keys.
   static void Function(String, String) missingKeyCallback =
