@@ -2,20 +2,20 @@
 
 ## Translation and Internationalization (i18n) for Flutter
 
-Imagine you have a widget with some text in it:
+If you have a widget with some text in it:
 
 ```dart
 Text("Hello, how are you?")
 ```
 
-Now imagine you can translate it by simply adding `.i18n` to the string:
+You can translate it by simply adding `.i18n` to the string:
 
 ```dart
 Text("Hello, how are you?".i18n)
 ```
 
-If the current locale is, say, 'pt_BR' the text in the screen should read
-"Olá, como vai você?". And so on for any other locales you want to support.
+If the current locale is, say, `'pt_BR'`, then the text in the screen should read
+`"Olá, como vai você?"`. And so on for any other locales you want to support.
 
 With the [`i18n_extension`](https://pub.dev/packages/async_redux/) package you can do just that.
 
@@ -37,7 +37,8 @@ or exporting it to any format you want.
 
 ## Setup
 
-Wrap your widget tree with the `I18n` widget, like this:
+Wrap your widget tree with the `I18n` widget.
+This will translate your strings to the **current system locale**:
 
 ```dart
 @override
@@ -48,7 +49,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-This will get the current system locale, but you can override it like this:
+You can override it with any locale, like this:
 
 ```dart
 return I18n(
@@ -56,18 +57,22 @@ return I18n(
   child: Scaffold( ... )
 ```
 
-When you create a widget that will have a translatable strings,
+## Translating a widget
+
+When you create a widget that has translatable strings,
 add this default import to the widget's file:
 
 ```dart
 import 'package:i18n_extension/default.i18n.dart';
 ```
 
-This will simply allow you to add `.i18n` to your strings, but won't translate anything.
+This will allow you to add `.i18n` to your strings, but won't translate anything.
 
 When you are ready to create your translations, you must create a dart file to hold them.
 This file can have any name, but I suggest you give it the same name as your widget
-but with the termination `.18n.dart`. For example, if your widget is in file `my_widget.dart`
+and change the termination to `.18n.dart`.
+
+For example, if your widget is in file `my_widget.dart`,
 the translations could be in file `my_widget.i18n.dart`
 
 You must then remove the previous default import, and instead import your own translation file:
@@ -122,10 +127,10 @@ static var t = Translations("en_us") +
 The locale you pass in the `Translations()` constructor is called the **default locale**.
 For example, in `Translations("en_us")` the default locale is `en_us`.
 All translatable strings in the widget file should be in the language of that locale.
-The strings themselves are used as **keys** when searching for translations to the other locales.
 
+The strings themselves are used as **keys** when searching for translations to the other locales.
 For example, in the `Text` below, `"Hello, how are you?"` is both the translation to English,
-and the key to use when searching for its translations:
+and the key to use when searching for its other translations:
 
 ```dart
 Text("Hello, how are you?".i18n)
@@ -136,15 +141,15 @@ so the text will still appear in the screen, untranslated.
 
 If the translation key is found, it will choose the language according to the following rules:
 
-1. Use the translation to the exact locale, for example `en_us`.
+1. It will use the translation to the exact current locale, for example `en_us`.
 
-2. If this is absent, use the translation to the general language of the locale,
-   for example `en_us`.
+2. If this is absent, it will use the translation to the general language of the current locale,
+   for example `en`.
 
-3. If this is absent, use the translation to any other locale with the same language,
+3. If this is absent, it will use the translation to any other locale with the same language,
    for example `en_uk`.
 
-4. If this is absent, use the key itself as the translation.
+4. If this is absent, it will use the key itself as the translation.
 
 ### Managing keys
 
@@ -156,7 +161,7 @@ However, having to define identifiers is not only a boring task, but it also for
 to navigate to the translation if you need to remember the exact text of the widget.
 
 With `i18n_extension` you can simply type the text you want and that's it.
-If some string is already translated and you later you change it in the widget file,
+If some string is already translated and you later change it in the widget file,
 this will break the link between the key and the translation map.
 However, `i18n_extension` is smart enough to let you know when that happens,
 so it's easy to fix. You can even add this check to tests, as to make sure all translations are
@@ -174,7 +179,7 @@ expect(Translations.missingKeys, isEmpty);
 expect(Translations.missingTranslations, isEmpty);
 ```
 
-Another thing you may do if you want, is to throw an error if some translation is missing.
+Another thing you may do if you want, is to throw an error if any translation is missing.
 To that end, inject callbacks into `Translations.missingKeyCallback` and
 `Translations.missingTranslationCallback`. For example:
 
