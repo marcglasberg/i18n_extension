@@ -1,27 +1,61 @@
 # i18n_extension
 
 
-## Translation and Internationalization (i18n) for Flutter
+## Non-boilerplate Translation and Internationalization (i18n) for Flutter
 
-If you have a widget with some text in it:
+Start with a widget with some text in it:
 
 ```dart
 Text("Hello, how are you?")
-```
+```                                       
 
-You can translate it by simply adding `.i18n` to the string:
+Translate it simply by adding `.i18n` to the string:
 
 ```dart
 Text("Hello, how are you?".i18n)
-```     
+```    
 
-If the current locale is, say, `'pt_BR'`, then the text in the screen should read
-`"Olá, como vai você?"`. And so on for any other locales you want to support.
+If the current locale is `'pt_BR'`, then the text in the screen will be
+`"Olá, como vai você?"`, which is the Portuguese translation to the above text. 
+And so on for any other locales you want to support.
+
+You can also provide different translations depending on modifiers, for example `number` quantities:
+
+```dart
+print("There is 1 item".number(0)); // Prints 'There are no items' 
+print("There is 1 item".number(1)); // Prints 'There is 1 item'
+print("There is 1 item".number(2)); // Prints 'There are 2 items'
+```
+
+And you can invent your own modifiers according to any conditions. 
+For example, some languages have different translations for different genders.
+So you could create `gender` versions for `Gender` modifiers: 
+
+```dart
+print("There is a person".gender(Gender.male)); // Prints 'There is a man' 
+print("There is a person".gender(Gender.female)); // Prints 'There is a woman' 
+print("There is a person".gender(Gender.they)); // Prints 'There is a person'
+```
+
+## See it working
+
+Try running the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/main.dart">example</a>.
+
+**Note:** This package only works with Dart 2.6.0 support. 
+So if your Flutter is in the **stable** channel you may need to change it to the **dev** channel,
+by typing this in the console:  `flutter channel dev` and then `flutter doctor`.
 
 
 ## Good for simple or complex apps
 
-This package has you covered in all stages of your translation efforts:
+I'm always interested in creating packages to reduce boilerplate. 
+For example, [async_redux](https://pub.dev/packages/async_redux/) is about Redux without boilerplate, 
+and [align_positioned](https://pub.dev/packages/align_positioned) is about creating layouts using less widgets.
+This current package is also about reducing boilerplate for translations, 
+so it doesn't do anything you can't already do with plain old `Localizations.of(context)`. 
+
+That said, this package is meant both for the one person app developer and the big company team. 
+It has you covered in all stages of your translation efforts:
 
 1. When you create your widgets, it makes it easy for you to define which strings should be
 translated, by simply adding `.i18n` to them. These strings are called _"translatable strings"_.
@@ -41,7 +75,10 @@ or exporting it to any format you want.
 Wrap your widget tree with the `I18n` widget.
 This will translate your strings to the **current system locale**:
 
-```dart
+```dart       
+import 'package:i18n_extension/i18n_widget.dart';
+...
+
 @override
 Widget build(BuildContext context) {
   return I18n(
@@ -68,7 +105,7 @@ add this default import to the widget's file:
 import 'package:i18n_extension/default.i18n.dart';
 ```
 
-This will allow you to add `.i18n` to your strings, but won't translate anything.
+This will allow you to add `.i18n` and `.number()` to your strings, but won't translate anything.
 
 When you are ready to create your translations, you must create a dart file to hold them.
 This file can have any name, but I suggest you give it the same name as your widget
@@ -284,7 +321,76 @@ print(localize("Goodbye.", translations, locale: "pt_br");
     
 ```
 
-### Direct use of translation objects.
+
+### Translation modifiers
+
+Sometimes you have different translations that depend on a number quantity.
+Instead of `.i18n` you can use `.number()` and pass a numeric modifier. For example: 
+
+```dart
+int numberOfItems = 3;
+return Text("You clicked the button %d times".number(numberOfItems));
+```
+
+This will be translated, and if the translated string contains `%d` it will be replaced by the number.
+
+Then, your translations file should contain something like this:
+
+```dart
+static var t = Translations("en_us") +
+  {
+    "en_us": "You clicked the button %d times"
+        .zero("You haven't clicked the button")
+        .one("You clicked it once")
+        .two("You clicked a couple times")
+        .many("You clicked %d times")
+        .times(12, "You clicked a dozen times"),
+    "pt_br": "Você clicou o botão %d vezes"
+        .zero("Você não clicou no botão")
+        .one("Você clicou uma única vez")
+        .two("Você clicou um par de vezes")
+        .many("Você clicou %d vezes")
+        .times(12, "Você clicou uma dúzia de vezes"),
+  };
+```                                 
+
+
+#### Custom modifiers
+
+You can actually create any modifiers you want. 
+For example, some languages have different translations for different genders.
+So you could create `.gender()` that accepts `Gender` modifiers: 
+
+```dart
+enum Gender {they, female, male}
+
+int gnd = Gender.female;
+return Text("There is a person".gender(gnd));                                                     
+```
+
+Then, your translations file should use `.modifier()` and `localizeVersion()` like this:
+
+```dart
+static var t = Translations("en_us") +
+  {
+    "en_us": "There is a person"
+        .modifier(Gender.male, "There is a man")
+        .modifier(Gender.female, "There is a woman")
+        .modifier(Gender.they, "There is a person")        
+    "pt_br": "Há uma pessoa"
+        .modifier(Gender.male, "Há um homem")
+        .modifier(Gender.female, "Há uma mulher")
+        .modifier(Gender.they, "Há uma pessoa"),
+  };             
+
+String gender(Gender gnd) => localizeVersion(gnd, this, t);
+```                                 
+
+
+
+
+
+### Direct use of translation objects
 
 If you have a translation object you can use the `localize` function directly to perform translations:
 

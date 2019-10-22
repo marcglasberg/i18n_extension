@@ -1,4 +1,0 @@
-# example
-
-Internationalization example
-

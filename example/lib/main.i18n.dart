@@ -4,19 +4,15 @@ extension Localization on String {
   //
   static var t = Translations("en_us") +
       {
-        "cs_cz": "Zdravím tě",
-        "en_us": "Hi",
-        "en_uk": "Hi",
-        "pt_br": "Olá",
-        "es": "Hola",
-      } +
-      {
-        "en_us": "Goodbye",
-        "pt_br": "Adeus",
-        "cs_cz": "Sbohem",
-        "en_uk": "Goodbye",
-        "es": "Adiós",
+        "en_us": "i18n Demo",
+        "pt_br": "Demonstração i18n",
       };
 
   String get i18n => localize(this, t);
+
+  String number(int value) => localizeNumber(value, this, t);
+
+  String version(Object modifier) => localizeVersion(modifier, this, t);
+
+  Map<String, String> allVersions() => localizeAllVersions(this, t);
 }

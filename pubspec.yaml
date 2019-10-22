@@ -1,8 +1,8 @@
 name: i18n_extension
-description: Internationalization extension
-version: 0.0.1
-author:
-homepage:
+description: Translation and Internationalization (i18n) for Flutter
+version: 1.0.0
+author: Marcelo Glasberg <marcglasberg@gmail.com>
+homepage: https://github.com/marcglasberg/i18n_extension
 
 environment:
   sdk: ">=2.6.0-dev <3.0.0"

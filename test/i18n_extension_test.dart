@@ -160,16 +160,25 @@ void main() {
 
     expect(t.translations, {
       "MyString": {
-        "en_us": "·MyString·0→Zero·1→One·2→Two·M→many",
-        "pt_br": "·MinhaString·0→Zero·1→Um·2→Dois·M→Muitos",
+        "en_us": "\uFFFFMyString\uFFFF0\uFFFEZero\uFFFF1\uFFFEOne\uFFFF2\uFFFETwo\uFFFFM\uFFFEmany",
+        "pt_br":
+            "\uFFFFMinhaString\uFFFF0\uFFFEZero\uFFFF1\uFFFEUm\uFFFF2\uFFFEDois\uFFFFM\uFFFEMuitos",
       },
     });
 
     expect(
         t.toString(),
         '\nTranslations: ---------------\n'
-        '  en_us | ·MyString·0→Zero·1→One·2→Two·M→many\n'
-        '  pt_br | ·MinhaString·0→Zero·1→Um·2→Dois·M→Muitos\n'
+        '  en_us | MyString\n'
+        '          0 → Zero\n'
+        '          1 → One\n'
+        '          2 → Two\n'
+        '          M → many\n'
+        '  pt_br | MinhaString\n'
+        '          0 → Zero\n'
+        '          1 → Um\n'
+        '          2 → Dois\n'
+        '          M → Muitos\n'
         '-----------------------------\n');
   });
 
@@ -423,14 +432,15 @@ void main() {
 
   test("Translations with version.", () {
     //
-    var text = "MyKey".versioned("x", "abc");
-    expect(text, "·MyKey·x→abc");
+    var text = "MyKey".modifier("x", "abc");
+    expect(text, "\uFFFFMyKey\uFFFFx\uFFFEabc");
 
-    text = "MyKey".versioned("x", "abc").versioned("y", "def");
-    expect(text, "·MyKey·x→abc·y→def");
+    text = "MyKey".modifier("x", "abc").modifier("y", "def");
+    expect(text, "\uFFFFMyKey\uFFFFx\uFFFEabc\uFFFFy\uFFFEdef");
 
     text = "MyKey".zero("abc").one("def").two("ghi").many("jkl").times(5, "mno");
-    expect(text, "·MyKey·0→abc·1→def·2→ghi·M→jkl·5→mno");
+    expect(text,
+        "\uFFFFMyKey\uFFFF0\uFFFEabc\uFFFF1\uFFFEdef\uFFFF2\uFFFEghi\uFFFFM\uFFFEjkl\uFFFF5\uFFFEmno");
 
     expect(text.number(0), "abc");
     expect(text.version("0"), "abc");
@@ -518,7 +528,7 @@ extension Localization on String {
 
   String number(int value) => localizeNumber(value, this, t);
 
-  String version(String version) => localizeVersion(version, this, t);
+  String version(Object modifier) => localizeVersion(modifier, this, t);
 
   Map<String, String> allVersions() => localizeAllVersions(this, t);
 }

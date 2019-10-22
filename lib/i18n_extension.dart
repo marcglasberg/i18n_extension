@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'i18n_widget.dart';
 
+// Developed by Marcelo Glasberg (Aug 2019).
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
+
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// To localize a translatable string, pass its [key] and the [translations] object.
 /// The locale may also be passed, but if it's null the locale in [I18n.localeStr] will be used.
+/// If [I18n.localeStr] is not yet defined, it will use the default locale of the translation.
 String localize(
   String key,
   ITranslations translations, {
@@ -24,7 +28,7 @@ String localize(
   }
   //
   else {
-    locale = locale ?? I18n.localeStr;
+    locale = _effectiveLocale(translations, locale);
 
     if (locale == null) throw TranslationsException("The locale is not defined.");
 
@@ -46,85 +50,102 @@ String localize(
   }
 }
 
-/// Returns the translated version for the number.
-/// After getting the version, substring %d will be replaced with the value.
+/// Returns the translated version for the number modifier.
+/// After getting the version, substring %d will be replaced with the modifier.
 String localizeNumber(
-  int value,
+  int modifier,
   String key,
   ITranslations translations, {
   String locale,
 }) {
-  assert(value != null);
+  assert(modifier != null);
+  if (locale != null) locale = locale.toLowerCase();
 
   Map<String, String> versions = localizeAllVersions(key, translations, locale: locale);
 
   String text;
 
   /// For number(0), returns the version 0, otherwise the version many, otherwise the unversioned.
-  if (value == 0)
+  if (modifier == 0)
     text = versions["0"] ?? versions["M"] ?? versions[null];
 
   /// For number(1), returns the version 1, otherwise the unversioned.
-  else if (value == 1)
+  else if (modifier == 1)
     text = versions["1"] ?? versions[null];
 
   /// For number(2), returns the version 2, otherwise the version many, otherwise the unversioned.
-  else if (value == 2)
+  else if (modifier == 2)
     text = versions["2"] ?? versions["M"] ?? versions[null];
 
   /// For number(<0 or >2), returns the version many, otherwise the unversioned.
   else
-    text = versions[value.toString()] ?? versions["M"] ?? versions[null];
+    text = versions[modifier.toString()] ?? versions["M"] ?? versions[null];
 
   // ---
 
-  if (text == null) throw TranslationsException("No version found found.");
+  if (text == null)
+    throw TranslationsException("No version found "
+        "(modifier: $modifier, key: '$key', locale: '${_effectiveLocale(translations, locale)}').");
 
-  text = text.replaceAll("%d", value.toString());
+  text = text.replaceAll("%d", modifier.toString());
 
   return text;
 }
 
+/// Return the localized string, according to key and modifier.
+///
+/// You may pass any type of object to the modifier, but it will to a
+/// `toString()` in it and use that. So make sure your object has a suitable
+/// string representation.
+///
 String localizeVersion(
-  String version,
+  Object modifier,
   String key,
   ITranslations translations, {
   String locale,
 }) {
+  if (locale != null) locale = locale.toLowerCase();
   String total = localize(key, translations, locale: locale);
-  if (!total.startsWith("·"))
-    throw TranslationsException("This text has no versions for '$version'.");
-  List<String> parts = total.split("·");
+  if (!total.startsWith(_splitter1))
+    throw TranslationsException("This text has no version for modifier '$modifier' "
+        "(modifier: $modifier, key: '$key', locale: '${_effectiveLocale(translations, locale)}').");
+  List<String> parts = total.split(_splitter1);
   for (int i = 2; i < parts.length; i++) {
     var part = parts[i];
-    List<String> par = part.split("→");
+    List<String> par = part.split(_splitter2);
     if (par.length != 2 || par[0].isEmpty || par[1].isEmpty)
       throw TranslationsException("Invalid text version for '$part'.");
-    String _version = par[0];
+    String _modifier = par[0];
     String text = par[1];
-    if (_version == version) return text;
+    if (_modifier == modifier.toString()) return text;
   }
-  throw TranslationsException("NAO ENCONTROU!!!");
+  throw TranslationsException("This text has no version for modifier '$modifier' "
+      "(modifier: $modifier, key: '$key', locale: '${_effectiveLocale(translations, locale)}').");
 }
 
-/// Returns a map of all translated strings, where versions are the keys.
+/// Returns a map of all translated strings, where modifiers are the keys.
 /// In special, the unversioned text is returned indexed with a null key.
 Map<String, String> localizeAllVersions(
   String key,
   ITranslations translations, {
   String locale,
 }) {
+  if (locale != null) locale = locale.toLowerCase();
   String total = localize(key, translations, locale: locale);
-  if (!total.startsWith("·")) throw TranslationsException("This text has no versions.");
+
+  if (!total.startsWith(_splitter1)) {
+    return {null: total};
+  }
 
   Map<String, String> all = {null: total};
 
-  List<String> parts = total.split("·");
+  List<String> parts = total.split(_splitter1);
   for (int i = 2; i < parts.length; i++) {
     var part = parts[i];
-    List<String> par = part.split("→");
+    List<String> par = part.split(_splitter2);
     if (par.length != 2 || par[0].isEmpty || par[1].isEmpty)
-      throw TranslationsException("Invalid text version for '$part'.");
+      throw TranslationsException("Invalid text version for '$part' "
+          "(key: '$key', locale: '${_effectiveLocale(translations, locale)}').");
     String version = par[0];
     String text = par[1];
     all[version] = text;
@@ -132,6 +153,15 @@ Map<String, String> localizeAllVersions(
 
   return all;
 }
+
+_effectiveLocale(ITranslations translations, String locale) {
+  return (locale != null)
+      ? locale = locale.toLowerCase()
+      : I18n.localeStr ?? translations.defaultLocaleStr;
+}
+
+const _splitter1 = "\uFFFF";
+const _splitter2 = "\uFFFE";
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -257,11 +287,11 @@ class Translations extends ITranslations {
     return this;
   }
 
-  /// If the translation does NOT start with "·", the translation is the key.
+  /// If the translation does NOT start with _splitter2, the translation is the key.
   /// Otherwise, if the translation is something like "·MyKey·0→abc·1→def" the key is "Mykey".
   static String _getKey(String translation) {
-    if (translation.startsWith("·")) {
-      List<String> parts = translation.split("·");
+    if (translation.startsWith(_splitter1)) {
+      List<String> parts = translation.split(_splitter1);
       return parts[1];
     } else
       return translation;
@@ -291,11 +321,27 @@ class Translations extends ITranslations {
     for (MapEntry<String, Map<String, String>> entry in translations.entries) {
       Map<String, String> translation = entry.value;
       for (var translatedString in _translatedStrings(translation)) {
-        text += "  ${translatedString.locale.padRight(5)} | ${translatedString.text}\n";
+        text += "  ${translatedString.locale.padRight(5)} | ${_prettify(translatedString.text)}\n";
       }
       text += "-----------------------------\n";
     }
     return text;
+  }
+
+  /// This prettifies versioned strings (that have modifiers).
+  String _prettify(String translation) {
+    if (!translation.startsWith(_splitter1)) return translation;
+    List<String> parts = translation.split(_splitter1);
+    String result = parts[1];
+    for (int i = 2; i < parts.length; i++) {
+      var part = parts[i];
+      List<String> par = part.split(_splitter2);
+      if (par.length != 2 || par[0].isEmpty || par[1].isEmpty) return translation;
+      String modifier = par[0];
+      String text = par[1];
+      result += "\n          $modifier → $text";
+    }
+    return result;
   }
 
   List<TranslatedString> _translatedStrings(Map<String, String> translation) => translation.entries
@@ -382,24 +428,30 @@ class TranslationsByLocale extends ITranslations {
 
 extension Localization on String {
   //
-  String versioned(String identifier, String text) {
+  String modifier(Object identifier, String text) {
     assert(identifier != null);
     assert(text != null);
-    return ((!this.startsWith("·")) ? "·" : "") + "$this·$identifier→$text";
+    return ((!this.startsWith(_splitter1)) ? _splitter1 : "") +
+        "${this}$_splitter1$identifier$_splitter2$text";
   }
 
-  String zero(String text) => versioned("0", text);
+  /// Modifier for zero elements.
+  String zero(String text) => modifier("0", text);
 
-  String one(String text) => versioned("1", text);
+  /// Modifier for 1 element.
+  String one(String text) => modifier("1", text);
 
-  String two(String text) => versioned("2", text);
+  /// Modifier for 2 elements.
+  String two(String text) => modifier("2", text);
 
+  /// Modifier for any number of elements, except 0, 1 and 2.
   String times(int numberOfTimes, String text) {
     assert(numberOfTimes != null && (numberOfTimes < 0 || numberOfTimes > 2));
-    return versioned(numberOfTimes.toString(), text);
+    return modifier(numberOfTimes, text);
   }
 
-  String many(String text) => versioned("M", text);
+  /// Modifier for any number of elements, except 1.
+  String many(String text) => modifier("M", text);
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
