@@ -376,7 +376,7 @@ static var t = Translations("en_us") +
     "en_us": "There is a person"
         .modifier(Gender.male, "There is a man")
         .modifier(Gender.female, "There is a woman")
-        .modifier(Gender.they, "There is a person")        
+        .modifier(Gender.they, "There is a person"),        
     "pt_br": "Há uma pessoa"
         .modifier(Gender.male, "Há um homem")
         .modifier(Gender.female, "Há uma mulher")

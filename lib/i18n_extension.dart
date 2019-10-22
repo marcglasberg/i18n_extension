@@ -8,8 +8,25 @@ import 'i18n_widget.dart';
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
 /// To localize a translatable string, pass its [key] and the [translations] object.
+///
 /// The locale may also be passed, but if it's null the locale in [I18n.localeStr] will be used.
 /// If [I18n.localeStr] is not yet defined, it will use the default locale of the translation.
+///
+/// Fallback order:
+/// - If the translation to the exact locale is found, this will be returned.
+/// - Otherwise, it tries to return a translation for the general language of the locale.
+/// - Otherwise, it tries to return a translation for any locale with that language.
+/// - Otherwise, it tries to return the key itself (which is the translation for the default locale).
+///
+/// Example 1:
+/// If "pt_br" is asked, and "pt_br" is available, return for "pt_br".
+///
+/// Example 2:
+/// If "pt_br" is asked, "pt_br" is not available, and "pt" is available, return for "pt".
+///
+/// Example 3:
+/// If "pt_mo" is asked, "pt_mo" and "pt" are not available, but "pt_br" is, return for "pt_br".
+///
 String localize(
   String key,
   ITranslations translations, {
@@ -38,17 +55,39 @@ String localize(
     // Return the translated string in the language we want.
     if (translatedString != null) return translatedString;
 
-    // If there's no translated string in the language we want, we'll use the default.
-
+    // If there's no translated string in the locale, record it.
     if (Translations.recordMissingTranslations)
       Translations.missingTranslations
           .add(TranslatedString(locale: translations.defaultLocaleStr, text: key));
-
     Translations.missingTranslationCallback(key, translations.defaultLocaleStr);
 
+    // ---
+
+    var lang = _language(locale);
+
+    // Try finding the translation in the general language. Note: If the locale
+    // is already general, it was already searched, so no need to do it again.
+    if (!_isGeneral(locale)) {
+      translatedString = translatedStringPerLocale[lang];
+      if (translatedString != null) return translatedString;
+    }
+
+    // Try finding the translation in any local with that language.
+    for (MapEntry<String, String> entry in translatedStringPerLocale.entries) {
+      if (lang == _language(entry.key)) return entry.value;
+    }
+
+    // If nothing is found, return the key itself,
+    // that is the translation in the default locale.
     return key;
   }
 }
+
+/// "pt" is a general locale, because is just a language, while "pt_br" is not.
+bool _isGeneral(String locale) => locale.length == 2 && !locale.contains("_");
+
+/// The language must be the first 2 chars, otherwise this won't work.
+String _language(String locale) => locale.substring(0, 2);
 
 /// Returns the translated version for the number modifier.
 /// After getting the version, substring %d will be replaced with the modifier.

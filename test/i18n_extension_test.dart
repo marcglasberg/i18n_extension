@@ -5,7 +5,6 @@ import 'package:i18n_extension/i18n_widget.dart';
 
 void main() {
   //
-
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Empty translations.", () {
@@ -430,6 +429,65 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
+  test(
+      "If the translation to the exact locale is found, this will be returned. "
+      "Otherwise, it tries to return a translation for the general language of the locale. "
+      "Otherwise, it tries to return a translation for any locale with that language. "
+      "Otherwise, it tries to return the key itself (which is the translation for the default locale).",
+      () {
+    // Translations exist for "pt_br" and "pt_pt": ----------------
+
+    // There's an EXACT translation for this exact locale.
+    I18n.define(Locale("pt_br"));
+    expect("Mobile phone".i18n, "Celular");
+
+    // There's an EXACT translation for this exact locale.
+    I18n.define(Locale("pt_pt"));
+    expect("Mobile phone".i18n, "Telemóvel");
+
+    // There's NO exact translation, and NO general translation.
+    // So uses any other translation in "pt".
+    I18n.define(Locale("pt_mo"));
+    expect("Mobile phone".i18n, "Celular");
+
+    // There's NO general "pt" translation, so uses any other translation in "pt".
+    I18n.define(Locale("pt"));
+    expect("Mobile phone".i18n, "Celular");
+
+    // There's NO translation at all in this language.
+    I18n.define(Locale("xx"));
+    expect("Mobile phone".i18n, "Mobile phone");
+
+    // There's NO translation at all in this locale.
+    I18n.define(Locale("xx_yy"));
+    expect("Mobile phone".i18n, "Mobile phone");
+
+    // Translations exist for "pt_br" and "pt": ----------------
+
+    // There's an EXACT translation for this exact locale.
+    I18n.define(Locale("pt_br"));
+    expect("Address".i18n, "Endereço");
+
+    // There's NO exact translation,
+    // So uses the GENERAL translation in "pt".
+    I18n.define(Locale("pt_pt"));
+    expect("Address".i18n, "Morada");
+
+    // There's the exact GENERAL translation in "pt".
+    I18n.define(Locale("pt"));
+    expect("Address".i18n, "Morada");
+
+    // There's NO translation at all in this language.
+    I18n.define(Locale("xx"));
+    expect("Address".i18n, "Address");
+
+    // There's NO translation at all in this locale.
+    I18n.define(Locale("xx_yy"));
+    expect("Address".i18n, "Address");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
   test("Translations with version.", () {
     //
     var text = "MyKey".modifier("x", "abc");
@@ -465,7 +523,7 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  test("Helper for related translations.", () {
+  test("Numeric modifiers.", () {
     //
     I18n.define(Locale("en_us"));
     var text = "There is 1 item.";
@@ -484,6 +542,35 @@ void main() {
     expect(text.number(3), "Há 3 itens.");
     expect(text.number(4), "Há 4 itens.");
     expect(text.number(5), "Sim, você alcançou 5 items.");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Custom modifiers.", () {
+    //
+    I18n.define(Locale("en_us"));
+    var text = "There is a person";
+    expect(text.gender(Gender.male), "There is a man");
+    expect(text.gender(Gender.female), "There is a woman");
+    expect(text.gender(Gender.they), "There is a person");
+
+    expect(
+        () => text.gender(null),
+        throwsA(TranslationsException(
+            "This text has no version for modifier 'null' (modifier: null, key: 'There is a person', locale: 'en_us').")));
+
+    // ---
+
+    I18n.define(Locale("pt_br"));
+    text = "There is a person";
+    expect(text.gender(Gender.male), "Há um homem");
+    expect(text.gender(Gender.female), "Há uma mulher");
+    expect(text.gender(Gender.they), "Há uma pessoa");
+
+    expect(
+        () => text.gender(null),
+        throwsA(TranslationsException(
+            "This text has no version for modifier 'null' (modifier: null, key: 'There is a person', locale: 'pt_br').")));
   });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -510,6 +597,16 @@ extension Localization on String {
         "en_us": "XYZ",
       } +
       {
+        "en_us": "Mobile phone",
+        "pt_br": "Celular",
+        "pt_pt": "Telemóvel",
+      } +
+      {
+        "en_us": "Address",
+        "pt_br": "Endereço",
+        "pt": "Morada",
+      } +
+      {
         "en_us": "There is 1 item."
             .zero("There are no items.")
             .one("There is 1 item.")
@@ -522,6 +619,16 @@ extension Localization on String {
             .two("Há um par de itens.")
             .times(5, "Sim, você alcançou 5 items.")
             .many("Há %d itens."),
+      } +
+      {
+        "en_us": "There is a person"
+            .modifier(Gender.male, "There is a man")
+            .modifier(Gender.female, "There is a woman")
+            .modifier(Gender.they, "There is a person"),
+        "pt_br": "Há uma pessoa"
+            .modifier(Gender.male, "Há um homem")
+            .modifier(Gender.female, "Há uma mulher")
+            .modifier(Gender.they, "Há uma pessoa"),
       };
 
   String get i18n => localize(this, t);
@@ -531,4 +638,8 @@ extension Localization on String {
   String version(Object modifier) => localizeVersion(modifier, this, t);
 
   Map<String, String> allVersions() => localizeAllVersions(this, t);
+
+  String gender(Gender gnd) => localizeVersion(gnd, this, t);
 }
+
+enum Gender { they, female, male }
