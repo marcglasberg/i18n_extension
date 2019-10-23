@@ -35,7 +35,7 @@ class _MyScreenState extends State<MyScreen> {
             height: 50,
             alignment: Alignment.center,
             child: Text(
-              "You clicked the button %d times:".number(counter),
+              "You clicked the button %d times:".plural(counter),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 17),
             ),

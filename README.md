@@ -20,12 +20,12 @@ If the current locale is `'pt_BR'`, then the text in the screen will be
 `"Olá, como vai você?"`, which is the Portuguese translation to the above text. 
 And so on for any other locales you want to support.
 
-You can also provide different translations depending on modifiers, for example `number` quantities:
+You can also provide different translations depending on modifiers, for example `plural` quantities:
 
 ```dart
-print("There is 1 item".number(0)); // Prints 'There are no items' 
-print("There is 1 item".number(1)); // Prints 'There is 1 item'
-print("There is 1 item".number(2)); // Prints 'There are 2 items'
+print("There is 1 item".plural(0)); // Prints 'There are no items' 
+print("There is 1 item".plural(1)); // Prints 'There is 1 item'
+print("There is 1 item".plural(2)); // Prints 'There are 2 items'
 ```
 
 And you can invent your own modifiers according to any conditions. 
@@ -122,7 +122,7 @@ add this default import to the widget's file:
 import 'package:i18n_extension/default.i18n.dart';
 ```
 
-This will allow you to add `.i18n` and `.number()` to your strings, but won't translate anything.
+This will allow you to add `.i18n` and `.plural()` to your strings, but won't translate anything.
 
 When you are ready to create your translations, you must create a dart file to hold them.
 This file can have any name, but I suggest you give it the same name as your widget
@@ -343,11 +343,11 @@ print(localize("Goodbye.", translations, locale: "pt_br");
 ### Translation modifiers
 
 Sometimes you have different translations that depend on a number quantity.
-Instead of `.i18n` you can use `.number()` and pass a numeric modifier. For example: 
+Instead of `.i18n` you can use `.plural()` and pass it a number. For example: 
 
 ```dart
-int numberOfItems = 3;
-return Text("You clicked the button %d times".number(numberOfItems));
+int numOfItems = 3;
+return Text("You clicked the button %d times".plural(numOfItems));
 ```
 
 This will be translated, and if the translated string contains `%d` it will be replaced by the number.
@@ -452,14 +452,143 @@ Note: This will change the current locale only for the `i18n_extension`, and not
 
 ### Importing and exporting
 
-When you hire professional translation services, or want to implement crowdsourcing translations, 
-you will need to import/export to external formats like `.json` or `.arb` files.
+When you are done creating your app, the localization process begins.
+This package is optimized so that you can easily create and manage all of your translations yourself, by hand.
 
-This is easy to do, because the Translation constructors use maps as input. So you can simply generate
+However, for large projects with big teams you probably need to follow a more involved process:
+Export all your translatable strings to files 
+in some external format your professional translator or your crowdsourcing tool uses (see formats below).
+Continue developing your app while waiting for the translations. Import the translation files into the project and 
+test the app in each language you added. Repeat the process as needed, translating just the changes between each
+app revision. As necessary, perform additional localization steps yourself.
+
+Importing and exporting is easy to do, because the Translation constructors use maps as input. So you can simply generate
 maps from any file format, and then use the `Translation()` or `Translation.byLocale()` constructors
 to create the translation objects.
+
+#### Formats
+
+The following formats may be used with translations:
+
+* ARB: This is based on JSON, and is the default format for Flutter localizations. 
+https://github.com/google/app-resource-bundle/wiki/ApplicationResourceBundleSpecification
+
+* ICU: https://format-message.github.io/icu-message-format-for-translators/
+
+* PO: https://poedit.net 
+
+* XLIFF: This is based in XML. https://en.wikipedia.org/wiki/XLIFF  
+
+* CSV: You can open this with Excel, save it in .XLSX and edit it there. 
+However, beware not to export it back to CSV with the wrong settings 
+(using something else than UTF-8 as encoding).
+https://en.wikipedia.org/wiki/Comma-separated_values 
+
+* JSON: Can be used, however it lacks specific features for translation, like plurals and gender. 
+
+* YAML: Can be used, however it lacks specific features for translation, like plurals and gender. 
    
-**Note:** If you want to help by creating import methods from popular formats, please PR here: https://github.com/marcglasberg/i18n_extension.
+**Note:** I need help to create import methods for all those formats above.
+If you want to help, please PR here: https://github.com/marcglasberg/i18n_extension.
+
+## FAQ
+
+**Q: Do I need to maintain the translation files as Dart files?**
+
+**A:** _Not really. You do have a Dart file that creates a `Translation` object, yes, 
+and this object is optimized for easily creating translations by hand. 
+But it creates them from maps. So if you can create maps from some file you can use that file.
+For example, a simple code generator that reads `.json` und outputs Dart maps would do the job:
+`var t = Translations("en_us") + readFromJson("myfile.json")`._
+
+<br>
+
+**Q: How do you handle changing the locale? Does the I18n class pick up changes to the locale 
+automatically or would you have to restart the app?**
+
+**A:** _It should pick changes to the locale automatically. 
+Also you can change the locale manually at any time by doing `I18n.of(context).locale = Locale("pt_BR");`._
+
+<br>
+
+**Q: Why do I need the `default.i18n.dart` file?**
+
+**A:** _This is the default file to import from your widgets. 
+It lets the developer add `.i18n` to any strings they want to mark as being a "translatable string". 
+Later, someone will have to remove this default file and add another one with the translations. 
+You basically just change the import later._
+
+<br>
+
+**Q: Can I do translations outside of widgets?**
+
+**A:** _Yes, since you don't need access to `context`. It actually reads the current locale from `I18n.locale`, 
+which is static, and all the rest is done with pure Dart code. 
+So you can translate anything you want, from any code you want. 
+You can also define a locale on the fly if you want to do translations to a locale different from the current one._
+
+<br>
+
+**Q: By using other translation methods if I type `localizations.howAreYou`, 
+I know that there's a localization key named `howAreYou` because otherwise my code wouldn't compile. 
+There is no way to statically verify that `"How are you?".i18n` will do what I want it to do.**
+                                        
+**A:** _i18n_extension does away with identifier keys like `howAreYou`. 
+Not having those was one thing I was trying to achieve. I hate having to come up with these keys. 
+I found that the developer should just type the text they want and be done with it. 
+In other words, in i18n_extension you are not typing a key, you are typing the text itself (in your default language). 
+So there is no need to statically verify anything. Your code will always compile when you type a String, 
+and that exact string will be used for your default language. It will never break._
+
+<br>
+
+**Q: But how can I statically verify that a string has translations? 
+Just showing the translatable string as defined in the source code will not hide that some translations are missing?**
+
+**A:** _You can statically verify that a string should have translations because it has `.i18n` attached to it. 
+What you can't do is statically verify that those translations were actually provided for all supported languages. 
+But this is also the case when you use older methods. 
+With the older methods you also just know it should have translations, 
+because it has a translation key, but the translation itself may be missing, or worse yet, outdated. 
+With i18n_extension at least you know that the translation to the default language exists and is not outdated._ 
+
+<br>
+
+**Q: What happens if a developer tries to call i18n on a string without translations, 
+would't that be harder to catch?**
+
+**A:** _With i18n_extension you can generate a report with all missing translations, 
+and you can even add those checks to tests. 
+In other words, you can just freely modify any translatable string, 
+and before your launch you get the reports and fix all the translations._
+
+<br>
+
+**Q: There are a lot of valid usages for String that don't deal with user-facing messages. 
+I like to use auto-complete to see what methods are available (by typing `someString.`), 
+and seeing loads of unrelated extension methods in there could be annoying.**
+
+**A:** _The translation extension is contained in your widget file. 
+You won't have this extension in scope for your business classes, for example. 
+So `.i18n` will only appear in your auto-complete inside of your widget classes, where it makes sense._
+
+<br>
+
+**Q: If the UX team wants to change an English translation, 
+they would have to make that modification in code, right? 
+They couldn't just update some `.arb` file 
+as the English version then no longer matches the literal `.i18n` was called on.**
+
+**A:** _If the UX team wants to change an English translation, 
+they can just update the English translation and not the translatable string. 
+That would mean the translatable string is now simply acting as a key, 
+which is not the idea in the first place. 
+But it would work, no problem. 
+Also, i18n_extension can report to the developer 
+that the string in the code and in the translation are out of sync, 
+in case the developer wants to fix it. 
+This problem is also the case with regular keys of old methods: 
+If you update some text and then the key has nothing to do with the text anymore._
 
 ********
 

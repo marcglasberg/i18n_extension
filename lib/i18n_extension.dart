@@ -93,9 +93,9 @@ bool _isGeneral(String locale) => locale.length == 2 && !locale.contains("_");
 /// The language must be the first 2 chars, otherwise this won't work.
 String _language(String locale) => locale.substring(0, 2);
 
-/// Returns the translated version for the number modifier.
+/// Returns the translated version for the plural modifier.
 /// After getting the version, substring %d will be replaced with the modifier.
-String localizeNumber(
+String localizePlural(
   int modifier,
   String key,
   ITranslations translations, {
@@ -108,19 +108,19 @@ String localizeNumber(
 
   String text;
 
-  /// For number(0), returns the version 0, otherwise the version many, otherwise the unversioned.
+  /// For plural(0), returns the version 0, otherwise the version many, otherwise the unversioned.
   if (modifier == 0)
     text = versions["0"] ?? versions["M"] ?? versions[null];
 
-  /// For number(1), returns the version 1, otherwise the unversioned.
+  /// For plural(1), returns the version 1, otherwise the unversioned.
   else if (modifier == 1)
     text = versions["1"] ?? versions[null];
 
-  /// For number(2), returns the version 2, otherwise the version many, otherwise the unversioned.
+  /// For plural(2), returns the version 2, otherwise the version many, otherwise the unversioned.
   else if (modifier == 2)
     text = versions["2"] ?? versions["M"] ?? versions[null];
 
-  /// For number(<0 or >2), returns the version many, otherwise the unversioned.
+  /// For plural(<0 or >2), returns the version many, otherwise the unversioned.
   else
     text = versions[modifier.toString()] ?? versions["M"] ?? versions[null];
 
@@ -478,22 +478,22 @@ extension Localization on String {
         "${this}$_splitter1$identifier$_splitter2$text";
   }
 
-  /// Modifier for zero elements.
+  /// Plural modifier for zero elements.
   String zero(String text) => modifier("0", text);
 
-  /// Modifier for 1 element.
+  /// Plural modifier for 1 element.
   String one(String text) => modifier("1", text);
 
-  /// Modifier for 2 elements.
+  /// Plural modifier for 2 elements.
   String two(String text) => modifier("2", text);
 
-  /// Modifier for any number of elements, except 0, 1 and 2.
+  /// Plural modifier for any number of elements, except 0, 1 and 2.
   String times(int numberOfTimes, String text) {
     assert(numberOfTimes != null && (numberOfTimes < 0 || numberOfTimes > 2));
     return modifier(numberOfTimes, text);
   }
 
-  /// Modifier for any number of elements, except 1.
+  /// Plural modifier for any number of elements, except 1.
   String many(String text) => modifier("M", text);
 }
 

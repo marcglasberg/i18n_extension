@@ -500,23 +500,23 @@ void main() {
     expect(text,
         "\uFFFFMyKey\uFFFF0\uFFFEabc\uFFFF1\uFFFEdef\uFFFF2\uFFFEghi\uFFFFM\uFFFEjkl\uFFFF5\uFFFEmno");
 
-    expect(text.number(0), "abc");
+    expect(text.plural(0), "abc");
     expect(text.version("0"), "abc");
     expect(text.allVersions()["0"], "abc");
 
-    expect(text.number(1), "def");
+    expect(text.plural(1), "def");
     expect(text.version("1"), "def");
     expect(text.allVersions()["1"], "def");
 
-    expect(text.number(2), "ghi");
+    expect(text.plural(2), "ghi");
     expect(text.version("2"), "ghi");
     expect(text.allVersions()["2"], "ghi");
 
-    expect(text.number(3), "jkl");
+    expect(text.plural(3), "jkl");
     expect(text.version("M"), "jkl");
     expect(text.allVersions()["M"], "jkl");
 
-    expect(text.number(5), "mno");
+    expect(text.plural(5), "mno");
     expect(text.version("5"), "mno");
     expect(text.allVersions()["5"], "mno");
   });
@@ -527,21 +527,21 @@ void main() {
     //
     I18n.define(Locale("en_us"));
     var text = "There is 1 item.";
-    expect(text.number(0), "There are no items.");
-    expect(text.number(1), "There is 1 item.");
-    expect(text.number(2), "There are a pair of items.");
-    expect(text.number(3), "There are 3 items.");
-    expect(text.number(4), "There are 4 items.");
-    expect(text.number(5), "Yes, you reached 5 items.");
+    expect(text.plural(0), "There are no items.");
+    expect(text.plural(1), "There is 1 item.");
+    expect(text.plural(2), "There are a pair of items.");
+    expect(text.plural(3), "There are 3 items.");
+    expect(text.plural(4), "There are 4 items.");
+    expect(text.plural(5), "Yes, you reached 5 items.");
 
     I18n.define(Locale("pt_br"));
     text = "There is 1 item.";
-    expect(text.number(0), "Não há itens.");
-    expect(text.number(1), "Há 1 item.");
-    expect(text.number(2), "Há um par de itens.");
-    expect(text.number(3), "Há 3 itens.");
-    expect(text.number(4), "Há 4 itens.");
-    expect(text.number(5), "Sim, você alcançou 5 items.");
+    expect(text.plural(0), "Não há itens.");
+    expect(text.plural(1), "Há 1 item.");
+    expect(text.plural(2), "Há um par de itens.");
+    expect(text.plural(3), "Há 3 itens.");
+    expect(text.plural(4), "Há 4 itens.");
+    expect(text.plural(5), "Sim, você alcançou 5 items.");
   });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -633,7 +633,7 @@ extension Localization on String {
 
   String get i18n => localize(this, t);
 
-  String number(int value) => localizeNumber(value, this, t);
+  String plural(int value) => localizePlural(value, this, t);
 
   String version(Object modifier) => localizeVersion(modifier, this, t);
 
