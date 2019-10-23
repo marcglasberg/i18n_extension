@@ -1,3 +1,5 @@
+[![pub package](https://img.shields.io/pub/v/i18n_extension.svg)](https://pub.dartlang.org/packages/i18n_extension)
+
 # i18n_extension
 
 ##### This package only works with Dart 2.6.0 support. So if your Flutter is in the **stable** channel you may need to change it to the **dev** channel, by typing this in the console:  `flutter channel dev` and then `flutter doctor`.
