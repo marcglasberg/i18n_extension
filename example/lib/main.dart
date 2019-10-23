@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         home: I18n(
-          // Usually you should not provide and initialLocale,
+          // Usually you should not provide an initialLocale,
           // and just let it use the system locale.
           // initialLocale: Locale("pt_BR"),
           //
