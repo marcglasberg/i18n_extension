@@ -1,5 +1,6 @@
 # i18n_extension
 
+##### ➜ _This package score is low because it needs Dart 2.6.0. Don't worry it won't blow up your computer or anything. You need Flutter from the dev channel, not the stable channel._
 
 ## Non-boilerplate Translation and Internationalization (i18n) for Flutter
 
@@ -72,8 +73,7 @@ or exporting it to any format you want.
 
 ## Setup
 
-Wrap your widget tree with the `I18n` widget.
-This will translate your strings to the **current system locale**:
+Wrap your widget tree with the `I18n` widget, below the `MaterialApp`:
 
 ```dart       
 import 'package:i18n_extension/i18n_widget.dart';
@@ -81,20 +81,37 @@ import 'package:i18n_extension/i18n_widget.dart';
 
 @override
 Widget build(BuildContext context) {
-  return I18n(
-    child: Scaffold( ... )
+  return MaterialApp(
+    home: I18n(child: ...)
   );
 }
 ```
 
-You can override it with any locale, like this:
+The above code will translate your strings to the **current system locale**.
+
+Or you can override it with your own locale, like this:
 
 ```dart
-return I18n(
-  locale: Locale("pt_br"),
-  child: Scaffold( ... )
-```
+I18n(
+  initialLocale: Locale("pt_br"),
+  child: ... 
+```           
 
+**Note:** Don't ever put translatable strings in the same widget where you declared the `I18n` widget, 
+since they may not respond to future locale changes. For example, this is a mistake:
+
+```dart       
+Widget build(BuildContext context) {
+  return I18n(
+    child: Scaffold(
+      appBar: AppBar(title: Text("Hello there".i18n)),  
+      body: MyScreen(),
+  );
+}
+```     
+
+You may put translatable strings in any widgets down the tree.
+  
 
 ## Translating a widget
 
@@ -142,6 +159,7 @@ extension Localization on String {
 
 The above example shows a single translatable string, translated to American English,
 Brazilian Portuguese, and general Spanish, French and German.
+
 You can, however, translate as many strings as you want, by simply adding more
 **translation maps**:
 
@@ -365,7 +383,7 @@ So you could create `.gender()` that accepts `Gender` modifiers:
 enum Gender {they, female, male}
 
 int gnd = Gender.female;
-return Text("There is a person".gender(gnd));                                                     
+return Text("There is a person".gender(gnd));
 ```
 
 Then, your translations file should use `.modifier()` and `localizeVersion()` like this:
@@ -384,10 +402,7 @@ static var t = Translations("en_us") +
   };             
 
 String gender(Gender gnd) => localizeVersion(gnd, this, t);
-```                                 
-
-
-
+```
 
 
 ### Direct use of translation objects
@@ -410,6 +425,29 @@ print(localize("Hi", translations, locale: "pt_br");
 // Prints "Hi".                   
 print(localize("Hi", translations, locale: "not valid");
 ```  
+
+
+### Changing the default locale
+
+To change the current locale, do this:
+
+```dart
+I18n.of(context).locale = Locale("pt_BR");
+```
+
+To return the current locale to the system default, do this:
+
+```dart
+I18n.of(context).locale = null;
+```
+
+To read the current locale, do this:
+
+```dart
+Locale defaultLocale = I18n.of(context).locale;
+```
+
+Note: This will change the current locale only for the `i18n_extension`, and not for Flutter as a whole. 
 
 
 ### Importing and exporting
@@ -440,7 +478,6 @@ to create the translation objects.
 _https://twitter.com/glasbergmarcelo_<br>
 _https://stackoverflow.com/users/3411681/marcg_<br>
 _https://medium.com/@marcglasberg_<br>
-
 
 
 

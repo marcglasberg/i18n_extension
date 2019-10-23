@@ -47,7 +47,12 @@ String localize(
   else {
     locale = _effectiveLocale(translations, locale);
 
-    if (locale == null) throw TranslationsException("The locale is not defined.");
+    if (locale == "null")
+      throw TranslationsException("Locale is the 4 letter string 'null', which is invalid.");
+
+    // During app initialization the locale may be null.
+    // In this case, use the key itself, which is the translation in the default locale.
+    if (locale == null) return key;
 
     // Get the translated string in the language we want.
     String translatedString = translatedStringPerLocale[locale];
@@ -57,9 +62,8 @@ String localize(
 
     // If there's no translated string in the locale, record it.
     if (Translations.recordMissingTranslations)
-      Translations.missingTranslations
-          .add(TranslatedString(locale: translations.defaultLocaleStr, text: key));
-    Translations.missingTranslationCallback(key, translations.defaultLocaleStr);
+      Translations.missingTranslations.add(TranslatedString(locale: locale, text: key));
+    Translations.missingTranslationCallback(key, locale);
 
     // ---
 

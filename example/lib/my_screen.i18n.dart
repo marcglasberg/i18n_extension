@@ -1,12 +1,11 @@
 import 'package:i18n_extension/i18n_extension.dart';
 
+// Developed by Marcelo Glasberg (Aug 2019).
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
+
 extension Localization on String {
   //
   static var t = Translations("en_us") +
-      {
-        "en_us": "Hello, welcome to this internationalization demo.",
-        "pt_br": "Olá, bem-vindo a esta demonstração de internacionalização.",
-      } +
       {
         "en_us": "Increment",
         "pt_br": "Incrementar",

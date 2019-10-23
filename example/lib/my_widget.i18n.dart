@@ -7,8 +7,8 @@ extension Localization on String {
   //
   static var t = Translations("en_us") +
       {
-        "en_us": "i18n Demo",
-        "pt_br": "Demonstração i18n",
+        "en_us": "Hello, welcome to this internationalization demo.",
+        "pt_br": "Olá, bem-vindo a esta demonstração de internacionalização.",
       };
 
   String get i18n => localize(this, t);

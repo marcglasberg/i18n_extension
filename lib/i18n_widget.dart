@@ -45,10 +45,10 @@ class I18n extends StatefulWidget {
   static Locale get forcedLocale => _forcedLocale;
 
   /// The locale, as a lowercase string. For example: "en_us" or "pt_br".
-  static String get localeStr => locale.toString().toLowerCase();
+  static String get localeStr => locale?.toString()?.toLowerCase();
 
   /// The language of the locale, as a lowercase string. For example: "en" or "pt".
-  static String get language => locale.languageCode.toLowerCase();
+  static String get language => locale?.languageCode?.toLowerCase();
 
   final Widget child;
   final Locale initialLocale;
@@ -102,11 +102,21 @@ class _I18nState extends State<I18n> {
   Widget build(BuildContext context) {
     //
     _processSystemLocale();
+    _rebuildAllChildren(context);
 
     return _InheritedI18n(
       data: this,
       child: widget.child,
     );
+  }
+
+  void _rebuildAllChildren(BuildContext context) {
+    void rebuild(Element el) {
+      el.markNeedsBuild();
+      el.visitChildren(rebuild);
+    }
+
+    (context as Element).visitChildren(rebuild);
   }
 
   void _processSystemLocale() {

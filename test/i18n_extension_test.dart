@@ -413,7 +413,7 @@ void main() {
     expect("Hi.".i18n, "Hi.");
 
     expect(Translations.missingKeys, isEmpty);
-    expect(Translations.missingTranslations.single.locale, "en_us");
+    expect(Translations.missingTranslations.single.locale, "xx_yy");
     expect(Translations.missingTranslations.single.text, "Hi.");
 
     // ---------------

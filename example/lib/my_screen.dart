@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 
 import 'my_screen.i18n.dart';
+import 'my_widget.dart';
+
+// Developed by Marcelo Glasberg (Aug 2019).
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 
 class MyScreen extends StatefulWidget {
   @override
@@ -25,17 +29,7 @@ class _MyScreenState extends State<MyScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Spacer(flex: 2),
-          Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(8.0),
-            height: 100,
-            color: Colors.grey[300],
-            child: Text(
-              "Hello, welcome to this internationalization demo.".i18n,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20),
-            ),
-          ),
+          MyWidget(),
           Spacer(),
           Container(
             height: 50,
@@ -61,8 +55,7 @@ class _MyScreenState extends State<MyScreen> {
               "Change Language".i18n,
               style: TextStyle(color: Colors.white, fontSize: 17),
             ),
-            onPressed: () =>
-                I18n.of(context).locale = (I18n.localeStr == "pt_br") ? null : Locale("pt_BR"),
+            onPressed: _onPressed,
           ),
           Text(
             "Locale: ${I18n.locale}",
@@ -75,9 +68,10 @@ class _MyScreenState extends State<MyScreen> {
     );
   }
 
-  void _increment() {
-    setState(() => counter++);
-  }
+  void _onPressed() =>
+      I18n.of(context).locale = (I18n.localeStr == "pt_br") ? null : Locale("pt_BR");
+
+  void _increment() => setState(() => counter++);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
