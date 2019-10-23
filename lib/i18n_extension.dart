@@ -87,6 +87,16 @@ String localize(
   }
 }
 
+/// This simply records the given key as a missing translation with unknown locale.
+String recordKey(String key) {
+  if (Translations.recordMissingKeys)
+    Translations.missingKeys.add(TranslatedString(locale: "", text: key));
+
+  Translations.missingKeyCallback(key, "");
+
+  return key;
+}
+
 /// "pt" is a general locale, because is just a language, while "pt_br" is not.
 bool _isGeneral(String locale) => locale.length == 2 && !locale.contains("_");
 
