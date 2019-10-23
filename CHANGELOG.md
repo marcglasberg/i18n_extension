@@ -2,6 +2,6 @@
 
 * Initial commit.
 
-## [1.0.1] - 2019/10/22
+## [1.0.2] - 2019/10/22
 
-* First useful version.
+* First working version.

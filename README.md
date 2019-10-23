@@ -1,6 +1,6 @@
 # i18n_extension
 
-##### ➜ _This package score is low because it needs Dart 2.6.0. Don't worry it won't blow up your computer or anything. You need Flutter from the dev channel, not the stable channel._
+##### This package only works with Dart 2.6.0 support. So if your Flutter is in the **stable** channel you may need to change it to the **dev** channel, by typing this in the console:  `flutter channel dev` and then `flutter doctor`.
 
 ## Non-boilerplate Translation and Internationalization (i18n) for Flutter
 
@@ -8,54 +8,50 @@ Start with a widget with some text in it:
 
 ```dart
 Text("Hello, how are you?")
-```                                       
+```
 
 Translate it simply by adding `.i18n` to the string:
 
 ```dart
 Text("Hello, how are you?".i18n)
-```    
+```
 
 If the current locale is `'pt_BR'`, then the text in the screen will be
-`"Olá, como vai você?"`, which is the Portuguese translation to the above text. 
+`"Olá, como vai você?"`, the Portuguese translation to the above text.
 And so on for any other locales you want to support.
 
 You can also provide different translations depending on modifiers, for example `number` quantities:
 
 ```dart
-print("There is 1 item".number(0)); // Prints 'There are no items' 
+print("There is 1 item".number(0)); // Prints 'There are no items'
 print("There is 1 item".number(1)); // Prints 'There is 1 item'
 print("There is 1 item".number(2)); // Prints 'There are 2 items'
 ```
 
-And you can invent your own modifiers according to any conditions. 
+And you can invent your own modifiers according to any conditions.
 For example, some languages have different translations for different genders.
-So you could create `gender` versions for `Gender` modifiers: 
+So you could create `gender` versions for `Gender` modifiers:
 
 ```dart
-print("There is a person".gender(Gender.male)); // Prints 'There is a man' 
-print("There is a person".gender(Gender.female)); // Prints 'There is a woman' 
+print("There is a person".gender(Gender.male)); // Prints 'There is a man'
+print("There is a person".gender(Gender.female)); // Prints 'There is a woman'
 print("There is a person".gender(Gender.they)); // Prints 'There is a person'
 ```
 
-## See it working
+### See it working
 
 Try running the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/main.dart">example</a>.
-
-**Note:** This package only works with Dart 2.6.0 support. 
-So if your Flutter is in the **stable** channel you may need to change it to the **dev** channel,
-by typing this in the console:  `flutter channel dev` and then `flutter doctor`.
 
 
 ## Good for simple or complex apps
 
-I'm always interested in creating packages to reduce boilerplate. 
-For example, [async_redux](https://pub.dev/packages/async_redux/) is about Redux without boilerplate, 
+I'm always interested in creating packages to reduce boilerplate.
+For example, [async_redux](https://pub.dev/packages/async_redux/) is about Redux without boilerplate,
 and [align_positioned](https://pub.dev/packages/align_positioned) is about creating layouts using less widgets.
-This current package is also about reducing boilerplate for translations, 
-so it doesn't do anything you can't already do with plain old `Localizations.of(context)`. 
+This current package is also about reducing boilerplate for translations,
+so it doesn't do anything you can't already do with plain old `Localizations.of(context)`.
 
-That said, this package is meant both for the one person app developer and the big company team. 
+That said, this package is meant both for the one person app developer and the big company team.
 It has you covered in all stages of your translation efforts:
 
 1. When you create your widgets, it makes it easy for you to define which strings should be
@@ -75,7 +71,7 @@ or exporting it to any format you want.
 
 Wrap your widget tree with the `I18n` widget, below the `MaterialApp`:
 
-```dart       
+```dart
 import 'package:i18n_extension/i18n_widget.dart';
 ...
 
@@ -94,24 +90,24 @@ Or you can override it with your own locale, like this:
 ```dart
 I18n(
   initialLocale: Locale("pt_br"),
-  child: ... 
-```           
+  child: ...
+```
 
-**Note:** Don't ever put translatable strings in the same widget where you declared the `I18n` widget, 
+**Note:** Don't ever put translatable strings in the same widget where you declared the `I18n` widget,
 since they may not respond to future locale changes. For example, this is a mistake:
 
-```dart       
+```dart
 Widget build(BuildContext context) {
   return I18n(
     child: Scaffold(
-      appBar: AppBar(title: Text("Hello there".i18n)),  
+      appBar: AppBar(title: Text("Hello there".i18n)),
       body: MyScreen(),
   );
 }
-```     
+```
 
 You may put translatable strings in any widgets down the tree.
-  
+
 
 ## Translating a widget
 
@@ -163,7 +159,7 @@ Brazilian Portuguese, and general Spanish, French and German.
 You can, however, translate as many strings as you want, by simply adding more
 **translation maps**:
 
-```dart   
+```dart
 import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
@@ -268,16 +264,16 @@ Or instead of throwing you could log the problem,
 or send an email to the person responsible for the translations.
 
 
-### Defining translations by language instead of by key 
+### Defining translations by language instead of by key
 
-As explained, by using the `Translations()` constructor 
-you define each key and then provide all its translations at the same time. 
+As explained, by using the `Translations()` constructor
+you define each key and then provide all its translations at the same time.
 This is the easiest way when you are doing translations manually,
 for example, when you speak English and Spanish and are creating yourself the translations to your app.
 
-However, in other situations, such as when you are hiring professional translation services 
-or crowdsourcing translations, it may be easier if you can provide the translations by locale/language, 
-instead of by key. You can do that by using the `Translations.byLocale()` constructor.    
+However, in other situations, such as when you are hiring professional translation services
+or crowdsourcing translations, it may be easier if you can provide the translations by locale/language,
+instead of by key. You can do that by using the `Translations.byLocale()` constructor.
 
 ```dart
 static var t = Translations.byLocale("en_us") +
@@ -291,10 +287,10 @@ static var t = Translations.byLocale("en_us") +
         "Goodbye.": "Adiós.",
       }
     };
-```     
+```
 
 You can also add maps using the `+` operator:
-                                  
+
 ```dart
 static var t = Translations.byLocale("en_us") +
     {
@@ -309,12 +305,12 @@ static var t = Translations.byLocale("en_us") +
         "Goodbye.": "Adiós.",
       }
     };
-```                                       
+```
 
-Note above, since "en_us" is the default locale you don't need to provide translations for those. 
-  
+Note above, since "en_us" is the default locale you don't need to provide translations for those.
 
-### Combining translations 
+
+### Combining translations
 
 To combine translations you can use the `*` operator. For example:
 
@@ -336,14 +332,14 @@ var translations = t1 * t2;
 print(localize("Hi.", translations, locale: "pt_br");
 print(localize("Goodbye.", translations, locale: "pt_br");
 
-    
+
 ```
 
 
 ### Translation modifiers
 
 Sometimes you have different translations that depend on a number quantity.
-Instead of `.i18n` you can use `.number()` and pass a numeric modifier. For example: 
+Instead of `.i18n` you can use `.number()` and pass a numeric modifier. For example:
 
 ```dart
 int numberOfItems = 3;
@@ -370,14 +366,14 @@ static var t = Translations("en_us") +
         .many("Você clicou %d vezes")
         .times(12, "Você clicou uma dúzia de vezes"),
   };
-```                                 
+```
 
 
 #### Custom modifiers
 
-You can actually create any modifiers you want. 
+You can actually create any modifiers you want.
 For example, some languages have different translations for different genders.
-So you could create `.gender()` that accepts `Gender` modifiers: 
+So you could create `.gender()` that accepts `Gender` modifiers:
 
 ```dart
 enum Gender {they, female, male}
@@ -394,12 +390,12 @@ static var t = Translations("en_us") +
     "en_us": "There is a person"
         .modifier(Gender.male, "There is a man")
         .modifier(Gender.female, "There is a woman")
-        .modifier(Gender.they, "There is a person"),        
+        .modifier(Gender.they, "There is a person"),
     "pt_br": "Há uma pessoa"
         .modifier(Gender.male, "Há um homem")
         .modifier(Gender.female, "Há uma mulher")
         .modifier(Gender.they, "Há uma pessoa"),
-  };             
+  };
 
 String gender(Gender gnd) => localizeVersion(gnd, this, t);
 ```
@@ -415,16 +411,16 @@ var translations = Translations("en_us") +
       "en_us": "Hi",
       "pt_br": "Olá",
     };
-                                                    
-// Prints "Hi".                   
+
+// Prints "Hi".
 print(localize("Hi", translations, locale: "en_us");
 
-// Prints "Olá".                   
+// Prints "Olá".
 print(localize("Hi", translations, locale: "pt_br");
 
-// Prints "Hi".                   
+// Prints "Hi".
 print(localize("Hi", translations, locale: "not valid");
-```  
+```
 
 
 ### Changing the default locale
@@ -447,31 +443,31 @@ To read the current locale, do this:
 Locale defaultLocale = I18n.of(context).locale;
 ```
 
-Note: This will change the current locale only for the `i18n_extension`, and not for Flutter as a whole. 
+Note: This will change the current locale only for the `i18n_extension`, and not for Flutter as a whole.
 
 
 ### Importing and exporting
 
-When you hire professional translation services, or want to implement crowdsourcing translations, 
+When you hire professional translation services, or want to implement crowdsourcing translations,
 you will need to import/export to external formats like `.json` or `.arb` files.
 
 This is easy to do, because the Translation constructors use maps as input. So you can simply generate
 maps from any file format, and then use the `Translation()` or `Translation.byLocale()` constructors
 to create the translation objects.
-   
+
 **Note:** If you want to help by creating import methods from popular formats, please PR here: https://github.com/marcglasberg/i18n_extension.
 
 ********
 
-*The Flutter packages I've authored:* 
+*The Flutter packages I've authored:*
 * <a href="https://pub.dev/packages/async_redux">async_redux</a>
 * <a href="https://pub.dev/packages/provider_for_redux">provider_for_redux</a>
 * <a href="https://pub.dev/packages/i18_extension">i18_extension</a>
 * <a href="https://pub.dev/packages/align_positioned">align_positioned</a>
 * <a href="https://pub.dev/packages/network_to_file_image">network_to_file_image</a>
-* <a href="https://pub.dev/packages/matrix4_transform">matrix4_transform</a> 
+* <a href="https://pub.dev/packages/matrix4_transform">matrix4_transform</a>
 * <a href="https://pub.dev/packages/back_button_interceptor">back_button_interceptor</a>
-* <a href="https://pub.dev/packages/indexed_list_view">indexed_list_view</a> 
+* <a href="https://pub.dev/packages/indexed_list_view">indexed_list_view</a>
 * <a href="https://pub.dev/packages/animated_size_and_fade">animated_size_and_fade</a>
 
 ---<br>_Marcelo Glasberg:_<br>_https://github.com/marcglasberg_<br>
