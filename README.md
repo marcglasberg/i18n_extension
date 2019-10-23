@@ -42,6 +42,8 @@ print("There is a person".gender(Gender.they)); // Prints 'There is a person'
 
 Try running the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/main.dart">example</a>.
 
+![alt text](./example/lib/i18nScreen.jpg)
+
 
 ## Good for simple or complex apps
 
@@ -448,7 +450,6 @@ Note: This will change the current locale only for the `i18n_extension`, and not
 
 ### Importing and exporting
 
-When you are done creating your app, the localization process begins.
 This package is optimized so that you can easily create and manage all of your translations yourself, by hand.
 
 However, for large projects with big teams you probably need to follow a more involved process:
@@ -458,9 +459,9 @@ Continue developing your app while waiting for the translations. Import the tran
 test the app in each language you added. Repeat the process as needed, translating just the changes between each
 app revision. As necessary, perform additional localization steps yourself.
 
-Importing and exporting is easy to do, because the Translation constructors use maps as input. So you can simply generate
-maps from any file format, and then use the `Translation()` or `Translation.byLocale()` constructors
-to create the translation objects.
+Importing and exporting is easy to do, because the Translation constructors use maps as input. 
+So you can simply generate maps from any file format, 
+and then use the `Translation()` or `Translation.byLocale()` constructors to create the translation objects.
 
 #### Formats
 

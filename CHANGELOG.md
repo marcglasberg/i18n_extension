@@ -5,3 +5,7 @@
 ## [1.0.3] - 2019/10/22
 
 * First working version.
+
+## [1.0.4] - 2019/10/23
+
+* Added FAQ to docs.
