@@ -510,12 +510,14 @@ Also you can change the locale manually at any time by doing `I18n.of(context).l
 
 <br>
 
-**Q: Why do I need the `default.i18n.dart` file?**
+**Q: What's the point of importing 'default.i18n.dart'?**
 
 **A:** _This is the default file to import from your widgets. 
 It lets the developer add `.i18n` to any strings they want to mark as being a "translatable string". 
 Later, someone will have to remove this default file and add another one with the translations. 
-You basically just change the import later._
+You basically just change the import later.
+The point of importing 'default.i18n.dart' before you create the translations for that widget 
+is that it will record them as missing translations, so that you don't forget to add those translations later._
 
 <br>
 
@@ -602,15 +604,6 @@ You can also add this reports to your unit tests.
 It will let you know even if you import the right file and translations are missing in some language,
 and it will let you know even if you import from `.arb` files and translations are missing in some language._
  
-<br>
- 
-**Q: What's the point of importing 'default.i18n.dart'?**
-
-**A:** _The only point of importing 'default.i18n.dart' before you create the translations for that widget 
-is that you can then write `.i18n` in your strings 
-and it will record them as missing translations, 
-so that you don't forget to add those translations later._
-
 <br>
 
 **Q: Looks like importers have not been written yet.**
