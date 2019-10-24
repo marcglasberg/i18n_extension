@@ -7,6 +7,24 @@ import 'package:i18n_extension/i18n_widget.dart';
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// TODO: This is not yet implemented, so all tests here should fail.
 /// TODO: Does anyone really need this? I should implement this only if someone ever complains.
+/// TODO: If/when this is implemented, add this to the readme:
+///
+/// **Q: If the UX team wants to change an English translation,
+/// they would have to make that modification in code, right?
+/// They couldn't just update some `.arb` file
+/// as the English version then no longer matches the literal `.i18n` was called on.**
+///
+/// **A:** _If the UX team wants to change an English translation,
+/// they can just update the English translation and not the translatable string.
+/// That would mean the translatable string is now simply acting as a key,
+/// which is not the idea in the first place.
+/// But it would work, no problem.
+/// Also, i18n_extension can report to the developer
+/// that the string in the code and in the translation are out of sync,
+/// in case the developer wants to fix it.
+/// This problem is also the case with regular keys of old methods:
+/// If you update some text and then the key has nothing to do with the text anymore._
+///
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!
 ///
 void main() {

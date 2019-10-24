@@ -554,7 +554,7 @@ With i18n_extension at least you know that the translation to the default langua
 <br>
 
 **Q: What happens if a developer tries to call i18n on a string without translations, 
-would't that be harder to catch?**
+wouldn't that be harder to catch?**
 
 **A:** _With i18n_extension you can generate a report with all missing translations, 
 and you can even add those checks to tests. 
@@ -573,21 +573,68 @@ So `.i18n` will only appear in your auto-complete inside of your widget classes,
 
 <br>
 
-**Q: If the UX team wants to change an English translation, 
-they would have to make that modification in code, right? 
-They couldn't just update some `.arb` file 
-as the English version then no longer matches the literal `.i18n` was called on.**
+**Q: Do I actually need one `.i18n.dart` (a translations file) per widget?**
 
-**A:** _If the UX team wants to change an English translation, 
-they can just update the English translation and not the translatable string. 
-That would mean the translatable string is now simply acting as a key, 
-which is not the idea in the first place. 
-But it would work, no problem. 
-Also, i18n_extension can report to the developer 
-that the string in the code and in the translation are out of sync, 
-in case the developer wants to fix it. 
-This problem is also the case with regular keys of old methods: 
-If you update some text and then the key has nothing to do with the text anymore._
+**A:** _No you don't. It's suggested that you create a translation file per widget 
+if you are doing translations by hand, but that's not a requirement. 
+The reason I think separate files is a good idea is that sometimes internationalization is not only translations. 
+You may need to format dates in specific ways, or make complex functions to create specific strings 
+that depend on variables etc. 
+So in these cases you will probably need somewhere to put this code. 
+In any case, to make translations work all you need a Translation object
+which you can create in many ways, by adding maps to it using the `+` operator, 
+or by adding other translation objects together using the `*` operator. 
+You can create this Translation objects anywhere you want, 
+in a single file per widget, in a single file for many widgets, or in a single file for the whole app.    
+Also, if you are not doing translations by hand but importing strings from translation files, 
+then you don't even need a separate file. You can just add 
+`extension Localization on String { String get i18n => localize(this, Translations("en_us") + load("file.json")); } `
+to your own widget file._
+ 
+<br>
+
+**Q: Won't having multiple files with `extension Localization` lead to people importing the wrong file and have translations missing?**
+
+**A:** _The package records all your missing translations, 
+and you can also easily log or throw an exception if they are missing. 
+So you will know if you import the wrong file. 
+You can also add this reports to your unit tests.
+It will let you know even if you import the right file and translations are missing in some language,
+and it will let you know even if you import from `.arb` files and translations are missing in some language._
+ 
+<br>
+ 
+**Q: What's the point of importing 'default.i18n.dart'?**
+
+**A:** _The only point of importing 'default.i18n.dart' before you create the translations for that widget 
+is that you can then write `.i18n` in your strings 
+and it will record them as missing translations, 
+so that you don't forget to add those translations later._
+
+<br>
+
+**Q: Looks like importers have not been written yet.**
+
+**A:** _They have not. The `Translations` object use maps as input/output. 
+So at the moment you can use whatever file you want if you convert them to a map yourself. 
+Keep in mind this lib development is still new, and I hope the community will help writing those imports/exports. 
+We hope to have those for `.arb` `.icu` `.po` `.xliff` `.csv` `.json` and `.yaml`, but we're not there yet._
+
+<br>
+
+**Q: How does it report missing translations?**
+
+**A:** _At the moment you should just print `Translations.missingKeys` and `Translations.missingTranslations`.
+We'll later create a `Translations.printReport()` function that correlates these two pieces of information
+and outputs a more readable report.  
+
+<br>
+
+**Q: The package says it's "Non-boilerplate", but doesn't `.i18n.dart` contain boilerplate?**
+
+**A:** _The only necessary boilerplate for `.i18n.dart` files is `static var t = Translations("...") +`
+and `String get i18n => localize(this, t);`. The rest are the translations themselves. 
+So, yeah, it's not completely without boilerplate, but saying "Less-boilerplate" is not that catchy._  
 
 ********
 
