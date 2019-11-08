@@ -429,65 +429,6 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  test(
-      "If the translation to the exact locale is found, this will be returned. "
-      "Otherwise, it tries to return a translation for the general language of the locale. "
-      "Otherwise, it tries to return a translation for any locale with that language. "
-      "Otherwise, it tries to return the key itself (which is the translation for the default locale).",
-      () {
-    // Translations exist for "pt_br" and "pt_pt": ----------------
-
-    // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_br"));
-    expect("Mobile phone".i18n, "Celular");
-
-    // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_pt"));
-    expect("Mobile phone".i18n, "Telemóvel");
-
-    // There's NO exact translation, and NO general translation.
-    // So uses any other translation in "pt".
-    I18n.define(Locale("pt_mo"));
-    expect("Mobile phone".i18n, "Celular");
-
-    // There's NO general "pt" translation, so uses any other translation in "pt".
-    I18n.define(Locale("pt"));
-    expect("Mobile phone".i18n, "Celular");
-
-    // There's NO translation at all in this language.
-    I18n.define(Locale("xx"));
-    expect("Mobile phone".i18n, "Mobile phone");
-
-    // There's NO translation at all in this locale.
-    I18n.define(Locale("xx_yy"));
-    expect("Mobile phone".i18n, "Mobile phone");
-
-    // Translations exist for "pt_br" and "pt": ----------------
-
-    // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_br"));
-    expect("Address".i18n, "Endereço");
-
-    // There's NO exact translation,
-    // So uses the GENERAL translation in "pt".
-    I18n.define(Locale("pt_pt"));
-    expect("Address".i18n, "Morada");
-
-    // There's the exact GENERAL translation in "pt".
-    I18n.define(Locale("pt"));
-    expect("Address".i18n, "Morada");
-
-    // There's NO translation at all in this language.
-    I18n.define(Locale("xx"));
-    expect("Address".i18n, "Address");
-
-    // There's NO translation at all in this locale.
-    I18n.define(Locale("xx_yy"));
-    expect("Address".i18n, "Address");
-  });
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test("Translations with version.", () {
     //
     var text = "MyKey".modifier("x", "abc");
@@ -592,19 +533,6 @@ extension Localization on String {
         "cs_cz": "Sbohem.",
         "en_uk": "Goodbye.",
         "es": "Adiós.",
-      } +
-      {
-        "en_us": "XYZ",
-      } +
-      {
-        "en_us": "Mobile phone",
-        "pt_br": "Celular",
-        "pt_pt": "Telemóvel",
-      } +
-      {
-        "en_us": "Address",
-        "pt_br": "Endereço",
-        "pt": "Morada",
       } +
       {
         "en_us": "There is 1 item."

@@ -45,7 +45,13 @@ class I18n extends StatefulWidget {
   static Locale get forcedLocale => _forcedLocale;
 
   /// The locale, as a lowercase string. For example: "en_us" or "pt_br".
-  static String get localeStr => locale?.toString()?.toLowerCase();
+  static String get localeStr => _trimLocale(locale?.toString()?.toLowerCase());
+
+  /// Trims spaces and underscore.
+  static String _trimLocale(String str) {
+    RegExp pattern = RegExp('^[_ ]+|[_ ]+\$');
+    return str.replaceAll(pattern, '');
+  }
 
   /// The language of the locale, as a lowercase string. For example: "en" or "pt".
   static String get language => locale?.languageCode?.toLowerCase();

@@ -316,10 +316,17 @@ class Translations extends ITranslations {
   final String defaultLocaleStr;
   final String defaultLanguageStr;
 
-  Translations(this.defaultLocaleStr)
+  Translations(String defaultLocaleStr)
       : assert(defaultLocaleStr != null && defaultLocaleStr.trim().isNotEmpty),
-        defaultLanguageStr = defaultLocaleStr.substring(0, 2),
+        defaultLocaleStr = trim(defaultLocaleStr),
+        defaultLanguageStr = trim(defaultLocaleStr).substring(0, 2),
         translations = Map<String, Map<String, String>>();
+
+  static String trim(String locale) {
+    locale = locale.trim();
+    while (locale.endsWith("_")) locale = locale.substring(0, locale.length - 1);
+    return locale;
+  }
 
   static TranslationsByLocale byLocale(String defaultLocaleStr) =>
       TranslationsByLocale._(defaultLocaleStr);
