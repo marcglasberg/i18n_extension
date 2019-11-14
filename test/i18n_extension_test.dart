@@ -425,6 +425,9 @@ void main() {
     //
     expect(() => Translations("en_us") + {"pt_br": "Olá."},
         throwsA(TranslationsException("No default translation for 'en_us'.")));
+
+    expect(() => Translations("en_us") + {"pt_br": "Olá."},
+        throwsA(TranslationsException("No default translation for 'en_us'.")));
   });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////

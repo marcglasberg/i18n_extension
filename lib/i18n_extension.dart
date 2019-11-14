@@ -317,7 +317,7 @@ class Translations extends ITranslations {
   final String defaultLanguageStr;
 
   Translations(String defaultLocaleStr)
-      : assert(defaultLocaleStr != null && defaultLocaleStr.trim().isNotEmpty),
+      : assert(defaultLocaleStr != null && trim(defaultLocaleStr).isNotEmpty),
         defaultLocaleStr = trim(defaultLocaleStr),
         defaultLanguageStr = trim(defaultLocaleStr).substring(0, 2),
         translations = Map<String, Map<String, String>>();
