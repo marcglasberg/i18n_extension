@@ -1,3 +1,7 @@
+## [1.1.1] - 2019/12/11
+
+* Docs improvement.
+
 ## [1.1.0] - 2019/11/07
 
 * Better fallback.

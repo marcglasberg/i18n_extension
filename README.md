@@ -2,8 +2,6 @@
 
 # i18n_extension
 
-##### This package only works with Dart 2.6.0 support. So if your Flutter is in the **stable** channel you may need to change it to the **dev** channel, by typing this in the console:  `flutter channel dev` and then `flutter doctor`.
-
 ## Non-boilerplate Translation and Internationalization (i18n) for Flutter
 
 Start with a widget with some text in it:
@@ -44,7 +42,7 @@ print("There is a person".gender(Gender.they)); // Prints 'There is a person'
 
 Try running the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/main.dart">example</a>.
 
-![alt text](./example/lib/i18nScreen.jpg)
+![](./example/lib/i18nScreen.jpg)
 
 
 ## Good for simple or complex apps
