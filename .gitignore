@@ -28,6 +28,9 @@
 .pub-cache/
 .pub/
 build/
+pubspec.lock
+*.lock
+.flutter-plugins-dependencies
 
 # Android related
 **/android/**/gradle-wrapper.jar
