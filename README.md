@@ -36,7 +36,15 @@ So you could create `gender` versions for `Gender` modifiers:
 print("There is a person".gender(Gender.male)); // Prints 'There is a man'
 print("There is a person".gender(Gender.female)); // Prints 'There is a woman'
 print("There is a person".gender(Gender.they)); // Prints 'There is a person'
-```
+```             
+
+Also, interpolating strings is easy, with the `fill` method:
+
+```dart                                                    
+// Prints 'Hello John, this is Mary' in English.
+// Prints 'Olá John, aqui é Mary' in Portuguese.
+print("Hello %s, this is %s".i18n.fill(["John", "Mary"])); 
+```           
 
 ### See it working
 
@@ -402,6 +410,30 @@ static var t = Translations("en_us") +
 String gender(Gender gnd) => localizeVersion(gnd, this, t);
 ```
 
+
+### Interpolation
+
+You can use the `fill` method to do interpolations: 
+
+```dart   
+static var t = Translations("en_us") +
+  {
+    "en_us": "Hello %s, this is %s",
+    "pt_br": "Olá %s, aqui é %s",
+  };
+  
+...
+                                               
+print("Hello %s, this is %s".i18n.fill(["John", "Mary"])); 
+```
+
+The above code will print `Hello John, this is Mary` if the locale is English,
+or `Olá John, aqui é Mary` if it's Portuguese.
+
+
+It uses the <a href="https://pub.dev/packages/sprintf">sprintf</a> package internally.
+I don't know how closely it follows the C sprintf specification, 
+but <a href="https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm">here it is</a>.           
 
 ### Direct use of translation objects
 

@@ -1,3 +1,7 @@
+## [1.1.2] - 2019/12/19
+
+* Interpolation.
+
 ## [1.1.1] - 2019/12/11
 
 * Docs improvement.

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sprintf/sprintf.dart';
 
 import 'i18n_widget.dart';
 
@@ -512,6 +513,8 @@ extension Localization on String {
 
   /// Plural modifier for any number of elements, except 1.
   String many(String text) => modifier("M", text);
+
+  String fill(List<Object> params) => sprintf(this, params);
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////
