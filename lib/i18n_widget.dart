@@ -24,14 +24,14 @@ import 'package:flutter/widgets.dart';
 ///
 /// ```dart
 /// return I18n(
-/// locale: Locale("pt_br"),
-/// child: Scaffold( ... )
+///     initialLocale: Locale("pt_br"),
+///     child: Scaffold( ... )
 /// ```
 ///
 class I18n extends StatefulWidget {
   //
   /// Returns the forced-locale, if it is not null.
-  /// Otherwise, returns  the system-locale.
+  /// Otherwise, returns the system-locale.
   static Locale get locale => _forcedLocale ?? _systemLocale;
 
   /// The locale read from the system.
@@ -71,7 +71,7 @@ class I18n extends StatefulWidget {
   /// I18n.of(context).locale = Locale("en_US");
   ///
   static _I18nState of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(_InheritedI18n) as _InheritedI18n).data;
+    return context.dependOnInheritedWidgetOfExactType<_InheritedI18n>().data;
   }
 
   /// This should be used useful for tests ONLY.

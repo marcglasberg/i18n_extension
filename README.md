@@ -132,7 +132,7 @@ This will allow you to add `.i18n` and `.plural()` to your strings, but won't tr
 
 When you are ready to create your translations, you must create a dart file to hold them.
 This file can have any name, but I suggest you give it the same name as your widget
-and change the termination to `.18n.dart`.
+and change the termination to `.i18n.dart`.
 
 For example, if your widget is in file `my_widget.dart`,
 the translations could be in file `my_widget.i18n.dart`
@@ -457,7 +457,7 @@ print(localize("Hi", translations, locale: "not valid");
 ```
 
 
-### Changing the default locale
+### Changing the current locale
 
 To change the current locale, do this:
 
@@ -465,19 +465,31 @@ To change the current locale, do this:
 I18n.of(context).locale = Locale("pt_BR");
 ```
 
-To return the current locale to the system default, do this:
+To return the current locale to the **system default**, do this:
 
 ```dart
 I18n.of(context).locale = null;
 ```
 
+*Note: The above will change the current locale only for the `i18n_extension`, and not for Flutter as a whole.*
+
+### Reading the current locale
+
 To read the current locale, do this:
 
-```dart
-Locale defaultLocale = I18n.of(context).locale;
-```
+```dart                                        
+// Both ways work:
+Locale locale = I18n.of(context).locale;
+Locale locale = I18n.locale;                  
 
-Note: This will change the current locale only for the `i18n_extension`, and not for Flutter as a whole.
+// Or get the locale as a lowercase string. Example: "en_us". 
+String localeStr = I18n.localeStr;
+
+// Or get the language of the locale, lowercase. Example: "en".
+static language = I18n.language;
+```        
+
+
 
 
 ### Importing and exporting
