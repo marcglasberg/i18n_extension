@@ -150,7 +150,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
 
-  static var t = Translations("en_us") +
+  static var _t = Translations("en_us") +
     {
       "en_us": "Hello, how are you?",
       "pt_br": "Olá, como vai você?",
@@ -159,7 +159,7 @@ extension Localization on String {
       "de": "Hallo, wie geht es dir?",
     };
 
-  String get i18n => localize(this, t);
+  String get i18n => localize(this, _t);
 }
 ```
 
@@ -174,7 +174,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
 
-    static var t = Translations("en_us") +
+    static var _t = Translations("en_us") +
         {
           "en_us": "Hello, how are you?",
           "pt_br": "Olá, como vai você?",
@@ -188,7 +188,7 @@ extension Localization on String {
           "pt_br": "Adeus",
         };
 
-  String get i18n => localize(this, t);
+  String get i18n => localize(this, _t);
 }
 ```
 
@@ -286,7 +286,7 @@ or crowdsourcing translations, it may be easier if you can provide the translati
 instead of by key. You can do that by using the `Translations.byLocale()` constructor.
 
 ```dart
-static var t = Translations.byLocale("en_us") +
+static var _t = Translations.byLocale("en_us") +
     {
       "en_us": {
         "Hi.": "Hi.",
@@ -302,7 +302,7 @@ static var t = Translations.byLocale("en_us") +
 You can also add maps using the `+` operator:
 
 ```dart
-static var t = Translations.byLocale("en_us") +
+static var _t = Translations.byLocale("en_us") +
     {
       "en_us": {
         "Hi.": "Hi.",
@@ -361,7 +361,7 @@ This will be translated, and if the translated string contains `%d` it will be r
 Then, your translations file should contain something like this:
 
 ```dart
-static var t = Translations("en_us") +
+static var _t = Translations("en_us") +
   {
     "en_us": "You clicked the button %d times"
         .zero("You haven't clicked the button")
@@ -395,7 +395,7 @@ return Text("There is a person".gender(gnd));
 Then, your translations file should use `.modifier()` and `localizeVersion()` like this:
 
 ```dart
-static var t = Translations("en_us") +
+static var _t = Translations("en_us") +
   {
     "en_us": "There is a person"
         .modifier(Gender.male, "There is a man")
@@ -407,7 +407,7 @@ static var t = Translations("en_us") +
         .modifier(Gender.they, "Há uma pessoa"),
   };
 
-String gender(Gender gnd) => localizeVersion(gnd, this, t);
+String gender(Gender gnd) => localizeVersion(gnd, this, _t);
 ```
 
 
@@ -416,7 +416,7 @@ String gender(Gender gnd) => localizeVersion(gnd, this, t);
 You can use the `fill` method to do interpolations: 
 
 ```dart   
-static var t = Translations("en_us") +
+static var _t = Translations("en_us") +
   {
     "en_us": "Hello %s, this is %s",
     "pt_br": "Olá %s, aqui é %s",
@@ -540,7 +540,7 @@ If you want to help, please PR here: https://github.com/marcglasberg/i18n_extens
 and this object is optimized for easily creating translations by hand. 
 But it creates them from maps. So if you can create maps from some file you can use that file.
 For example, a simple code generator that reads `.json` und outputs Dart maps would do the job:
-`var t = Translations("en_us") + readFromJson("myfile.json")`._
+`var _t = Translations("en_us") + readFromJson("myfile.json")`._
 
 <br>
 
@@ -667,8 +667,8 @@ and outputs a more readable report.
 
 **Q: The package says it's "Non-boilerplate", but doesn't `.i18n.dart` contain boilerplate?**
 
-**A:** _The only necessary boilerplate for `.i18n.dart` files is `static var t = Translations("...") +`
-and `String get i18n => localize(this, t);`. The rest are the translations themselves. 
+**A:** _The only necessary boilerplate for `.i18n.dart` files is `static var _t = Translations("...") +`
+and `String get i18n => localize(this, _t);`. The rest are the translations themselves. 
 So, yeah, it's not completely without boilerplate, but saying "Less-boilerplate" is not that catchy._  
 
 ********
