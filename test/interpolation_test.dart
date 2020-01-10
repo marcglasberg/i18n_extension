@@ -31,6 +31,8 @@ extension Localization on String {
 
   String get i18n => localize(this, t);
 
+  String fill(List<Object> params) => localizeFill(this, params);
+
   String plural(int value) => localizePlural(value, this, t);
 
   String version(Object modifier) => localizeVersion(modifier, this, t);

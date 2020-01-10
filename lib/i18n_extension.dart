@@ -104,6 +104,8 @@ bool _isGeneral(String locale) => locale.length == 2 && !locale.contains("_");
 /// The language must be the first 2 chars, otherwise this won't work.
 String _language(String locale) => locale.substring(0, 2);
 
+String localizeFill(String text, List<Object> params) => sprintf(text, params);
+
 /// Returns the translated version for the plural modifier.
 /// After getting the version, substring %d will be replaced with the modifier.
 String localizePlural(
@@ -513,8 +515,6 @@ extension Localization on String {
 
   /// Plural modifier for any number of elements, except 1.
   String many(String text) => modifier("M", text);
-
-  String fill(List<Object> params) => sprintf(this, params);
 }
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////

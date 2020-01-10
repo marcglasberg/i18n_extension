@@ -1,3 +1,7 @@
+## [1.2.0] - 2019/12/19
+
+* Fill fix. Docs improvement.
+
 ## [1.1.3] - 2019/12/19
 
 * Interpolation.

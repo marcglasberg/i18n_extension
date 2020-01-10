@@ -413,7 +413,7 @@ String gender(Gender gnd) => localizeVersion(gnd, this, _t);
 
 ### Interpolation
 
-You can use the `fill` method to do interpolations: 
+Your translations file may declare a `fill` method to do interpolations:
 
 ```dart   
 static var _t = Translations("en_us") +
@@ -421,9 +421,15 @@ static var _t = Translations("en_us") +
     "en_us": "Hello %s, this is %s",
     "pt_br": "Olá %s, aqui é %s",
   };
-  
-...
-                                               
+   
+String get i18n => localize(this, t);
+   
+String fill(List<Object> params) => localizeFill(this, params);       
+```
+
+Then you may use it like this:
+
+```dart
 print("Hello %s, this is %s".i18n.fill(["John", "Mary"])); 
 ```
 
