@@ -99,7 +99,7 @@ Or you can override it with your own locale, like this:
 
 ```dart
 I18n(
-  initialLocale: Locale("pt_br"),
+  initialLocale: Locale("pt", "BR"),
   child: ...
 ```
 
@@ -118,6 +118,42 @@ Widget build(BuildContext context) {
 
 You may put translatable strings in any widgets down the tree.
 
+
+## A quick recap of Dart locales
+
+The correct way to create a `Locale` is to provide a language code (usually 2 or 3 lowercase letters) 
+and a country code (usually 2 uppercase letters), as two **separate** Strings. 
+
+For example:
+
+```dart
+var locale = Locale("en", "US");
+
+print(locale); // Prints `en_US`.                         
+print(locale.languageCode); // Prints `en`.
+```
+
+You can, if you want, omit the country code:
+
+```dart
+var locale = Locale("en");
+
+print(locale); // Prints `en`.                          
+print(locale.languageCode); // Prints `en`.
+```
+
+But you **cannot** provide language code and country code as a single String. This is wrong:
+
+```dart               
+// This will create a language called "en_US" and no country code. 
+var locale = Locale("en_US");
+
+print(locale); // Prints `en_US`.                         
+print(locale.languageCode); // Also prints `en_US`.
+```
+
+To help avoiding this mistake, 
+the `i18n_extension` may throw an error if your language code contains underscores.   
 
 ## Translating a widget
 
@@ -286,7 +322,7 @@ or crowdsourcing translations, it may be easier if you can provide the translati
 instead of by key. You can do that by using the `Translations.byLocale()` constructor.
 
 ```dart
-static var _t = Translations.byLocale("en_us") +
+static var _t = Translations.byLocale("en", "US") +
     {
       "en_us": {
         "Hi.": "Hi.",
@@ -302,7 +338,7 @@ static var _t = Translations.byLocale("en_us") +
 You can also add maps using the `+` operator:
 
 ```dart
-static var _t = Translations.byLocale("en_us") +
+static var _t = Translations.byLocale("en", "US") +
     {
       "en_us": {
         "Hi.": "Hi.",
@@ -441,6 +477,7 @@ It uses the <a href="https://pub.dev/packages/sprintf">sprintf</a> package inter
 I don't know how closely it follows the C sprintf specification, 
 but <a href="https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm">here it is</a>.           
 
+
 ### Direct use of translation objects
 
 If you have a translation object you can use the `localize` function directly to perform translations:
@@ -468,7 +505,7 @@ print(localize("Hi", translations, locale: "not valid");
 To change the current locale, do this:
 
 ```dart
-I18n.of(context).locale = Locale("pt_BR");
+I18n.of(context).locale = Locale("pt", "BR");
 ```
 
 To return the current locale to the **system default**, do this:
@@ -495,7 +532,15 @@ String localeStr = I18n.localeStr;
 static language = I18n.language;
 ```        
 
+ 
+### Observing locale changes
 
+There is a global static callback you can use to observe locale changes:
+
+```dart   
+I18n.observeLocale = 
+  ({Locale oldLocale, Locale newLocale}) => print("Changed from $oldLocale to $newLocale.");
+```
 
 
 ### Importing and exporting
@@ -554,7 +599,7 @@ For example, a simple code generator that reads `.json` und outputs Dart maps wo
 automatically or would you have to restart the app?**
 
 **A:** _It should pick changes to the locale automatically. 
-Also you can change the locale manually at any time by doing `I18n.of(context).locale = Locale("pt_BR");`._
+Also you can change the locale manually at any time by doing `I18n.of(context).locale = Locale("pt", "BR");`._
 
 <br>
 

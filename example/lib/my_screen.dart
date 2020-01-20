@@ -69,7 +69,7 @@ class _MyScreenState extends State<MyScreen> {
   }
 
   void _onPressed() =>
-      I18n.of(context).locale = (I18n.localeStr == "pt_br") ? null : Locale("pt_BR");
+      I18n.of(context).locale = (I18n.localeStr == "pt_br") ? null : Locale("pt", "BR");
 
   void _increment() => setState(() => counter++);
 }

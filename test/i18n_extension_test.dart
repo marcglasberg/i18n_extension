@@ -8,7 +8,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Empty translations.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
 
     var t = Translations("en_us");
     expect(t.length, 0);
@@ -22,7 +22,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add translation in English only.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     var t = Translations("en_us") + {"en_us": "Hi."};
     expect(t.length, 1);
     expect(t.translations, {
@@ -38,7 +38,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add translation in many languages.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
 
     var t = Translations("en_us") +
         {
@@ -75,7 +75,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add 2 translations in a single language.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
 
     var t = Translations("en_us") +
         {
@@ -108,7 +108,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add 2 translations in 2 languages.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
 
     var t = Translations("en_us") +
         {
@@ -147,7 +147,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Translations with versions.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
 
     var t = Translations("en_us") +
         {
@@ -184,7 +184,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Combine 2 translations.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
 
     var t1 = Translations("en_us") +
         {
@@ -227,9 +227,9 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add 2 translations in 3 languages, by locale.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
 
-    var t = Translations.byLocale("en_us") +
+    var t = Translations.byLocale("en_US") +
         {
           "en_us": {
             "Hi.": "Hi.",
@@ -278,9 +278,9 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Combine 2 translations by locale.", () {
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
 
-    TranslationsByLocale t1 = Translations.byLocale("en_us") +
+    TranslationsByLocale t1 = Translations.byLocale("en_US") +
         {
           "en_us": {
             "Hi.": "Hi.",
@@ -292,7 +292,7 @@ void main() {
           }
         };
 
-    TranslationsByLocale t2 = Translations.byLocale("en_us") +
+    TranslationsByLocale t2 = Translations.byLocale("en_US") +
         {
           "pt_br": {
             "Hi.": "Olá.",
@@ -344,11 +344,11 @@ void main() {
           "pt_br": "Adeus.",
         };
 
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     expect(localize("Hi.", t), "Hi.");
     expect(localize("Goodbye", t), "Goodbye");
 
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     expect(localize("Hi.", t), "Olá.");
     expect(localize("Goodbye.", t), "Adeus.");
   });
@@ -357,12 +357,12 @@ void main() {
 
   test("Translate using the extension.", () {
     //
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     expect("Hi.".i18n, "Hi.");
     expect("Goodbye.".i18n, "Goodbye.");
     expect("XYZ".i18n, "XYZ");
 
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     expect("Hi.".i18n, "Olá.");
     expect("Goodbye.".i18n, "Adeus.");
     expect("XYZ".i18n, "XYZ");
@@ -381,10 +381,10 @@ void main() {
     expect(Translations.missingKeys, isEmpty);
     expect(Translations.missingTranslations, isEmpty);
 
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     expect("Hi.".i18n, "Hi.");
 
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     expect("Hi.".i18n, "Olá.");
 
     expect(Translations.missingKeys, isEmpty);
@@ -394,7 +394,7 @@ void main() {
 
     // 2) Search for a key which does NOT exist.
 
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     expect("Unknown text".i18n, "Unknown text");
 
     expect(Translations.missingKeys.length, 1);
@@ -409,7 +409,7 @@ void main() {
     Translations.missingKeys.clear();
     Translations.missingTranslations.clear();
 
-    I18n.define(Locale("xx_yy"));
+    I18n.define(Locale("xx", "yy"));
     expect("Hi.".i18n, "Hi.");
 
     expect(Translations.missingKeys, isEmpty);
@@ -469,7 +469,7 @@ void main() {
 
   test("Numeric modifiers.", () {
     //
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     var text = "There is 1 item.";
     expect(text.plural(0), "There are no items.");
     expect(text.plural(1), "There is 1 item.");
@@ -478,7 +478,7 @@ void main() {
     expect(text.plural(4), "There are 4 items.");
     expect(text.plural(5), "Yes, you reached 5 items.");
 
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     text = "There is 1 item.";
     expect(text.plural(0), "Não há itens.");
     expect(text.plural(1), "Há 1 item.");
@@ -492,7 +492,7 @@ void main() {
 
   test("Custom modifiers.", () {
     //
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     var text = "There is a person";
     expect(text.gender(Gender.male), "There is a man");
     expect(text.gender(Gender.female), "There is a woman");
@@ -505,7 +505,7 @@ void main() {
 
     // ---
 
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     text = "There is a person";
     expect(text.gender(Gender.male), "Há um homem");
     expect(text.gender(Gender.female), "Há uma mulher");

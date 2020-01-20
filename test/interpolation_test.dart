@@ -9,11 +9,11 @@ void main() {
 
   test("String interpolations.", () {
     //
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     expect("Hello %s, this is %s.".i18n, "Hello %s, this is %s.");
     expect("Hello %s, this is %s.".i18n.fill(["John", "Mary"]), "Hello John, this is Mary.");
 
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     expect("Hello %s, this is %s.".i18n, "Olá %s, aqui é %s.");
     expect("Hello %s, this is %s.".i18n.fill(["John", "Mary"]), "Olá John, aqui é Mary.");
   });

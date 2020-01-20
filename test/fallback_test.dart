@@ -16,12 +16,12 @@ void main() {
     // Translations exist for "en_us": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     expect("Mobile phone".i18n_1, "Mobile phone");
 
     // There's NO exact translation, and NO general translation.
     // So uses any other translation in "en".
-    I18n.define(Locale("en_uk"));
+    I18n.define(Locale("en", "UK"));
     expect("Mobile phone".i18n_1, "Mobile phone");
 
     // There's NO general "en" translation, so uses any other translation in "en".
@@ -29,22 +29,22 @@ void main() {
     expect("Mobile phone".i18n_1, "Mobile phone");
 
     // Ignores ending with "_".
-    I18n.define(Locale("en_"));
+    I18n.define(Locale("en", "us_"));
     expect("Mobile phone".i18n_1, "Mobile phone");
 
     // Translations exist for "pt_br" and "pt_pt": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     expect("Mobile phone".i18n_1, "Celular");
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_pt"));
+    I18n.define(Locale("pt", "PT"));
     expect("Mobile phone".i18n_1, "Telemóvel");
 
     // There's NO exact translation, and NO general translation.
     // So uses any other translation in "pt".
-    I18n.define(Locale("pt_mo"));
+    I18n.define(Locale("pt", "MO"));
     expect("Mobile phone".i18n_1, "Celular");
 
     // There's NO general "pt" translation, so uses any other translation in "pt".
@@ -56,18 +56,18 @@ void main() {
     expect("Mobile phone".i18n_1, "Mobile phone");
 
     // There's NO translation at all in this locale.
-    I18n.define(Locale("xx_yy"));
+    I18n.define(Locale("xx", "yy"));
     expect("Mobile phone".i18n_1, "Mobile phone");
 
     // Translations exist for "pt_br" and "pt": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     expect("Address".i18n_1, "Endereço");
 
     // There's NO exact translation,
     // So uses the GENERAL translation in "pt".
-    I18n.define(Locale("pt_pt"));
+    I18n.define(Locale("pt", "PT"));
     expect("Address".i18n_1, "Morada");
 
     // There's the exact GENERAL translation in "pt".
@@ -79,11 +79,11 @@ void main() {
     expect("Address".i18n_1, "Address");
 
     // There's NO translation at all in this locale.
-    I18n.define(Locale("xx_yy"));
+    I18n.define(Locale("xx", "yy"));
     expect("Address".i18n_1, "Address");
 
     // Ignores ending with "_".
-    I18n.define(Locale("pt_"));
+    I18n.define(Locale("pt", "_"));
     expect("Address".i18n_1, "Morada");
   });
 
@@ -102,26 +102,26 @@ void main() {
     expect("Mobile phone".i18n_2, "Mobile phone");
 
     // There's NO exact translation, so uses general "en".
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "US"));
     expect("Mobile phone".i18n_2, "Mobile phone");
 
-    // Ignores ending with "_".
-    I18n.define(Locale("en_"));
+    // Ignores country with "_".
+    I18n.define(Locale("en", "_us"));
     expect("Mobile phone".i18n_2, "Mobile phone");
 
     // Translations exist for "pt_br" and "pt_pt": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     expect("Mobile phone".i18n_2, "Celular");
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_pt"));
+    I18n.define(Locale("pt", "PT"));
     expect("Mobile phone".i18n_2, "Telemóvel");
 
     // There's NO exact translation, and NO general translation.
     // So uses any other translation in "pt".
-    I18n.define(Locale("pt_mo"));
+    I18n.define(Locale("pt", "MO"));
     expect("Mobile phone".i18n_2, "Celular");
 
     // There's NO general "pt" translation, so uses any other translation in "pt".
@@ -133,22 +133,22 @@ void main() {
     expect("Mobile phone".i18n_2, "Mobile phone");
 
     // There's NO translation at all in this locale.
-    I18n.define(Locale("xx_yy"));
+    I18n.define(Locale("xx", "YY"));
     expect("Mobile phone".i18n_2, "Mobile phone");
 
-    // Ignores ending with "_".
-    I18n.define(Locale("pt_"));
+    // Ignores country with "_".
+    I18n.define(Locale("pt", "_br"));
     expect("Mobile phone".i18n_2, "Celular");
 
     // Translations exist for "pt_br" and "pt": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
     expect("Address".i18n_2, "Endereço");
 
     // There's NO exact translation,
     // So uses the GENERAL translation in "pt".
-    I18n.define(Locale("pt_pt"));
+    I18n.define(Locale("pt", "PT"));
     expect("Address".i18n_2, "Morada");
 
     // There's the exact GENERAL translation in "pt".
@@ -160,7 +160,7 @@ void main() {
     expect("Address".i18n_2, "Address");
 
     // There's NO translation at all in this locale.
-    I18n.define(Locale("xx_yy"));
+    I18n.define(Locale("xx", "YY"));
     expect("Address".i18n_2, "Address");
   });
 
@@ -181,19 +181,22 @@ void main() {
     expect(Translations(" en___ ").defaultLanguageStr, "en");
     expect(Translations(" en_us_ ").defaultLanguageStr, "en");
 
-    I18n.define(Locale("en_"));
+    I18n.define(Locale("en"));
     expect(I18n.localeStr, "en");
 
-    I18n.define(Locale("en_"));
+    I18n.define(Locale("en", "_"));
     expect(I18n.localeStr, "en");
 
-    I18n.define(Locale("en_us"));
+    I18n.define(Locale("en", "us"));
     expect(I18n.localeStr, "en_us");
 
-    I18n.define(Locale(" en_us "));
+    I18n.define(Locale("en", "US"));
     expect(I18n.localeStr, "en_us");
 
-    I18n.define(Locale("_ _ en_us _ "));
+    I18n.define(Locale(" en", "us "));
+    expect(I18n.localeStr, "en_us");
+
+    I18n.define(Locale("  en", "us _ "));
     expect(I18n.localeStr, "en_us");
   });
 

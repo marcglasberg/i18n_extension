@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
+import 'i18n_extension.dart';
+
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
 
@@ -24,7 +26,7 @@ import 'package:flutter/widgets.dart';
 ///
 /// ```dart
 /// return I18n(
-///     initialLocale: Locale("pt_br"),
+///     initialLocale: Locale("pt", "BR"),
 ///     child: Scaffold( ... )
 /// ```
 ///
@@ -45,16 +47,31 @@ class I18n extends StatefulWidget {
   static Locale get forcedLocale => _forcedLocale;
 
   /// The locale, as a lowercase string. For example: "en_us" or "pt_br".
-  static String get localeStr => _trimLocale(locale?.toString()?.toLowerCase());
+  static String get localeStr => normalizeLocale(locale);
 
-  /// Trims spaces and underscore.
-  static String _trimLocale(String str) {
+  /// The language of the current locale, as a lowercase string. For example: "en" or "pt".
+  static String get language => getLanguageFromLocale(locale);
+
+  /// Return the lowercase language-code of the given locale. Or null if the locale is null.
+  static String getLanguageFromLocale(Locale locale) {
+    _checkLanguageCode(locale);
+    String str = locale?.languageCode?.toLowerCase();
+    return (str == null) ? null : str.trim();
+  }
+
+  /// Return the string representation of the locale, normalized (trims spaces and underscore).
+  static String normalizeLocale(Locale locale) {
+    if (locale == null) return null;
+    String str = locale.toString().toLowerCase();
     RegExp pattern = RegExp('^[_ ]+|[_ ]+\$');
     return str.replaceAll(pattern, '');
   }
 
-  /// The language of the locale, as a lowercase string. For example: "en" or "pt".
-  static String get language => locale?.languageCode?.toLowerCase();
+  /// This global callback is called whenever the locale changes.
+  /// Notes:
+  /// • To obtain the language, you can do: String language = I18n.getLanguage(newLocale);
+  /// • To obtain the normalized locale as a string, you can do: String localeStr = I18n.trim(newLocale);
+  static void Function({Locale oldLocale, Locale newLocale}) observeLocale;
 
   final Widget child;
   final Locale initialLocale;
@@ -68,16 +85,29 @@ class I18n extends StatefulWidget {
   /// print(I18n.of(context).locale);
   ///
   /// Setter:
-  /// I18n.of(context).locale = Locale("en_US");
+  /// I18n.of(context).locale = Locale("en", "US");
   ///
   static _I18nState of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<_InheritedI18n>().data;
   }
 
   /// This should be used useful for tests ONLY.
-  /// To change the locale in the real app, use: I18n.of(context).locale = Locale("en_US");
+  /// To change the locale in the real app, use: I18n.of(context).locale = Locale("en", "US");
   @visibleForTesting
-  static define(Locale locale) => I18n._forcedLocale = locale;
+  static define(Locale locale) {
+    Locale oldLocale = I18n.locale;
+    _forcedLocale = locale;
+    Locale newLocale = I18n.locale;
+    _checkLanguageCode(newLocale);
+    if (I18n.observeLocale != null && oldLocale != newLocale)
+      I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+  }
+
+  static void _checkLanguageCode(Locale locale) {
+    if (locale != null && locale.languageCode.contains("_"))
+      throw TranslationsException("Language code '${locale.languageCode}' is invalid: "
+          "Contains an underscore character.");
+  }
 
   @override
   _I18nState createState() => new _I18nState();
@@ -93,7 +123,12 @@ class _I18nState extends State<I18n> {
     if (this._locale != locale)
       setState(() {
         this._locale = locale;
+        Locale oldLocale = I18n.locale;
         I18n._forcedLocale = _locale;
+        Locale newLocale = I18n.locale;
+        I18n._checkLanguageCode(newLocale);
+        if (I18n.observeLocale != null && oldLocale != newLocale)
+          I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
       });
   }
 
@@ -101,7 +136,13 @@ class _I18nState extends State<I18n> {
   void initState() {
     super.initState();
     _locale = widget.initialLocale;
+
+    Locale oldLocale = I18n.locale;
     I18n._forcedLocale = _locale;
+    Locale newLocale = I18n.locale;
+    I18n._checkLanguageCode(newLocale);
+    if (I18n.observeLocale != null && oldLocale != newLocale)
+      I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
   }
 
   @override
@@ -128,7 +169,12 @@ class _I18nState extends State<I18n> {
   void _processSystemLocale() {
     var newSystemLocale = Localizations.localeOf(context, nullOk: true);
     if (newSystemLocale != I18n._systemLocale) {
+      Locale oldLocale = I18n.locale;
       I18n._systemLocale = newSystemLocale;
+      Locale newLocale = I18n.locale;
+      I18n._checkLanguageCode(newLocale);
+      if (I18n.observeLocale != null && oldLocale != newLocale)
+        I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
       if (I18n._forcedLocale == null)
         SchedulerBinding.instance.addPostFrameCallback((_) => setState(() {}));
     }

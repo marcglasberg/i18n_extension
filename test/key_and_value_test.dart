@@ -43,7 +43,7 @@ void main() {
       "which is NOT the preferred way to do it, "
       "but may be necessary for some advanced use cases.", () {
     //
-    I18n.define(Locale("pt_br"));
+    I18n.define(Locale("pt", "BR"));
 
     // 1) This works because the key "Hello" is provided in "en_us".
     expect("Hello".i18n, "Olá");

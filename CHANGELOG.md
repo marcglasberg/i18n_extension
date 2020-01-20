@@ -1,3 +1,10 @@
+## [1.3.0] - 2019/01/20
+
+* I18n.observeLocale() can be used to observe locale changes.
+
+* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong. 
+See "A quick recap of Dart locales" in the docs, for more details.
+
 ## [1.2.0] - 2019/12/19
 
 * Fill fix. Docs improvement.
