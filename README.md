@@ -322,7 +322,7 @@ or crowdsourcing translations, it may be easier if you can provide the translati
 instead of by key. You can do that by using the `Translations.byLocale()` constructor.
 
 ```dart
-static var _t = Translations.byLocale("en", "US") +
+static var _t = Translations.byLocale("en_us") +
     {
       "en_us": {
         "Hi.": "Hi.",
@@ -338,7 +338,7 @@ static var _t = Translations.byLocale("en", "US") +
 You can also add maps using the `+` operator:
 
 ```dart
-static var _t = Translations.byLocale("en", "US") +
+static var _t = Translations.byLocale("en_us") +
     {
       "en_us": {
         "Hi.": "Hi.",

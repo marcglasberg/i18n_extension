@@ -1,3 +1,7 @@
+## [1.3.1] - 2019/01/21
+
+* Docs improvement.
+
 ## [1.3.0] - 2019/01/20
 
 * I18n.observeLocale() can be used to observe locale changes.
