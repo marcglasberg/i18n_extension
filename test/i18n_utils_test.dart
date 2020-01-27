@@ -99,4 +99,13 @@ void main() {
   });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Is Locale standardized? No it's not. That's why I normalize it as lowercase.", () {
+    expect(Locale("pt", "br").toString(), "pt_br");
+    expect(Locale("pt", "BR").toString(), "pt_BR");
+    expect(Locale("pt", "BR"), Locale("pt", "BR"));
+    expect(Locale("pt", "br"), isNot(Locale("pt", "BR")));
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
 }
