@@ -79,22 +79,40 @@ or exporting it to any format you want.
 
 ## Setup
 
-Wrap your widget tree with the `I18n` widget, below the `MaterialApp`:
+Wrap your widget tree with the `I18n` widget, below the `MaterialApp`, 
+together with the `localizationsDelegates` and the `supportedLocales`:
 
 ```dart
-import 'package:i18n_extension/i18n_widget.dart';
+import 'package:i18n_extension/i18n_widget.dart';                 
+import 'package:flutter_localizations/flutter_localizations.dart';
 ...
 
 @override
 Widget build(BuildContext context) {
-  return MaterialApp(
-    home: I18n(child: ...)
+  return MaterialApp(  
+            localizationsDelegates: [            
+               GlobalMaterialLocalizations.delegate,
+               GlobalWidgetsLocalizations.delegate,
+               GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [
+               const Locale('en', "US"), 
+               const Locale('pt', "BR"), 
+            ],
+            home: I18n(child: ...)
   );
 }
 ```
 
-The above code will translate your strings to the **current system locale**.
+**Note:** To be able to import `flutter_localizations.dart` you must add this to your `pubspec.yaml`: 
 
+```yaml
+dependencies:
+  flutter_localizations:
+    sdk: flutter
+```
+
+The code `home: I18n(child: ...)` shown above will translate your strings to the **current system locale**.
 Or you can override it with your own locale, like this:
 
 ```dart

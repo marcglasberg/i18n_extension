@@ -1,3 +1,7 @@
+## [1.3.2] - 2019/01/29
+
+* Added localizationsDelegates and supportedLocales to the docs.
+
 ## [1.3.1] - 2019/01/21
 
 * Docs improvement.
