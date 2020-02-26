@@ -1,3 +1,7 @@
+## [1.3.3] - 2020/02/26
+
+* Commented unnecessary tests.
+
 ## [1.3.2] - 2019/01/29
 
 * Added localizationsDelegates and supportedLocales to the docs.
