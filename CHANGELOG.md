@@ -1,3 +1,7 @@
+## [1.3.4] - 2020/02/26
+
+* Don't record unnecessary missing translations with the Translation.byLocale constructor.
+
 ## [1.3.3] - 2020/02/26
 
 * Commented unnecessary tests.
