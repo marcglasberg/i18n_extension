@@ -229,7 +229,7 @@ void main() {
   test("Add 2 translations in 3 languages, by locale.", () {
     I18n.define(Locale("en", "US"));
 
-    var t = Translations.byLocale("en_US") +
+    var t = Translations.byLocale("en_us") +
         {
           "en_us": {
             "Hi.": "Hi.",
@@ -280,7 +280,7 @@ void main() {
   test("Combine 2 translations by locale.", () {
     I18n.define(Locale("en", "US"));
 
-    TranslationsByLocale t1 = Translations.byLocale("en_US") +
+    TranslationsByLocale t1 = Translations.byLocale("en_us") +
         {
           "en_us": {
             "Hi.": "Hi.",
@@ -292,7 +292,7 @@ void main() {
           }
         };
 
-    TranslationsByLocale t2 = Translations.byLocale("en_US") +
+    TranslationsByLocale t2 = Translations.byLocale("en_us") +
         {
           "pt_br": {
             "Hi.": "Olá.",
@@ -415,6 +415,72 @@ void main() {
     expect(Translations.missingKeys, isEmpty);
     expect(Translations.missingTranslations.single.locale, "xx_yy");
     expect(Translations.missingTranslations.single.text, "Hi.");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test(
+      "Record missing keys and missing translations.", () {
+    //
+    // ---------------
+
+    // 1) You CAN provide the translations "by locale" in the default locale, if you want.
+
+    Translations.missingKeys.clear();
+    Translations.missingTranslations.clear();
+
+    var t1 = Translations.byLocale("en_us") +
+        {
+          "en_us": {"Hi.": "Hi."},
+          "es_es": {"Hi.": "Hola."}
+        };
+
+    I18n.define(Locale("en", "US"));
+    expect(localize("Hi.", t1), "Hi.");
+
+    expect(Translations.missingKeys, isEmpty);
+    expect(Translations.missingTranslations, isEmpty);
+
+    // ---------------
+
+    // 2) But you don't NEED to to provide the translations "by locale" in the default locale.
+
+    Translations.missingKeys.clear();
+    Translations.missingTranslations.clear();
+
+    var t2 = Translations.byLocale("en_us") +
+        {
+          "es_es": {"Hi.": "Hola."}
+        };
+
+    I18n.define(Locale("en", "US"));
+    expect(localize("Hi.", t2), "Hi.");
+
+    expect(Translations.missingKeys, isEmpty);
+    expect(Translations.missingTranslations, isEmpty);
+
+    // ---------------
+
+    // 3) However, note this doesn't reduce boilerplate when using the regular constructor,
+    // since it uses the default locale translation as key.
+
+    Translations.missingKeys.clear();
+    Translations.missingTranslations.clear();
+
+    var t3 = Translations("en_us") +
+        {
+          "en_us": "Hi.",
+          "es_es": "Hola.",
+        };
+
+    I18n.define(Locale("en", "US"));
+    expect(localize("Hi.", t3), "Hi.");
+
+    expect(Translations.missingKeys, isEmpty);
+    expect(Translations.missingTranslations, isEmpty);
+
+    expect(() => Translations("en_us") + {"es_es": "Hola."},
+        throwsA(TranslationsException("No default translation for 'en_us'.")));
 
     // ---------------
   });
