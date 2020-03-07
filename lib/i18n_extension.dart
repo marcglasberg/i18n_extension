@@ -62,7 +62,7 @@ String localize(
     if (translatedString != null) return translatedString;
 
     // If there's no translated string in the locale, record it.
-    if (Translations.recordMissingTranslations)
+    if (Translations.recordMissingTranslations && locale != translations.defaultLocaleStr)
       Translations.missingTranslations.add(TranslatedString(locale: locale, text: key));
     Translations.missingTranslationCallback(key, locale);
 
