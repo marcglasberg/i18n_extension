@@ -21,4 +21,6 @@ extension Localization on String {
     recordKey(this);
     return this.replaceAll("%d", value.toString());
   }
+
+  String fill(List<Object> params) => localizeFill(this, params);
 }

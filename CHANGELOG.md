@@ -1,3 +1,7 @@
+## [1.3.5] - 2020/04/10
+
+* Added fill() method to default.i18n.dart.
+
 ## [1.3.4] - 2020/02/26
 
 * Don't record unnecessary missing translations with the Translation.byLocale constructor.

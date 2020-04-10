@@ -419,8 +419,8 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  test(
-      "Record missing keys and missing translations.", () {
+  test("Don't record unnecessary missing translations with the Translation.byLocale constructor.",
+      () {
     //
     // ---------------
 
