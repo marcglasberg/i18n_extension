@@ -57,11 +57,11 @@ Try running the <a href="https://github.com/marcglasberg/i18n_extension/blob/mas
 
 I'm always interested in creating packages to reduce boilerplate.
 For example, [async_redux](https://pub.dev/packages/async_redux/) is about Redux without boilerplate,
-and [align_positioned](https://pub.dev/packages/align_positioned) is about creating layouts using less widgets.
+and [align_positioned](https://pub.dev/packages/align_positioned) is about creating layouts using fewer widgets.
 This current package is also about reducing boilerplate for translations,
 so it doesn't do anything you can't already do with plain old `Localizations.of(context)`.
 
-That said, this package is meant both for the one person app developer and the big company team.
+That said, this package is meant both for the one person app developer, and the big company team.
 It has you covered in all stages of your translation efforts:
 
 1. When you create your widgets, it makes it easy for you to define which strings should be
@@ -287,7 +287,7 @@ However, having to define identifiers is not only a boring task, but it also for
 to navigate to the translation if you need to remember the exact text of the widget.
 
 With `i18n_extension` you can simply type the text you want and that's it.
-If some string is already translated and you later change it in the widget file,
+If some string is already translated, and you later change it in the widget file,
 this will break the link between the key and the translation map.
 However, `i18n_extension` is smart enough to let you know when that happens,
 so it's easy to fix. You can even add this check to tests, as to make sure all translations are
@@ -312,9 +312,16 @@ Translations.recordMissingTranslations = false;
 ```
 
 
-Another thing you may do if you want, is to throw an error if any translation is missing.
-To that end, inject callbacks into `Translations.missingKeyCallback` and
-`Translations.missingTranslationCallback`. For example:
+Another thing you may do, if you want, 
+is to set up callbacks that the `i18n_extension` package will call 
+whenever it detects a missing translation.
+You can then program these callbacks to throw errors if any translations are missing,
+or log the problem, or send emails to the person responsible for the translations.
+
+To do that, simply inject your callbacks into `Translations.missingKeyCallback` and
+`Translations.missingTranslationCallback`. 
+
+For example:
 
 ```dart
 Translations.missingKeyCallback = (key, locale)
@@ -324,8 +331,7 @@ Translations.missingTranslationCallback = (key, locale)
   => throw TranslationsException("There are no translations in '$locale' for '$key'.");
 ```
 
-Or instead of throwing you could log the problem,
-or send an email to the person responsible for the translations.
+
 
 
 ### Defining translations by language instead of by key
@@ -567,7 +573,7 @@ This package is optimized so that you can easily create and manage all of your t
 
 However, for large projects with big teams you probably need to follow a more involved process:
 Export all your translatable strings to files 
-in some external format your professional translator or your crowdsourcing tool uses (see formats below).
+in some external format your professional translator, or your crowdsourcing tool uses (see formats below).
 Continue developing your app while waiting for the translations. Import the translation files into the project and 
 test the app in each language you added. Repeat the process as needed, translating just the changes between each
 app revision. As necessary, perform additional localization steps yourself.
@@ -617,7 +623,7 @@ For example, a simple code generator that reads `.json` und outputs Dart maps wo
 automatically or would you have to restart the app?**
 
 **A:** _It should pick changes to the locale automatically. 
-Also you can change the locale manually at any time by doing `I18n.of(context).locale = Locale("pt", "BR");`._
+Also, you can change the locale manually at any time by doing `I18n.of(context).locale = Locale("pt", "BR");`._
 
 <br>
 
