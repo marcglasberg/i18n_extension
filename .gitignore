@@ -21,13 +21,19 @@
 #.vscode/
 
 # Flutter/Dart/Pub related
+**/.flutter-plugins-dependencies
+**/flutter_export_environment.sh
 **/doc/api/
 .dart_tool/
 .flutter-plugins
 .packages
 .pub-cache/
 .pub/
+/build/
 build/
+ios/.generated/
+ios/Flutter/Generated.xcconfig
+ios/Runner/GeneratedPluginRegistrant.*
 pubspec.lock
 *.lock
 .flutter-plugins-dependencies

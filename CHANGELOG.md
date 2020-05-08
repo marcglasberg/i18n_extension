@@ -1,3 +1,7 @@
+## [1.3.6] - 2020/05/01
+
+* Docs improvement (no code changes).
+
 ## [1.3.5] - 2020/04/10
 
 * Added fill() method to default.i18n.dart.
