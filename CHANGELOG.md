@@ -1,3 +1,7 @@
+## [1.3.7] - 2020/05/19
+
+* Docs improvement (no code changes).
+
 ## [1.3.6] - 2020/05/01
 
 * Docs improvement (no code changes).

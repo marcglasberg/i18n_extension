@@ -759,8 +759,18 @@ So, yeah, it's not completely without boilerplate, but saying "Less-boilerplate"
 * <a href="https://pub.dev/packages/indexed_list_view">indexed_list_view</a>
 * <a href="https://pub.dev/packages/animated_size_and_fade">animated_size_and_fade</a>
 * <a href="https://pub.dev/packages/assorted_layout_widgets">assorted_layout_widgets</a>
+* <a href="https://pub.dev/packages/weak_map">weak_map</a>
 
----<br>_Marcelo Glasberg:_<br>_https://github.com/marcglasberg_<br>
+*My Medium Articles:*
+* <a href="https://medium.com/flutter-community/https-medium-com-marcglasberg-async-redux-33ac5e27d5f6">Async Redux: Flutter’s non-boilerplate version of Redux</a> (versions: <a href="https://medium.com/flutterando/async-redux-pt-brasil-e783ceb13c43">Português</a>)
+* <a href="https://medium.com/flutter-community/i18n-extension-flutter-b966f4c65df9">i18n_extension</a> (versions: <a href="https://medium.com/flutterando/qual-a-forma-f%C3%A1cil-de-traduzir-seu-app-flutter-para-outros-idiomas-ab5178cf0336">Português</a>)
+* <a href="https://medium.com/flutter-community/flutter-the-advanced-layout-rule-even-beginners-must-know-edc9516d1a2">Flutter: The Advanced Layout Rule Even Beginners Must Know</a> (versions: <a href="https://habr.com/ru/post/500210/">русский</a>)
+
+*My article in the official Flutter documentation*:
+* <a href="https://flutter.dev/docs/development/ui/layout/constraints">Understanding constraints</a>
+
+---<br>_Marcelo Glasberg:_<br>
+_https://github.com/marcglasberg_<br>
 _https://twitter.com/glasbergmarcelo_<br>
 _https://stackoverflow.com/users/3411681/marcg_<br>
 _https://medium.com/@marcglasberg_<br>
