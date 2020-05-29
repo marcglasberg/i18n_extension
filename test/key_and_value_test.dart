@@ -78,7 +78,7 @@ void main() {
 
 extension Localization on String {
   //
-  static var t = Translations("en_us") +
+  static var _t = Translations("en_us") +
       {
         "en_us": "Hello",
         "pt_br": "Olá",
@@ -98,5 +98,5 @@ extension Localization on String {
         "pt_br": "Bom dia",
       };
 
-  String get i18n => localize(this, t);
+  String get i18n => localize(this, _t);
 }

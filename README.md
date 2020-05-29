@@ -213,7 +213,7 @@ extension Localization on String {
       "de": "Hallo, wie geht es dir?",
     };
 
-  String get i18n => localize(this, _t);
+  String get i18n => localize(this, _t);          
 }
 ```
 
@@ -435,7 +435,9 @@ static var _t = Translations("en_us") +
         .two("Você clicou um par de vezes")
         .many("Você clicou %d vezes")
         .times(12, "Você clicou uma dúzia de vezes"),
-  };
+  };            
+
+String plural(int value) => localizePlural(value, this, _t);
 ```
 
 
@@ -482,7 +484,7 @@ static var _t = Translations("en_us") +
     "pt_br": "Olá %s, aqui é %s",
   };
    
-String get i18n => localize(this, t);
+String get i18n => localize(this, _t);
    
 String fill(List<Object> params) => localizeFill(this, params);       
 ```

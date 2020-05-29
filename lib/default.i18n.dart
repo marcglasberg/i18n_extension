@@ -19,7 +19,7 @@ extension Localization on String {
 
   String plural(int value) {
     recordKey(this);
-    return this.replaceAll("%d", value.toString());
+    return replaceAll("%d", value.toString());
   }
 
   String fill(List<Object> params) => localizeFill(this, params);

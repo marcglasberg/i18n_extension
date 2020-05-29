@@ -588,7 +588,7 @@ void main() {
 
 extension Localization on String {
   //
-  static var t = Translations("en_us") +
+  static var _t = Translations("en_us") +
       {
         "en_us": "Hi.",
         "cs_cz": "Zdravím tě",
@@ -628,17 +628,17 @@ extension Localization on String {
             .modifier(Gender.they, "Há uma pessoa"),
       };
 
-  String get i18n => localize(this, t);
+  String get i18n => localize(this, _t);
 
   String fill(List<Object> params) => localizeFill(this, params);
 
-  String plural(int value) => localizePlural(value, this, t);
+  String plural(int value) => localizePlural(value, this, _t);
 
-  String version(Object modifier) => localizeVersion(modifier, this, t);
+  String version(Object modifier) => localizeVersion(modifier, this, _t);
 
-  Map<String, String> allVersions() => localizeAllVersions(this, t);
+  Map<String, String> allVersions() => localizeAllVersions(this, _t);
 
-  String gender(Gender gnd) => localizeVersion(gnd, this, t);
+  String gender(Gender gnd) => localizeVersion(gnd, this, _t);
 }
 
 enum Gender { they, female, male }
