@@ -584,23 +584,36 @@ Importing is easy to do, because the Translation constructors use maps as input.
 So you can simply generate maps from any file format, 
 and then use the `Translation()` or `Translation.byLocale()` constructors to create the translation objects.
 
-#### Exporting
+#### The GetStrings exporting utility
 
-This package provides a utility script to automatically export all translateable strings from your
-project. Simply run `flutter pub run i18n_extension:getstrings` in your project
-root directory and you will get a list of strings to translate in strings.json. This file can then
-be sent to your translators or be imported in translation services like Crowdin, Transifex or Lokalise.
+An utility script to automatically export all translatable strings from your project was contributed by
+<a href="https://github.com/bauerj">Johann Bauer</a>
+. Simply run `flutter pub run i18n_extension:getstrings` in your project
+root directory and you will get a list of strings to translate in `strings.json`. 
+This file can then be sent to your translators or be imported in translation services like Crowdin, Transifex or Lokalise.
 You can use it as part of your CI pipeline in order to always have your translation templates up to
 date.
 
-This tool simply searches the source code for strings to which getters like `.i18n` are applied.
-Since it is not very smart, you should not make it too hard for it:
+Note the tool simply searches the source code for strings to which getters like `.i18n` are applied.
+Since it is not very smart, you should not make it too hard:
 
 ```dart
-print("Hello World!".i18n); // This would work
+print("Hello World!".i18n); // This would work.
+
+// But the tool would not be able to spot this since it doesn't execute the code.
 var x = "Hello World";
-print(x.i18n); // The tool would not be able to spot this since it doesn't execute the code.
+print(x.i18n); 
 ```
+
+#### Other ways to export 
+
+As previously discussed, i18n_extension will automatically list all keys into a map if you use some unknown locale,
+run the app, and manually or automatically go through all the screens.
+For example, create a Greek locale if your app doesn't have Greek translations,  
+and it will list all keys into `Translations.missingTranslationCallback.` 
+Then you can read from this map and create your exported file.
+There is also <a href="https://pub.dev/packages/flutter_storyboard">this package</a> 
+that goes through all screens automatically. 
 
 #### Formats
 

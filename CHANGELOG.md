@@ -1,3 +1,7 @@
+## [1.3.9] - 2020/06/02
+
+* GetStrings exporting utility.
+
 ## [1.3.8] - 2020/05/28
 
 * Docs improvement (no code changes).
