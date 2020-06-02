@@ -580,9 +580,27 @@ Continue developing your app while waiting for the translations. Import the tran
 test the app in each language you added. Repeat the process as needed, translating just the changes between each
 app revision. As necessary, perform additional localization steps yourself.
 
-Importing and exporting is easy to do, because the Translation constructors use maps as input. 
+Importing is easy to do, because the Translation constructors use maps as input. 
 So you can simply generate maps from any file format, 
 and then use the `Translation()` or `Translation.byLocale()` constructors to create the translation objects.
+
+#### Exporting
+
+This package provides a utility script to automatically export all translateable strings from your
+project. Simply run `flutter pub run i18n_extension:getstrings` in your project
+root directory and you will get a list of strings to translate in strings.json. This file can then
+be sent to your translators or be imported in translation services like Crowdin, Transifex or Lokalise.
+You can use it as part of your CI pipeline in order to always have your translation templates up to
+date.
+
+This tool simply searches the source code for strings to which getters like `.i18n` are applied.
+Since it is not very smart, you should not make it too hard for it:
+
+```dart
+print("Hello World!".i18n); // This would work
+var x = "Hello World";
+print(x.i18n); // The tool would not be able to spot this since it doesn't execute the code.
+```
 
 #### Formats
 
