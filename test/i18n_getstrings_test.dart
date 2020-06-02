@@ -9,7 +9,7 @@ void main() {
     print('This is another %s test'.fill('great'));
     print('This should not match');
     """;
-    var results = GetI18nStrings().processString(source);
+    var results = GetI18nStrings("").processString(source);
     expect(results, ["This is a test", "This is another %s test"]);
   });
 
@@ -21,7 +21,7 @@ void main() {
     print('\''This is another test'\''.i18n);
     print('\''This should not match'\'');
     """;
-    var results = GetI18nStrings().processString(source);
+    var results = GetI18nStrings("").processString(source);
     expect(results, ["This is a\n\"test\" ", "This is another test"]);
   });
 
@@ -30,7 +30,7 @@ void main() {
     var y = '''.i18n;
     var z = '''Hello'''';
     """;
-    var results = GetI18nStrings().processString(source);
+    var results = GetI18nStrings("").processString(source);
     expect(results, []);
   });
 
@@ -95,7 +95,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
     );
   }
 }""";
-    var results = GetI18nStrings().processString(source);
+    var results = GetI18nStrings("").processString(source);
     expect(results, ['View', 'Invert Document Preview in Dark Mode']);
   });
 }
