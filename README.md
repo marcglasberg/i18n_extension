@@ -438,7 +438,14 @@ static var _t = Translations("en_us") +
   };            
 
 String plural(int value) => localizePlural(value, this, _t);
-```
+```           
+
+The plural modifiers you can use are `zero`, `one`, `two`, `three`, `four`, `five`, `six`, `ten`, 
+`times` (for any number of elements, except 0, 1 and 2), 
+and `many` (for any number of elements, except 1).
+
+Also, according to a <a href="https://github.com/marcglasberg/i18n_extension/issues/42">Czech speaker</a>, 
+there must be a special modifier for 2, 3 and 4. To that end you can use the `twoThreeFour` modifier.   
 
 
 #### Custom modifiers

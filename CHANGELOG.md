@@ -1,3 +1,8 @@
+## [1.4.0] - 2020/06/05
+
+* More plural modifiers: `three`, `four`, `five`, `six`, and `ten`.
+* For Czech language: `twoThreeFour` plural modifier.
+
 ## [1.3.9] - 2020/06/02
 
 * GetStrings exporting utility.

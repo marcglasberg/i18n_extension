@@ -584,6 +584,127 @@ void main() {
   });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Czech variations.", () {
+    I18n.define(Locale("en", "US"));
+
+    Translations t = Translations("en_us") +
+        {
+          "en_us": "1 beer"
+              .zero("0 beers")
+              .one("1 beer")
+              .two("2 beers")
+              .three("3 beers")
+              .four("4 beers")
+              .five("5 beers")
+              .six("6 beers")
+              .ten("10 beers")
+              .times(12, "12 beers")
+              .many("many beers"),
+          "cz_cz": "1 variation"
+              .zero("0 variation")
+              .one("1 variation")
+              .two("2 variation")
+              .three("3 variation")
+              .four("4 variation")
+              // .twoThreeFour will not be used because we've defined
+              // .two .three .four and those take precedence.
+              .twoThreeFour("234 variation")
+              .five("5 variation")
+              .six("6 variation")
+              .ten("10 variation")
+              .times(12, "times variation")
+              .many("many variation"),
+        };
+
+    I18n.define(Locale("cz", "cz"));
+    var key = "1 beer";
+    expect(localizePlural(0, key, t, locale: "cz_cz"), "0 variation");
+    expect(localizePlural(1, key, t, locale: "cz_cz"), "1 variation");
+    expect(localizePlural(2, key, t, locale: "cz_cz"), "2 variation");
+    expect(localizePlural(3, key, t, locale: "cz_cz"), "3 variation");
+    expect(localizePlural(4, key, t, locale: "cz_cz"), "4 variation");
+    expect(localizePlural(5, key, t, locale: "cz_cz"), "5 variation");
+    expect(localizePlural(6, key, t, locale: "cz_cz"), "6 variation");
+    expect(localizePlural(7, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(8, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(9, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(10, key, t, locale: "cz_cz"), "10 variation");
+    expect(localizePlural(11, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(12, key, t, locale: "cz_cz"), "times variation");
+    expect(localizePlural(13, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(14, key, t, locale: "cz_cz"), "many variation");
+
+    expect(
+        t.toString(),
+        '\n'
+        'Translations: ---------------\n'
+        '  en_us | 1 beer\n'
+        '          0 → 0 beers\n'
+        '          1 → 1 beer\n'
+        '          2 → 2 beers\n'
+        '          3 → 3 beers\n'
+        '          4 → 4 beers\n'
+        '          5 → 5 beers\n'
+        '          6 → 6 beers\n'
+        '          T → 10 beers\n'
+        '          12 → 12 beers\n'
+        '          M → many beers\n'
+        '  cz_cz | 1 variation\n'
+        '          0 → 0 variation\n'
+        '          1 → 1 variation\n'
+        '          2 → 2 variation\n'
+        '          3 → 3 variation\n'
+        '          4 → 4 variation\n'
+        '          C → 234 variation\n'
+        '          5 → 5 variation\n'
+        '          6 → 6 variation\n'
+        '          T → 10 variation\n'
+        '          12 → times variation\n'
+        '          M → many variation\n'
+        '-----------------------------\n');
+
+    // Now try again without defining .two .three .four.
+    t = Translations("en_us") +
+        {
+          "en_us": "1 beer"
+              .zero("0 beers")
+              .one("1 beer")
+              .five("5 beers")
+              .six("6 beers")
+              .ten("10 beers")
+              .times(12, "12 beers")
+              .many("many beers"),
+          "cz_cz": "1 variation"
+              .zero("0 variation")
+              .one("1 variation")
+              // .twoThreeFour will  be used.
+              .twoThreeFour("234 variation")
+              .five("5 variation")
+              .six("6 variation")
+              .ten("10 variation")
+              .times(12, "times variation")
+              .many("many variation"),
+        };
+
+    expect(localizePlural(0, key, t, locale: "cz_cz"), "0 variation");
+    expect(localizePlural(1, key, t, locale: "cz_cz"), "1 variation");
+    expect(localizePlural(2, key, t, locale: "cz_cz"), "234 variation");
+    expect(localizePlural(3, key, t, locale: "cz_cz"), "234 variation");
+    expect(localizePlural(4, key, t, locale: "cz_cz"), "234 variation");
+    expect(localizePlural(5, key, t, locale: "cz_cz"), "5 variation");
+    expect(localizePlural(6, key, t, locale: "cz_cz"), "6 variation");
+    expect(localizePlural(7, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(8, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(9, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(10, key, t, locale: "cz_cz"), "10 variation");
+    expect(localizePlural(11, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(12, key, t, locale: "cz_cz"), "times variation");
+    expect(localizePlural(13, key, t, locale: "cz_cz"), "many variation");
+    expect(localizePlural(14, key, t, locale: "cz_cz"), "many variation");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 extension Localization on String {

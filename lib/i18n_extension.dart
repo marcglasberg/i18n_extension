@@ -130,9 +130,32 @@ String localizePlural(
   else if (modifier == 1)
     text = versions["1"] ?? versions[null];
 
-  /// For plural(2), returns the version 2, otherwise the version many, otherwise the unversioned.
+  /// For plural(2), returns the version 2, otherwise the version 2-3-4,
+  /// otherwise the version many, otherwise the unversioned.
   else if (modifier == 2)
-    text = versions["2"] ?? versions["M"] ?? versions[null];
+    text = versions["2"] ?? versions["C"] ?? versions["M"] ?? versions[null];
+
+  /// For plural(3), returns the version 3, otherwise the version 2-3-4,
+  /// otherwise the version many, otherwise the unversioned.
+  else if (modifier == 3)
+    text = versions["3"] ?? versions["C"] ?? versions["M"] ?? versions[null];
+
+  /// For plural(4), returns the version 4, otherwise the version 2-3-4,
+  /// otherwise the version many, otherwise the unversioned.
+  else if (modifier == 4)
+    text = versions["4"] ?? versions["C"] ?? versions["M"] ?? versions[null];
+
+  /// For plural(5), returns the version 5, otherwise the version many, otherwise the unversioned.
+  else if (modifier == 5)
+    text = versions["5"] ?? versions["M"] ?? versions[null];
+
+  /// For plural(6), returns the version 6, otherwise the version many, otherwise the unversioned.
+  else if (modifier == 6)
+    text = versions["6"] ?? versions["M"] ?? versions[null];
+
+  /// For plural(10), returns the version 10, otherwise the version many, otherwise the unversioned.
+  else if (modifier == 10)
+    text = versions["T"] ?? versions["M"] ?? versions[null];
 
   /// For plural(<0 or >2), returns the version many, otherwise the unversioned.
   else
@@ -508,11 +531,29 @@ extension Localization on String {
   /// Plural modifier for 2 elements.
   String two(String text) => modifier("2", text);
 
+  /// Plural modifier for 3 elements.
+  String three(String text) => modifier("3", text);
+
+  /// Plural modifier for 4 elements.
+  String four(String text) => modifier("4", text);
+
+  /// Plural modifier for 5 elements.
+  String five(String text) => modifier("5", text);
+
+  /// Plural modifier for 6 elements.
+  String six(String text) => modifier("6", text);
+
+  /// Plural modifier for 10 elements.
+  String ten(String text) => modifier("T", text);
+
   /// Plural modifier for any number of elements, except 0, 1 and 2.
   String times(int numberOfTimes, String text) {
     assert(numberOfTimes != null && (numberOfTimes < 0 || numberOfTimes > 2));
     return modifier(numberOfTimes, text);
   }
+
+  /// Plural modifier for 2, 3 or 4 elements (especially for Czech language).
+  String twoThreeFour(String text) => modifier("C", text);
 
   /// Plural modifier for any number of elements, except 1.
   String many(String text) => modifier("M", text);
