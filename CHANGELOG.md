@@ -1,3 +1,7 @@
+## [1.4.1] - 2020/06/22
+
+* Allow multi-line statements in getstrings utility.
+
 ## [1.4.0] - 2020/06/05
 
 * More plural modifiers: `three`, `four`, `five`, `six`, and `ten`.
