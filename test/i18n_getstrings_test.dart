@@ -98,4 +98,15 @@ class _SettingsRouteState extends State<SettingsRoute> {
     var results = GetI18nStrings("").processString(source);
     expect(results, ['View', 'Invert Document Preview in Dark Mode']);
   });
+
+  test("Multi-line statements", () {
+    var source = """
+    var y = 'mysamplestring %s'
+      .i18n
+      .fill("test");
+    """;
+    var results = GetI18nStrings("").processString(source);
+    expect(results, ["mysamplestring %s"]);
+  });
 }
+
