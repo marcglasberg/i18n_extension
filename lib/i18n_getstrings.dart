@@ -78,10 +78,12 @@ class DartStringParser {
       if (matchPos < 0) return;
       _pos = matchPos + 1;
     }
-    if (matchPos <= source.length &&
-        suffixes.any((s) =>
-            source.substring(matchPos + endSequence.length).startsWith(s)))
-      strings.add(source.substring(pos, matchPos));
+    if (matchPos <= source.length) {
+      var start = source.substring(matchPos + endSequence.length).trimLeft();
+      if (suffixes.any((s) => start.startsWith(s)))
+        strings.add(source.substring(pos, matchPos));
+    }
+
     pos = matchPos + endSequence.length;
   }
 
