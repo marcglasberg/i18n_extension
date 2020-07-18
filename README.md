@@ -110,6 +110,8 @@ Widget build(BuildContext context) {
 dependencies:
   flutter_localizations:
     sdk: flutter
+    
+  i18n_extension: ^1.4.1
 ```
 
 The code `home: I18n(child: ...)` shown above will translate your strings to the **current system locale**.
