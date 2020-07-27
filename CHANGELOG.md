@@ -1,3 +1,8 @@
+## [1.4.2] - 2020/06/26
+
+* Bumped `sprintf` to version `4.1.0`, which adds compatibility for future Dart features
+  that require a Dart SDK constraint with a lower bound that is `>=2.0.0`.
+
 ## [1.4.1] - 2020/06/22
 
 * Allow multi-line statements in getstrings utility.
