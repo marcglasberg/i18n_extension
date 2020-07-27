@@ -1,8 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// TODO: This is not yet implemented, so all tests here should fail.
@@ -43,7 +40,7 @@ void main() {
       "which is NOT the preferred way to do it, "
       "but may be necessary for some advanced use cases.", () {
     //
-/// TODO: Uncomment if necessary:
+    /// TODO: Uncomment if necessary:
 //    I18n.define(Locale("pt", "BR"));
 //
 //    // 1) This works because the key "Hello" is provided in "en_us".
@@ -65,7 +62,7 @@ void main() {
 
   test("Should not accept empty keys or values.", () {
     //
-/// TODO: Uncomment if necessary:
+    /// TODO: Uncomment if necessary:
 //    // This should work ok (and not do anything).
 //    var x = Translations("en_us") + {};
 //

@@ -111,7 +111,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
     
-  i18n_extension: ^1.4.1
+  i18n_extension: ^1.4.2
 ```
 
 The code `home: I18n(child: ...)` shown above will translate your strings to the **current system locale**.
