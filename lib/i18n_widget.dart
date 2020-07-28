@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-
 import 'i18n_extension.dart';
 
 // Developed by Marcelo Glasberg (Aug 2019).
@@ -176,7 +174,7 @@ class _I18nState extends State<I18n> {
       if (I18n.observeLocale != null && oldLocale != newLocale)
         I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
       if (I18n._forcedLocale == null)
-        SchedulerBinding.instance.addPostFrameCallback((_) => setState(() {}));
+        WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
     }
   }
 }
