@@ -86,7 +86,17 @@ class I18n extends StatefulWidget {
   /// I18n.of(context).locale = Locale("en", "US");
   ///
   static _I18nState of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_InheritedI18n>().data;
+    if (context == null)
+      throw TranslationsException("Context was passed as null "
+          "when calling `I18n.of(context)`.");
+
+    var inherited = context.dependOnInheritedWidgetOfExactType<_InheritedI18n>();
+
+    if (inherited == null)
+      throw TranslationsException("Couldn't find the `I18n` widget up in the "
+          "tree. Please make sure to wrap some ancestor widget with `I18n`.");
+
+    return inherited.data;
   }
 
   /// This should be used useful for tests ONLY.

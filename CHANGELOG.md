@@ -1,3 +1,7 @@
+## [1.4.3] - 2020/09/11
+
+* Better error message for `I18n.of`.
+
 ## [1.4.2] - 2020/06/26
 
 * Bumped `sprintf` to version `4.1.0`, which adds compatibility for future Dart features
