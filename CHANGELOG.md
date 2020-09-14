@@ -1,3 +1,7 @@
+## [1.4.4] - 2020/09/14
+
+* Docs improvement.
+
 ## [1.4.3] - 2020/09/11
 
 * Better error message for `I18n.of`.
