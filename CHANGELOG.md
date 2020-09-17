@@ -1,3 +1,7 @@
+## [1.4.5] - 2020/10/17
+
+* Added `key` and `id` to `I18n` widget constructor.
+
 ## [1.4.4] - 2020/09/14
 
 * Docs improvement.

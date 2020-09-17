@@ -75,9 +75,11 @@ class I18n extends StatefulWidget {
   final Locale initialLocale;
 
   I18n({
+    Key key,
+    String id,
     @required this.child,
     this.initialLocale,
-  });
+  }) : super(key: key ?? (id != null && id.isNotEmpty) ? GlobalObjectKey<_I18nState>(id) : null);
 
   /// Getter:
   /// print(I18n.of(context).locale);
@@ -97,6 +99,23 @@ class I18n extends StatefulWidget {
           "tree. Please make sure to wrap some ancestor widget with `I18n`.");
 
     return inherited.data;
+  }
+
+  /// If you have multiple I18n widgets you can call this method to force
+  /// specific I18n widgets to rebuild. First, give it an id (and not a key),
+  /// for example: `I18n(id:"myWidget", child: ...)`.
+  ///
+  /// Then, whenever you need to rebuild it: `I18n.forceRebuild("myWidget")`.
+  /// Note this is a hack. It is not recommended that you have multiple
+  /// I18n widgets in your widget tree.
+  ///
+  static void forceRebuild(String id) {
+    var key = GlobalObjectKey<_I18nState>(id);
+    var state = key.currentState;
+    state._rebuildAllChildren();
+
+    // ignore: invalid_use_of_protected_member
+    state.setState(() {});
   }
 
   /// This should be used useful for tests ONLY.
@@ -157,7 +176,7 @@ class _I18nState extends State<I18n> {
   Widget build(BuildContext context) {
     //
     _processSystemLocale();
-    _rebuildAllChildren(context);
+    _rebuildAllChildren();
 
     return _InheritedI18n(
       data: this,
@@ -165,7 +184,7 @@ class _I18nState extends State<I18n> {
     );
   }
 
-  void _rebuildAllChildren(BuildContext context) {
+  void _rebuildAllChildren() {
     void rebuild(Element el) {
       el.markNeedsBuild();
       el.visitChildren(rebuild);
