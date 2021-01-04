@@ -589,9 +589,32 @@ Continue developing your app while waiting for the translations. Import the tran
 test the app in each language you added. Repeat the process as needed, translating just the changes between each
 app revision. As necessary, perform additional localization steps yourself.
 
-Importing is easy to do, because the Translation constructors use maps as input. 
-So you can simply generate maps from any file format, 
-and then use the `Translation()` or `Translation.byLocale()` constructors to create the translation objects.
+#### Importing
+Currently, only .PO and .JSON are supported out-of-the-box.
+ 
+Add your translation files as assets to your app in a directory structure like this:
+
+```
+app
+ \_ assets
+    \_ locales
+       \_ de.po
+       \_ fr.po
+        ...
+```
+
+Then you can import them using `GettextImporter` or `JSONImporter`:
+
+```dart
+import 'package:i18n_extension/io/import.dart';
+import 'package:i18n_extension/i18n_extension.dart';
+
+void loadTranslations() async {
+  TranslationsByLocale translations = 
+    Translations.byLocale("en_GB")
+    + await GettextImporter().fromAssetDirectory("assets/locales");
+}
+```
 
 #### The GetStrings exporting utility
 
@@ -623,31 +646,6 @@ and it will list all keys into `Translations.missingTranslationCallback.`
 Then you can read from this map and create your exported file.
 There is also <a href="https://pub.dev/packages/flutter_storyboard">this package</a> 
 that goes through all screens automatically. 
-
-#### Formats
-
-The following formats may be used with translations:
-
-* ARB: This is based on JSON, and is the default format for Flutter localizations. 
-https://github.com/google/app-resource-bundle/wiki/ApplicationResourceBundleSpecification
-
-* ICU: https://format-message.github.io/icu-message-format-for-translators/
-
-* PO: https://poedit.net 
-
-* XLIFF: This is based in XML. https://en.wikipedia.org/wiki/XLIFF  
-
-* CSV: You can open this with Excel, save it in .XLSX and edit it there. 
-However, beware not to export it back to CSV with the wrong settings 
-(using something else than UTF-8 as encoding).
-https://en.wikipedia.org/wiki/Comma-separated_values 
-
-* JSON: Can be used, however it lacks specific features for translation, like plurals and gender. 
-
-* YAML: Can be used, however it lacks specific features for translation, like plurals and gender. 
-   
-**Note:** I need help to create import methods for all those formats above.
-If you want to help, please PR here: https://github.com/marcglasberg/i18n_extension.
 
 ## FAQ
 
@@ -765,12 +763,10 @@ and it will let you know even if you import from `.arb` files and translations a
  
 <br>
 
-**Q: Looks like importers have not been written yet.**
+**Q: I'm not seeing importers for X.**
 
-**A:** _They have not. The `Translations` object use maps as input/output. 
-So at the moment you can use whatever file you want if you convert them to a map yourself. 
-Keep in mind this lib development is still new, and I hope the community will help writing those imports/exports. 
-We hope to have those for `.arb` `.icu` `.po` `.xliff` `.csv` `.json` and `.yaml`, but we're not there yet._
+**A:** _Keep in mind this lib development is still new, and I hope the community will help writing those imports/exports. 
+We hope to have those for `.arb` `.icu` `.xliff` `.csv` and `.yaml`, but we're not there yet._
 
 <br>
 
