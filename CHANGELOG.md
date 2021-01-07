@@ -1,3 +1,7 @@
+## [1.4.6] - 2020/01/07
+
+* Sprintf version bump to 5.0.0.
+
 ## [1.4.5] - 2020/10/17
 
 * Added `key` and `id` to `I18n` widget constructor.
