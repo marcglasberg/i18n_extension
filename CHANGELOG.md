@@ -1,3 +1,7 @@
+## [1.5.0] - 2021/01/21
+
+* `.PO` and `.JSON` importers contributed by <a href="https://github.com/bauerj">Johann Bauer</a>.
+
 ## [1.4.6] - 2020/01/07
 
 * Sprintf version bump to 5.0.0.
