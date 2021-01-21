@@ -1,4 +1,4 @@
-## [1.5.0] - 2021/01/21
+## [1.5.1] - 2021/01/21
 
 * `.PO` and `.JSON` importers contributed by <a href="https://github.com/bauerj">Johann Bauer</a>.
 
