@@ -432,12 +432,19 @@ String plural(int value) => localizePlural(value, this, _t);
 ```
 
 The plural modifiers you can use are `zero`, `one`, `two`, `three`, `four`, `five`, `six`, `ten`,
-`times` (for any number of elements, except 0, 1 and 2), and `many` (for any number of elements,
-except 1).
+`times` (for any number of elements, except 0, 1 and 2), `many` (for any number of elements,
+except 1, including 0), `zeroOne` (for 0 or 1 elements), and `oneOrMore` (for 1 and more elements).
 
 Also, according to a <a href="https://github.com/marcglasberg/i18n_extension/issues/42">Czech
 speaker</a>, there must be a special modifier for 2, 3 and 4. To that end you can use
 the `twoThreeFour` modifier.
+
+Note: It will use the most specific plural modifier. 
+For example, `.two` is more specific than `.many`.
+If no applicable modifier can be found, it will default to the unversioned string.
+For example, this: `"a".zero("b").four("c:")` will default to `"a"` 
+for 1, 2, 3, or more than 5 elements.
+
 
 #### Custom modifiers
 

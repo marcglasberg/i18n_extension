@@ -1,3 +1,8 @@
+## [2.0.0] - 2021/30/21
+
+* Plural modifiers: `zeroOne` (for 0 or 1 elements), and `oneOrMore` (for 1 and more elements).
+* Fix for when no applicable plural modifier is found. It now correctly defaults to the unversioned string.
+
 ## [1.5.1] - 2021/01/21
 
 * `.PO` and `.JSON` importers contributed by <a href="https://github.com/bauerj">Johann Bauer</a>.
@@ -20,8 +25,8 @@
 
 ## [1.4.2] - 2020/06/26
 
-* Bumped `sprintf` to version `4.1.0`, which adds compatibility for future Dart features
-  that require a Dart SDK constraint with a lower bound that is `>=2.0.0`.
+* Bumped `sprintf` to version `4.1.0`, which adds compatibility for future Dart features that require a Dart SDK
+  constraint with a lower bound that is `>=2.0.0`.
 
 ## [1.4.1] - 2020/06/22
 
@@ -72,8 +77,8 @@
 
 * I18n.observeLocale() can be used to observe locale changes.
 
-* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong. 
-See "A quick recap of Dart locales" in the docs, for more details.
+* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong. See "A quick recap of
+  Dart locales" in the docs, for more details.
 
 ## [1.2.0] - 2019/12/19
 

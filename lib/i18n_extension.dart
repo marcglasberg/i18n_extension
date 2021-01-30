@@ -109,6 +109,14 @@ String localizeFill(String text, List<Object> params) => sprintf(text, params);
 
 /// Returns the translated version for the plural modifier.
 /// After getting the version, substring %d will be replaced with the modifier.
+///
+/// Note: This will try to get the most specific plural modifier. For example,
+/// `.two` is more specific than `.many`.
+///
+/// If no applicable modifier can be found, it will default to the unversioned string.
+/// For example, this: `"a".zero("b").four("c:")` will default to `"a"` for 1, 2, 3,
+/// or more than 5 elements.
+///
 String localizePlural(
   int modifier,
   String key,
@@ -122,44 +130,49 @@ String localizePlural(
 
   String text;
 
-  /// For plural(0), returns the version 0, otherwise the version many, otherwise the unversioned.
+  /// For plural(0), returns the version 0, otherwise the version the version 0-1,
+  /// otherwise the version many, otherwise the unversioned.
   if (modifier == 0)
-    text = versions["0"] ?? versions["M"] ?? versions[null];
+    text = versions["0"] ?? versions["F"] ?? versions["M"] ?? versions[null];
 
-  /// For plural(1), returns the version 1, otherwise the unversioned.
+  /// For plural(1), returns the version 1, otherwise the version the version 0-1,
+  /// otherwise the version the version 1-many, otherwise the unversioned.
   else if (modifier == 1)
-    text = versions["1"] ?? versions[null];
+    text = versions["1"] ?? versions["F"] ?? versions["R"] ?? versions[null];
 
   /// For plural(2), returns the version 2, otherwise the version 2-3-4,
-  /// otherwise the version many, otherwise the unversioned.
+  /// otherwise the version many/1-many, otherwise the unversioned.
   else if (modifier == 2)
-    text = versions["2"] ?? versions["C"] ?? versions["M"] ?? versions[null];
+    text = versions["2"] ?? versions["C"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   /// For plural(3), returns the version 3, otherwise the version 2-3-4,
-  /// otherwise the version many, otherwise the unversioned.
+  /// otherwise the version many/1-many, otherwise the unversioned.
   else if (modifier == 3)
-    text = versions["3"] ?? versions["C"] ?? versions["M"] ?? versions[null];
+    text = versions["3"] ?? versions["C"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   /// For plural(4), returns the version 4, otherwise the version 2-3-4,
-  /// otherwise the version many, otherwise the unversioned.
+  /// otherwise the version many/1-many, otherwise the unversioned.
   else if (modifier == 4)
-    text = versions["4"] ?? versions["C"] ?? versions["M"] ?? versions[null];
+    text = versions["4"] ?? versions["C"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
-  /// For plural(5), returns the version 5, otherwise the version many, otherwise the unversioned.
+  /// For plural(5), returns the version 5, otherwise the version many/1-many,
+  /// otherwise the unversioned.
   else if (modifier == 5)
-    text = versions["5"] ?? versions["M"] ?? versions[null];
+    text = versions["5"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
-  /// For plural(6), returns the version 6, otherwise the version many, otherwise the unversioned.
+  /// For plural(6), returns the version 6, otherwise the version many/1-many,
+  /// otherwise the unversioned.
   else if (modifier == 6)
-    text = versions["6"] ?? versions["M"] ?? versions[null];
+    text = versions["6"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
-  /// For plural(10), returns the version 10, otherwise the version many, otherwise the unversioned.
+  /// For plural(10), returns the version 10, otherwise the version many/1-many,
+  /// otherwise the unversioned.
   else if (modifier == 10)
-    text = versions["T"] ?? versions["M"] ?? versions[null];
+    text = versions["T"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
-  /// For plural(<0 or >2), returns the version many, otherwise the unversioned.
+  /// For plural(<0 or >2), returns the version many/1-many, otherwise the unversioned.
   else
-    text = versions[modifier.toString()] ?? versions["M"] ?? versions[null];
+    text = versions[modifier.toString()] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   // ---
 
@@ -204,7 +217,7 @@ String localizeVersion(
 }
 
 /// Returns a map of all translated strings, where modifiers are the keys.
-/// In special, the unversioned text is returned indexed with a null key.
+/// In special, the unversioned text is indexed with a `null` key.
 Map<String, String> localizeAllVersions(
   String key,
   ITranslations translations, {
@@ -217,9 +230,11 @@ Map<String, String> localizeAllVersions(
     return {null: total};
   }
 
-  Map<String, String> all = {null: total};
-
   List<String> parts = total.split(_splitter1);
+  if (parts.length < 1) return {null: key};
+
+  Map<String, String> all = {null: parts[1]};
+
   for (int i = 2; i < parts.length; i++) {
     var part = parts[i];
     List<String> par = part.split(_splitter2);
@@ -555,7 +570,16 @@ extension Localization on String {
   /// Plural modifier for 2, 3 or 4 elements (especially for Czech language).
   String twoThreeFour(String text) => modifier("C", text);
 
+  /// Plural modifier for 1 or more elements.
+  /// In other words, it includes any number of elements except zero.
+  String oneOrMore(String text) => modifier("R", text);
+
+  /// Plural modifier for 0 or 1 elements.
+  String zeroOne(String text) => modifier("F", text);
+
   /// Plural modifier for any number of elements, except 1.
+  /// Note: [many] includes 0 elements, but it's less specific
+  /// than [zero] and [zeroOne].
   String many(String text) => modifier("M", text);
 }
 

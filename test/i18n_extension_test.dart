@@ -705,6 +705,187 @@ void main() {
   });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("0 and 1 plural.", () {
+    I18n.define(Locale("en", "US"));
+    var key = "1 beer";
+
+    // ---
+
+    Translations t = Translations("en_us") +
+        {
+          "en_us": "1 beer"
+              .zeroOne("0 or 1 beers")
+              .zero("0 beers")
+              .one("1 beer")
+              .two("2 beers")
+              .three("3 beers")
+              .many("many beers"),
+        };
+
+    // .zero and .one have priority over .zeroOne, because they are more specific.
+    expect(localizePlural(0, key, t, locale: "en_us"), "0 beers");
+    expect(localizePlural(1, key, t, locale: "en_us"), "1 beer");
+    expect(localizePlural(2, key, t, locale: "en_us"), "2 beers");
+    expect(localizePlural(3, key, t, locale: "en_us"), "3 beers");
+    expect(localizePlural(4, key, t, locale: "en_us"), "many beers");
+
+    // ---
+
+    t = Translations("en_us") +
+        {
+          "en_us":
+              "1 beer".zeroOne("0 or 1 beers").two("2 beers").three("3 beers").many("many beers"),
+        };
+
+    expect(localizePlural(0, key, t, locale: "en_us"), "0 or 1 beers");
+    expect(localizePlural(1, key, t, locale: "en_us"), "0 or 1 beers");
+    expect(localizePlural(2, key, t, locale: "en_us"), "2 beers");
+    expect(localizePlural(3, key, t, locale: "en_us"), "3 beers");
+    expect(localizePlural(4, key, t, locale: "en_us"), "many beers");
+
+    expect(
+        t.toString(),
+        '\n'
+        'Translations: ---------------\n'
+        '  en_us | 1 beer\n'
+        '          F → 0 or 1 beers\n'
+        '          2 → 2 beers\n'
+        '          3 → 3 beers\n'
+        '          M → many beers\n'
+        '-----------------------------\n');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("1 or more plural.", () {
+    I18n.define(Locale("en", "US"));
+    var key = "1 beer";
+
+    // ---
+
+    Translations t = Translations("en_us") +
+        {
+          "en_us": "1 beer"
+              .oneOrMore("1 or more beers")
+              .zero("0 beers")
+              .one("1 beer")
+              .two("2 beers")
+              .three("3 beers")
+              .many("many beers"),
+        };
+
+    // .one, .two, .three, .many have priority over .oneMany, because they are more specific.
+    expect(localizePlural(0, key, t, locale: "en_us"), "0 beers");
+    expect(localizePlural(1, key, t, locale: "en_us"), "1 beer");
+    expect(localizePlural(2, key, t, locale: "en_us"), "2 beers");
+    expect(localizePlural(3, key, t, locale: "en_us"), "3 beers");
+    expect(localizePlural(4, key, t, locale: "en_us"), "many beers");
+
+    // ---
+
+    t = Translations("en_us") +
+        {"en_us": "1 beer".oneOrMore("1 or more beers").zero("0 beers").three("3 beers")};
+
+    expect(localizePlural(0, key, t, locale: "en_us"), "0 beers");
+    expect(localizePlural(1, key, t, locale: "en_us"), "1 or more beers");
+    expect(localizePlural(2, key, t, locale: "en_us"), "1 or more beers");
+    expect(localizePlural(3, key, t, locale: "en_us"), "3 beers");
+    expect(localizePlural(4, key, t, locale: "en_us"), "1 or more beers");
+
+    expect(
+        t.toString(),
+        '\n'
+        'Translations: ---------------\n'
+        '  en_us | 1 beer\n'
+        '          R → 1 or more beers\n'
+        '          0 → 0 beers\n'
+        '          3 → 3 beers\n'
+        '-----------------------------\n');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Comparison between .oneOrMore and .many.", () {
+    //
+    I18n.define(Locale("en", "US"));
+    var key = "1 beer";
+
+    // Make sure "1 or more" DOES NOT include zero (but includes 1).
+    var t = Translations("en_us") + {"en_us": "1 beer".oneOrMore("1 or more beer")};
+
+    expect(localizePlural(0, key, t, locale: "en_us"), "1 beer");
+    expect(localizePlural(1, key, t, locale: "en_us"), "1 or more beer");
+    expect(localizePlural(2, key, t, locale: "en_us"), "1 or more beer");
+    expect(localizePlural(3, key, t, locale: "en_us"), "1 or more beer");
+    expect(localizePlural(4, key, t, locale: "en_us"), "1 or more beer");
+
+    // While "many" DOES INCLUDE zero (but not one).
+    t = Translations("en_us") + {"en_us": "1 beer".many("many beers")};
+
+    expect(localizePlural(0, key, t, locale: "en_us"), "many beers");
+    expect(localizePlural(1, key, t, locale: "en_us"), "1 beer");
+    expect(localizePlural(2, key, t, locale: "en_us"), "many beers");
+    expect(localizePlural(3, key, t, locale: "en_us"), "many beers");
+    expect(localizePlural(4, key, t, locale: "en_us"), "many beers");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Plurals not provided default to the unversioned string.", () {
+    //
+
+    I18n.define(Locale("pt", "br"));
+    var key = "unversioned";
+
+    // ---
+
+    Translations t = Translations("en_us") +
+        {
+          "en_us": "unversioned".zero("version 0").many("version many"),
+          "pt_br": "não versionada".zero("versão 0").many("versão várias"),
+        };
+
+    expect(localizePlural(0, key, t, locale: "en_us"), "version 0");
+    expect(localizePlural(1, key, t, locale: "en_us"), "unversioned");
+    expect(localizePlural(2, key, t, locale: "en_us"), "version many");
+    expect(localizePlural(3, key, t, locale: "en_us"), "version many");
+
+    expect(localizePlural(0, key, t, locale: "pt_br"), "versão 0");
+    expect(localizePlural(1, key, t, locale: "pt_br"), "não versionada");
+    expect(localizePlural(2, key, t, locale: "pt_br"), "versão várias");
+    expect(localizePlural(3, key, t, locale: "pt_br"), "versão várias");
+
+    // ---
+
+    t = Translations("en_us") +
+        {
+          "en_us": "unversioned".zero("version 0").many("version many"),
+          "pt_br": "não versionada",
+        };
+
+    expect(localizePlural(0, key, t, locale: "en_us"), "version 0");
+    expect(localizePlural(1, key, t, locale: "en_us"), "unversioned");
+    expect(localizePlural(2, key, t, locale: "en_us"), "version many");
+    expect(localizePlural(3, key, t, locale: "en_us"), "version many");
+
+    expect(localizePlural(0, key, t, locale: "pt_br"), "não versionada");
+    expect(localizePlural(1, key, t, locale: "pt_br"), "não versionada");
+    expect(localizePlural(2, key, t, locale: "pt_br"), "não versionada");
+    expect(localizePlural(3, key, t, locale: "pt_br"), "não versionada");
+
+    expect(
+        t.toString(),
+        '\n'
+        'Translations: ---------------\n'
+        '  en_us | unversioned\n'
+        '          0 → version 0\n'
+        '          M → version many\n'
+        '  pt_br | não versionada\n'
+        '-----------------------------\n');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 extension Localization on String {
