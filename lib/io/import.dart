@@ -59,7 +59,7 @@ class GettextImporter extends Importer {
     Map<String, String> out = {};
     var translations = gettextParser.po.parse(source)["translations"][""];
     for (Map translation in translations.values) {
-      if (translation.length > 0)
+      if (translation.length > 0 && translation["msgstr"][0] != "")
         out[translation["msgid"]] = translation["msgstr"][0];
     }
     return out;
