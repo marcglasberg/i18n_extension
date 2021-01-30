@@ -832,6 +832,22 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
+  test("Empty strings are allowed.", () {
+    //
+    I18n.define(Locale("en", "US"));
+    var key = "1 beer";
+
+    var t = Translations("en_us") + {"en_us": "1 beer".zero("").three("").many("many beers")};
+
+    expect(localizePlural(0, key, t, locale: "en_us"), "");
+    expect(localizePlural(1, key, t, locale: "en_us"), "1 beer");
+    expect(localizePlural(2, key, t, locale: "en_us"), "many beers");
+    expect(localizePlural(3, key, t, locale: "en_us"), "");
+    expect(localizePlural(4, key, t, locale: "en_us"), "many beers");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
   test("Plurals not provided default to the unversioned string.", () {
     //
 

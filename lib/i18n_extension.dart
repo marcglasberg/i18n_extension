@@ -238,11 +238,19 @@ Map<String, String> localizeAllVersions(
   for (int i = 2; i < parts.length; i++) {
     var part = parts[i];
     List<String> par = part.split(_splitter2);
-    if (par.length != 2 || par[0].isEmpty || par[1].isEmpty)
+    String version, text;
+    if (par.length == 1) {
+      version = par[0];
+      text = "";
+    } else if (par.length == 2) {
+      version = par[0];
+      text = par[1];
+    }
+
+    if (version == null || version.isEmpty)
       throw TranslationsException("Invalid text version for '$part' "
           "(key: '$key', locale: '${_effectiveLocale(translations, locale)}').");
-    String version = par[0];
-    String text = par[1];
+
     all[version] = text;
   }
 
