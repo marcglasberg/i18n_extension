@@ -1,4 +1,4 @@
-## 2.1.0-dev.1
+## 3.0.0-dev.1
 
 * Addressed breaking change in Flutter framework (https://github.com/flutter/flutter/pull/68911).
 
