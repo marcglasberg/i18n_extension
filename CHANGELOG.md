@@ -1,3 +1,7 @@
+## 3.0.0-dev.1
+
+* Addressed breaking change in Flutter framework (https://github.com/flutter/flutter/pull/68911).
+
 ## [2.0.0] - 2021/30/21
 
 * Plural modifiers: `zeroOne` (for 0 or 1 elements), and `oneOrMore` (for 1 and more elements).

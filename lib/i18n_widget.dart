@@ -194,7 +194,7 @@ class _I18nState extends State<I18n> {
   }
 
   void _processSystemLocale() {
-    var newSystemLocale = Localizations.localeOf(context, nullOk: true);
+    var newSystemLocale = Localizations.maybeLocaleOf(context);
     if (newSystemLocale != I18n._systemLocale) {
       Locale oldLocale = I18n.locale;
       I18n._systemLocale = newSystemLocale;

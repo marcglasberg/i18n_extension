@@ -1,5 +1,6 @@
 name: example
 description: i18n_extension example
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
