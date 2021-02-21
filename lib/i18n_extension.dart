@@ -465,7 +465,8 @@ class Translations extends ITranslations {
     @required String translatedString,
   }) {
     if (locale == null || locale.isEmpty) throw TranslationsException("Missing locale.");
-    if (key == null || key.isEmpty) throw TranslationsException("Missing key.");
+    if (key == null) throw TranslationsException("Missing key.");
+    if (key.isEmpty) return;
     if (translatedString == null || translatedString.isEmpty)
       throw TranslationsException("Missing translatedString.");
     // ---
