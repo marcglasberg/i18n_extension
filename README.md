@@ -23,7 +23,7 @@ locales you want to support.
 You can also provide different translations depending on modifiers, for example `plural` quantities:
 
 ```
-print("There is 1 item".plural(0)); // Prints 'There are no items' 
+print("There is 1 item".plural(0)); // Prints 'There are no items'
 print("There is 1 item".plural(1)); // Prints 'There is 1 item'
 print("There is 1 item".plural(2)); // Prints 'There are 2 items'
 ```
@@ -36,15 +36,15 @@ modifiers:
 print("There is a person".gender(Gender.male)); // Prints 'There is a man'
 print("There is a person".gender(Gender.female)); // Prints 'There is a woman'
 print("There is a person".gender(Gender.they)); // Prints 'There is a person'
-```             
+```
 
 Also, interpolating strings is easy, with the `fill` method:
 
-```                                                    
+```
 // Prints 'Hello John, this is Mary' in English.
 // Prints 'Olá John, aqui é Mary' in Portuguese.
-print("Hello %s, this is %s".i18n.fill(["John", "Mary"])); 
-```           
+print("Hello %s, this is %s".i18n.fill(["John", "Mary"]));
+```
 
 ### See it working
 
@@ -151,7 +151,7 @@ For example:
 ```
 var locale = Locale("en", "US");
 
-print(locale); // Prints `en_US`.                         
+print(locale); // Prints `en_US`.
 print(locale.languageCode); // Prints `en`.
 ```
 
@@ -160,17 +160,17 @@ You can, if you want, omit the country code:
 ```
 var locale = Locale("en");
 
-print(locale); // Prints `en`.                          
+print(locale); // Prints `en`.
 print(locale.languageCode); // Prints `en`.
 ```
 
 But you **cannot** provide language code and country code as a single String. This is wrong:
 
-```               
-// This will create a language called "en_US" and no country code. 
+```
+// This will create a language called "en_US" and no country code.
 var locale = Locale("en_US");
 
-print(locale); // Prints `en_US`.                         
+print(locale); // Prints `en_US`.
 print(locale.languageCode); // Also prints `en_US`.
 ```
 
@@ -217,7 +217,7 @@ extension Localization on String {
       "de": "Hallo, wie geht es dir?",
     };
 
-  String get i18n => localize(this, _t);          
+  String get i18n => localize(this, _t);
 }
 ```
 
@@ -277,7 +277,9 @@ If the translation key is found, it will choose the language according to the fo
 3. If this is absent, it will use the translation to any other locale with the same language, for
    example `en_uk`.
 
-4. If this is absent, it will use the key itself as the translation.
+4. If this is absent, it will use the value of the key in the default language.
+
+5. If this is absent, it will use the key itself as the translation.
 
 ### Managing keys
 
@@ -324,8 +326,8 @@ To do that, simply inject your callbacks into `Translations.missingKeyCallback` 
 For example:
 
 ```
-Translations.missingTranslationCallback = 
-  (key, locale) => 
+Translations.missingTranslationCallback =
+  (key, locale) =>
     throw TranslationsException("There are no translations in '$locale' for '$key'.");
 ```
 
@@ -426,7 +428,7 @@ static var _t = Translations("en_us") +
         .two("Você clicou um par de vezes")
         .many("Você clicou %d vezes")
         .times(12, "Você clicou uma dúzia de vezes"),
-  };            
+  };
 
 String plural(int value) => localizePlural(value, this, _t);
 ```
@@ -439,10 +441,10 @@ Also, according to a <a href="https://github.com/marcglasberg/i18n_extension/iss
 speaker</a>, there must be a special modifier for 2, 3 and 4. To that end you can use
 the `twoThreeFour` modifier.
 
-Note: It will use the most specific plural modifier. 
+Note: It will use the most specific plural modifier.
 For example, `.two` is more specific than `.many`.
 If no applicable modifier can be found, it will default to the unversioned string.
-For example, this: `"a".zero("b").four("c:")` will default to `"a"` 
+For example, this: `"a".zero("b").four("c:")` will default to `"a"`
 for 1, 2, 3, or more than 5 elements.
 
 
@@ -480,22 +482,22 @@ String gender(Gender gnd) => localizeVersion(gnd, this, _t);
 
 Your translations file may declare a `fill` method to do interpolations:
 
-```   
+```
 static var _t = Translations("en_us") +
   {
     "en_us": "Hello %s, this is %s",
     "pt_br": "Olá %s, aqui é %s",
   };
-   
+
 String get i18n => localize(this, _t);
-   
-String fill(List<Object> params) => localizeFill(this, params);       
+
+String fill(List<Object> params) => localizeFill(this, params);
 ```
 
 Then you may use it like this:
 
 ```
-print("Hello %s, this is %s".i18n.fill(["John", "Mary"])); 
+print("Hello %s, this is %s".i18n.fill(["John", "Mary"]));
 ```
 
 The above code will print `Hello John, this is Mary` if the locale is English,
@@ -549,24 +551,24 @@ as a whole.*
 
 To read the current locale, do this:
 
-```                                        
+```
 // Both ways work:
 Locale locale = I18n.of(context).locale;
-Locale locale = I18n.locale;                  
+Locale locale = I18n.locale;
 
-// Or get the locale as a lowercase string. Example: "en_us". 
+// Or get the locale as a lowercase string. Example: "en_us".
 String localeStr = I18n.localeStr;
 
 // Or get the language of the locale, lowercase. Example: "en".
 static language = I18n.language;
-```        
+```
 
 ### Observing locale changes
 
 There is a global static callback you can use to observe locale changes:
 
-```   
-I18n.observeLocale = 
+```
+I18n.observeLocale =
   ({Locale oldLocale, Locale newLocale}) => print("Changed from $oldLocale to $newLocale.");
 ```
 
@@ -590,15 +592,15 @@ The following formats may be used with translations:
 
 * JSON: Can be used, however it lacks specific features for translation, like plurals and gender.
 
-* ARB: This is based on JSON, and is the default format for Flutter localizations. 	
+* ARB: This is based on JSON, and is the default format for Flutter localizations.
   https://github.com/google/app-resource-bundle/wiki/ApplicationResourceBundleSpecification
 
 * ICU: https://format-message.github.io/icu-message-format-for-translators/
 
 * XLIFF: This is based in XML. https://en.wikipedia.org/wiki/XLIFF
 
-* CSV: You can open this with Excel, save it in .XLSX and edit it there. 	
-  However, beware not to export it back to CSV with the wrong settings 	
+* CSV: You can open this with Excel, save it in .XLSX and edit it there.
+  However, beware not to export it back to CSV with the wrong settings
   (using something else than UTF-8 as encoding).
   https://en.wikipedia.org/wiki/Comma-separated_values
 
@@ -630,7 +632,7 @@ import 'package:i18n_extension/io/import.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
 void loadTranslations() async {
-  TranslationsByLocale translations = 
+  TranslationsByLocale translations =
     Translations.byLocale("en_GB")
     + await GettextImporter().fromAssetDirectory("assets/locales");
 }
@@ -658,14 +660,14 @@ print("Hello World!".i18n); // This would work.
 
 // But the tool would not be able to spot this since it doesn't execute the code.
 var x = "Hello World";
-print(x.i18n); 
+print(x.i18n);
 ```
 
 #### Other ways to export
 
 As previously discussed, i18n_extension will automatically list all keys into a map if you use some
 unknown locale, run the app, and manually or automatically go through all the screens. For example,
-create a Greek locale if your app doesn't have Greek translations,  
+create a Greek locale if your app doesn't have Greek translations,
 and it will list all keys into `Translations.missingTranslationCallback.`
 Then you can read from this map and create your exported file. There is
 also <a href="https://pub.dev/packages/flutter_storyboard">this package</a>
@@ -765,7 +767,7 @@ in these cases you will probably need somewhere to put this code. In any case, t
 work all you need a Translation object which you can create in many ways, by adding maps to it using
 the `+` operator, or by adding other translation objects together using the `*` operator. You can
 create this Translation objects anywhere you want, in a single file per widget, in a single file for
-many widgets, or in a single file for the whole app.    
+many widgets, or in a single file for the whole app.
 Also, if you are not doing translations by hand but importing strings from translation files, then
 you don't even need a separate file. You can just add
 `extension Localization on String { String get i18n => localize(this, Translations("en_us") + load("file.json")); } `
@@ -850,6 +852,3 @@ _https://github.com/marcglasberg_<br>
 _https://twitter.com/glasbergmarcelo_<br>
 _https://stackoverflow.com/users/3411681/marcg_<br>
 _https://medium.com/@marcglasberg_<br>
-
-
-
