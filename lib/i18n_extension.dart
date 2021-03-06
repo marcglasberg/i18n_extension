@@ -131,7 +131,7 @@ String localizePlural(
 }) {
   locale = locale?.toLowerCase();
 
-  Map<String?, String?> versions =
+  Map<String?, String> versions =
       localizeAllVersions(key, translations, locale: locale);
 
   String? text;
@@ -183,6 +183,7 @@ String localizePlural(
   else if (modifier == 6)
     text = versions["6"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
+  /// For plural(10), returns the version 10, otherwise the version many/1-many,
   /// For plural(10), returns the version 10, otherwise the version many/1-many,
   /// otherwise the unversioned.
   else if (modifier == 10)
@@ -465,7 +466,8 @@ class Translations extends ITranslations {
       for (MapEntry<String, String> entry2 in entry.value.entries) {
         String locale = entry2.key;
         String translatedString = entry2.value;
-        add(locale: locale, key: key, translatedString: translatedString);
+        addTranslation(
+            locale: locale, key: key, translatedString: translatedString);
       }
     }
     return this;
@@ -514,12 +516,15 @@ class Translations extends ITranslations {
             ..sort(TranslatedString.comparable(defaultLocaleStr));
 
   /// Add a [key]/[translatedString] pair to the translations.
-  /// You must provide non-empty [locale], [key], and [translatedString]
-  /// values, otherwise an error is thrown.
-  /// However, if both the [key] and [translatedString] are empty,
-  /// the method won't do anything but also won't throw any errors.
+  /// You must provide non-empty [locale] and [key], but the [translatedString]
+  /// may be empty (for the case when some text shouldn't be displayed in some
+  /// language).
   ///
-  void add({
+  /// If [locale] or [key] are empty, an error is thrown.
+  /// However, if both the [key] and [translatedString] are empty,
+  /// the method will ignore it and won't throw any errors.
+  ///
+  void addTranslation({
     required String locale,
     required String key,
     required String translatedString,
@@ -529,8 +534,6 @@ class Translations extends ITranslations {
       if (translatedString.isEmpty) return;
       throw TranslationsException("Missing key.");
     }
-    if (translatedString.isEmpty)
-      throw TranslationsException("Missing translated string.");
 
     // ---
 
@@ -561,7 +564,11 @@ class TranslationsByLocale extends ITranslations {
       for (MapEntry<String?, String> entry2 in entry.value.entries) {
         String key = Translations._getKey(entry2.key!);
         String translatedString = entry2.value;
-        byKey.add(locale: locale, key: key, translatedString: translatedString);
+        byKey.addTranslation(
+          locale: locale,
+          key: key,
+          translatedString: translatedString,
+        );
       }
     }
     return this;
@@ -582,7 +589,11 @@ class TranslationsByLocale extends ITranslations {
       for (MapEntry<String, String> entry2 in entry.value.entries) {
         String locale = entry2.key;
         String translatedString = entry2.value;
-        byKey.add(locale: locale, key: key, translatedString: translatedString);
+        byKey.addTranslation(
+          locale: locale,
+          key: key,
+          translatedString: translatedString,
+        );
       }
     }
     return this;

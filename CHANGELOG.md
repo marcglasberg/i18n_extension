@@ -5,6 +5,7 @@
   During this time, in prior version _2.0.0_ it would use the `Translations` default locale.
   Now, in version _3.0.0_, it will use the global locale defined in `I18n.defaultLocale`, which by 
   default is `Locale("en", "US")`. You can change this default in your app's main method.
+* Fixed the PO importer to ignore empty keys.
 
 ## [2.0.0] - 2021/30/21
 
