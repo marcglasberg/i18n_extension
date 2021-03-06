@@ -5,7 +5,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
   //
-  static var _t = Translations("en_us") +
+  static final _t = Translations("en_us") +
       {
         "en_us": "Hello, welcome to this internationalization demo.",
         "pt_br": "Olá, bem-vindo a esta demonstração de internacionalização.",
@@ -19,5 +19,5 @@ extension Localization on String {
 
   String version(Object modifier) => localizeVersion(modifier, this, _t);
 
-  Map<String, String> allVersions() => localizeAllVersions(this, _t);
+  Map<String?, String> allVersions() => localizeAllVersions(this, _t);
 }

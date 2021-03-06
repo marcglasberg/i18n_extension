@@ -558,7 +558,7 @@ Locale locale = I18n.locale;
 String localeStr = I18n.localeStr;
 
 // Or get the language of the locale, lowercase. Example: "en".
-static language = I18n.language;
+String language = I18n.language;
 ```        
 
 ### Observing locale changes

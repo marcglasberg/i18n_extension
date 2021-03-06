@@ -8,7 +8,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Empty translations.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     var t = Translations("en_us");
     expect(t.length, 0);
@@ -22,7 +22,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add translation in English only.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     var t = Translations("en_us") + {"en_us": "Hi."};
     expect(t.length, 1);
     expect(t.translations, {
@@ -38,7 +38,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add translation in many languages.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     var t = Translations("en_us") +
         {
@@ -75,7 +75,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add 2 translations in a single language.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     var t = Translations("en_us") +
         {
@@ -108,7 +108,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add 2 translations in 2 languages.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     var t = Translations("en_us") +
         {
@@ -147,7 +147,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Translations with versions.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     var t = Translations("en_us") +
         {
@@ -184,7 +184,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Combine 2 translations.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     var t1 = Translations("en_us") +
         {
@@ -227,7 +227,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Add 2 translations in 3 languages, by locale.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     var t = Translations.byLocale("en_us") +
         {
@@ -278,7 +278,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Combine 2 translations by locale.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     TranslationsByLocale t1 = Translations.byLocale("en_us") +
         {
@@ -344,11 +344,11 @@ void main() {
           "pt_br": "Adeus.",
         };
 
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     expect(localize("Hi.", t), "Hi.");
     expect(localize("Goodbye", t), "Goodbye");
 
-    I18n.define(Locale("pt", "BR"));
+    I18n.define(const Locale("pt", "BR"));
     expect(localize("Hi.", t), "Olá.");
     expect(localize("Goodbye.", t), "Adeus.");
   });
@@ -357,12 +357,12 @@ void main() {
 
   test("Translate using the extension.", () {
     //
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     expect("Hi.".i18n, "Hi.");
     expect("Goodbye.".i18n, "Goodbye.");
     expect("XYZ".i18n, "XYZ");
 
-    I18n.define(Locale("pt", "BR"));
+    I18n.define(const Locale("pt", "BR"));
     expect("Hi.".i18n, "Olá.");
     expect("Goodbye.".i18n, "Adeus.");
     expect("XYZ".i18n, "XYZ");
@@ -381,10 +381,10 @@ void main() {
     expect(Translations.missingKeys, isEmpty);
     expect(Translations.missingTranslations, isEmpty);
 
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     expect("Hi.".i18n, "Hi.");
 
-    I18n.define(Locale("pt", "BR"));
+    I18n.define(const Locale("pt", "BR"));
     expect("Hi.".i18n, "Olá.");
 
     expect(Translations.missingKeys, isEmpty);
@@ -394,7 +394,7 @@ void main() {
 
     // 2) Search for a key which does NOT exist.
 
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     expect("Unknown text".i18n, "Unknown text");
 
     expect(Translations.missingKeys.length, 1);
@@ -409,7 +409,7 @@ void main() {
     Translations.missingKeys.clear();
     Translations.missingTranslations.clear();
 
-    I18n.define(Locale("xx", "yy"));
+    I18n.define(const Locale("xx", "yy"));
     expect("Hi.".i18n, "Hi.");
 
     expect(Translations.missingKeys, isEmpty);
@@ -435,7 +435,7 @@ void main() {
           "es_es": {"Hi.": "Hola."}
         };
 
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     expect(localize("Hi.", t1), "Hi.");
 
     expect(Translations.missingKeys, isEmpty);
@@ -453,7 +453,7 @@ void main() {
           "es_es": {"Hi.": "Hola."}
         };
 
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     expect(localize("Hi.", t2), "Hi.");
 
     expect(Translations.missingKeys, isEmpty);
@@ -473,7 +473,7 @@ void main() {
           "es_es": "Hola.",
         };
 
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     expect(localize("Hi.", t3), "Hi.");
 
     expect(Translations.missingKeys, isEmpty);
@@ -535,7 +535,7 @@ void main() {
 
   test("Numeric modifiers.", () {
     //
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     var text = "There is 1 item.";
     expect(text.plural(0), "There are no items.");
     expect(text.plural(1), "There is 1 item.");
@@ -544,7 +544,7 @@ void main() {
     expect(text.plural(4), "There are 4 items.");
     expect(text.plural(5), "Yes, you reached 5 items.");
 
-    I18n.define(Locale("pt", "BR"));
+    I18n.define(const Locale("pt", "BR"));
     text = "There is 1 item.";
     expect(text.plural(0), "Não há itens.");
     expect(text.plural(1), "Há 1 item.");
@@ -558,35 +558,35 @@ void main() {
 
   test("Custom modifiers.", () {
     //
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     var text = "There is a person";
     expect(text.gender(Gender.male), "There is a man");
     expect(text.gender(Gender.female), "There is a woman");
     expect(text.gender(Gender.they), "There is a person");
 
     expect(
-        () => text.gender(null),
+        () => text.gender(Gender.x),
         throwsA(TranslationsException(
-            "This text has no version for modifier 'null' (modifier: null, key: 'There is a person', locale: 'en_us').")));
+            "This text has no version for modifier 'Gender.x' (modifier: Gender.x, key: 'There is a person', locale: 'en_us').")));
 
     // ---
 
-    I18n.define(Locale("pt", "BR"));
+    I18n.define(const Locale("pt", "BR"));
     text = "There is a person";
     expect(text.gender(Gender.male), "Há um homem");
     expect(text.gender(Gender.female), "Há uma mulher");
     expect(text.gender(Gender.they), "Há uma pessoa");
 
     expect(
-        () => text.gender(null),
+        () => text.gender(Gender.x),
         throwsA(TranslationsException(
-            "This text has no version for modifier 'null' (modifier: null, key: 'There is a person', locale: 'pt_br').")));
+            "This text has no version for modifier 'Gender.x' (modifier: Gender.x, key: 'There is a person', locale: 'pt_br').")));
   });
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("Czech variations.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
 
     Translations t = Translations("en_us") +
         {
@@ -617,7 +617,7 @@ void main() {
               .many("many variation"),
         };
 
-    I18n.define(Locale("cz", "cz"));
+    I18n.define(const Locale("cz", "cz"));
     var key = "1 beer";
     expect(localizePlural(0, key, t, locale: "cz_cz"), "0 variation");
     expect(localizePlural(1, key, t, locale: "cz_cz"), "1 variation");
@@ -707,7 +707,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("0 and 1 plural.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     var key = "1 beer";
 
     // ---
@@ -759,7 +759,7 @@ void main() {
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   test("1 or more plural.", () {
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     var key = "1 beer";
 
     // ---
@@ -808,7 +808,7 @@ void main() {
 
   test("Comparison between .oneOrMore and .many.", () {
     //
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     var key = "1 beer";
 
     // Make sure "1 or more" DOES NOT include zero (but includes 1).
@@ -834,7 +834,7 @@ void main() {
 
   test("Empty strings are allowed.", () {
     //
-    I18n.define(Locale("en", "US"));
+    I18n.define(const Locale("en", "US"));
     var key = "1 beer";
 
     var t = Translations("en_us") + {"en_us": "1 beer".zero("").three("").many("many beers")};
@@ -851,7 +851,7 @@ void main() {
   test("Plurals not provided default to the unversioned string.", () {
     //
 
-    I18n.define(Locale("pt", "br"));
+    I18n.define(const Locale("pt", "br"));
     var key = "unversioned";
 
     // ---
@@ -906,7 +906,7 @@ void main() {
 
 extension Localization on String {
   //
-  static var _t = Translations("en_us") +
+  static final _t = Translations("en_us") +
       {
         "en_us": "Hi.",
         "cs_cz": "Zdravím tě",
@@ -948,15 +948,15 @@ extension Localization on String {
 
   String get i18n => localize(this, _t);
 
-  String fill(List<Object> params) => localizeFill(this, params);
+  String? fill(List<Object> params) => localizeFill(this, params);
 
-  String plural(int value) => localizePlural(value, this, _t);
+  String? plural(int value) => localizePlural(value, this, _t);
 
   String version(Object modifier) => localizeVersion(modifier, this, _t);
 
-  Map<String, String> allVersions() => localizeAllVersions(this, _t);
+  Map<String?, String?> allVersions() => localizeAllVersions(this, _t);
 
   String gender(Gender gnd) => localizeVersion(gnd, this, _t);
 }
 
-enum Gender { they, female, male }
+enum Gender { they, female, male, x }
