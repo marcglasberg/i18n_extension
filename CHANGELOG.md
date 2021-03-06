@@ -1,11 +1,13 @@
-## [3.0.1] - 2021/03/06
+## [3.0.3] - 2021/03/06
 
 * Nullsafety.
 * Breaking change: During app initialization, the system locale may be `null` for a few moments.
   During this time, in prior version _2.0.0_ it would use the `Translations` default locale.
   Now, in version _3.0.0_, it will use the global locale defined in `I18n.defaultLocale`, which by 
   default is `Locale("en", "US")`. You can change this default in your app's main method.
+* New `Translations.from()` constructor, which responds better to hot reload.
 * Fixed the PO importer to ignore empty keys.
+* The docs now explain better how to add plurals with translations by locale.
 
 ## [2.0.0] - 2021/30/21
 

@@ -364,11 +364,14 @@ class TranslationsException {
 // /////////////////////////////////////////////////////////////////////////////
 
 abstract class ITranslations {
+  const ITranslations();
+
   Map<String, Map<String, String>> get translations;
 
   String get defaultLocaleStr;
 
-  String get defaultLanguageStr;
+  String get defaultLanguageStr =>
+      Translations.trim(defaultLocaleStr).substring(0, 2);
 
   int get length;
 
@@ -397,19 +400,48 @@ class Translations extends ITranslations {
           print("➜ There are no translations in '$locale' for \"$key\".");
 
   @override
-  Map<String, Map<String, String>> translations;
+  final Map<String, Map<String, String>> translations;
 
   @override
   final String defaultLocaleStr;
 
-  @override
-  final String defaultLanguageStr;
-
+  /// The default [Translations] constructor builds an empty translations
+  /// object, that can be filled with translations with the [+] operator.
+  /// For example:
+  ///
+  /// ```
+  /// static final t = Translations("en_us") +
+  ///       const {
+  ///         "en_us": "i18n Demo",
+  ///         "pt_br": "Demonstração i18n",
+  ///       };
+  /// ```
+  ///
+  /// Se also: [Translations.from], which responds better to hot reload.
+  ///
   Translations(String defaultLocaleStr)
       : assert(trim(defaultLocaleStr).isNotEmpty),
         defaultLocaleStr = trim(defaultLocaleStr),
-        defaultLanguageStr = trim(defaultLocaleStr).substring(0, 2),
         translations = <String, Map<String, String>>{};
+
+  /// The [Translations.from] constructor allows you to define the translations
+  /// as a const object, all at once. This not only is a little bit more
+  /// efficient, but it's also better for "hot reload", since a const variable
+  /// will respond to hot reloads, while final variables will not.
+  ///
+  /// ```
+  /// static const t = Translations.from(
+  ///    "en_us",
+  ///    {
+  ///      "i18n Demo": {
+  ///        "en_us": "i18n Demo",
+  ///        "pt_br": "Demonstração i18n",
+  ///      }
+  ///    },
+  /// );
+  /// ```
+  ///
+  const Translations.from(this.defaultLocaleStr, this.translations);
 
   static String trim(String locale) {
     locale = locale.trim();
@@ -599,8 +631,8 @@ class TranslationsByLocale extends ITranslations {
     return this;
   }
 
-  @override
-  String get defaultLanguageStr => byKey.defaultLanguageStr;
+  // @override
+  // String get defaultLanguageStr => byKey.defaultLanguageStr;
 
   @override
   String get defaultLocaleStr => byKey.defaultLocaleStr;
