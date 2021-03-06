@@ -513,6 +513,12 @@ class Translations extends ITranslations {
           .toList()
             ..sort(TranslatedString.comparable(defaultLocaleStr));
 
+  /// Add a [key]/[translatedString] pair to the translations.
+  /// You must provide non-empty [locale], [key], and [translatedString]
+  /// values, otherwise an error is thrown.
+  /// However, if both the [key] and [translatedString] are empty,
+  /// the method won't do anything but also won't throw any errors.
+  ///
   void add({
     required String locale,
     required String key,

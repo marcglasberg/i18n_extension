@@ -1,4 +1,4 @@
-## [3.0.0] - 2021/03/06
+## [3.0.1] - 2021/03/06
 
 * Nullsafety.
 * Breaking change: During app initialization, the system locale may be `null` for a few moments.
