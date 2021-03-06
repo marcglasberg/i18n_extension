@@ -558,11 +558,11 @@ class TranslationsByLocale extends ITranslations {
       : byKey = Translations(defaultLocaleStr);
 
   TranslationsByLocale operator +(
-      Map<String, Map<String?, String>> translations) {
-    for (MapEntry<String, Map<String?, String>> entry in translations.entries) {
+      Map<String, Map<String, String>> translations) {
+    for (MapEntry<String, Map<String, String>> entry in translations.entries) {
       String locale = entry.key;
-      for (MapEntry<String?, String> entry2 in entry.value.entries) {
-        String key = Translations._getKey(entry2.key!);
+      for (MapEntry<String, String> entry2 in entry.value.entries) {
+        String key = Translations._getKey(entry2.key);
         String translatedString = entry2.value;
         byKey.addTranslation(
           locale: locale,
