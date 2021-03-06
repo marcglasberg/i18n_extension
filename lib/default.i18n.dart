@@ -22,5 +22,5 @@ extension Localization on String {
     return replaceAll("%d", value.toString());
   }
 
-  String fill(List<Object> params) => localizeFill(this, params);
+  String? fill(List<Object> params) => localizeFill(this, params);
 }
