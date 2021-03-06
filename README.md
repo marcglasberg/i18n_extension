@@ -431,6 +431,32 @@ static var _t = Translations("en_us") +
 String plural(int value) => localizePlural(value, this, _t);
 ```
 
+Or, if you want to define your translations by locale:
+
+```
+static var _t = Translations.byLocale("en_us") +
+    {
+      "en_us": {
+        "You clicked the button %d times": 
+          "You clicked the button %d times"
+            .zero("You haven't clicked the button")
+            .one("You clicked it once")
+            .two("You clicked a couple times")
+            .many("You clicked %d times")
+            .times(12, "You clicked a dozen times"),
+      },
+      "pt_br": {
+        "You clicked the button %d times": 
+          "Você clicou o botão %d vezes"
+            .zero("Você não clicou no botão")
+            .one("Você clicou uma única vez")
+            .two("Você clicou um par de vezes")
+            .many("Você clicou %d vezes")
+            .times(12, "Você clicou uma dúzia de vezes"),
+      }
+    };
+```
+
 The plural modifiers you can use are `zero`, `one`, `two`, `three`, `four`, `five`, `six`, `ten`,
 `times` (for any number of elements, except 0, 1 and 2), `many` (for any number of elements,
 except 1, including 0), `zeroOne` (for 0 or 1 elements), and `oneOrMore` (for 1 and more elements).

@@ -185,6 +185,94 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
+  test("Translations by locale with versions.", () {
+    I18n.define(const Locale("en", "US"));
+
+    var t = Translations.byLocale("en_us") +
+        {
+          "en_us": {
+            "MyString":
+                "MyString".zero("Zero").one("One").two("Two").many("many"),
+          },
+          "pt_br": {
+            "MyString":
+                "MinhaString".zero("Zero").one("Um").two("Dois").many("Muitos"),
+          }
+        };
+
+    expect(t.length, 1);
+
+    expect(t.translations, {
+      "MyString": {
+        "en_us":
+            "\uFFFFMyString\uFFFF0\uFFFEZero\uFFFF1\uFFFEOne\uFFFF2\uFFFETwo\uFFFFM\uFFFEmany",
+        "pt_br":
+            "\uFFFFMinhaString\uFFFF0\uFFFEZero\uFFFF1\uFFFEUm\uFFFF2\uFFFEDois\uFFFFM\uFFFEMuitos",
+      },
+    });
+
+    expect(
+        t.toString(),
+        '\nTranslations: ---------------\n'
+        '  en_us | MyString\n'
+        '          0 → Zero\n'
+        '          1 → One\n'
+        '          2 → Two\n'
+        '          M → many\n'
+        '  pt_br | MinhaString\n'
+        '          0 → Zero\n'
+        '          1 → Um\n'
+        '          2 → Dois\n'
+        '          M → Muitos\n'
+        '-----------------------------\n');
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  test("Translations by locale with plurals.", () {
+    I18n.define(const Locale("en", "US"));
+
+    String key = "You clicked the button %d times";
+
+    var t = Translations.byLocale("en_us") +
+        {
+          "en_us": {
+            key: "You clicked the button %d times"
+                .zero("You haven't clicked the button")
+                .one("You clicked it once")
+                .two("You clicked a couple times")
+                .many("You clicked %d times")
+                .times(12, "You clicked a dozen times"),
+          },
+          "pt_br": {
+            key: "Você clicou o botão %d vezes"
+                .zero("Você não clicou no botão")
+                .one("Você clicou uma única vez")
+                .two("Você clicou um par de vezes")
+                .many("Você clicou %d vezes")
+                .times(12, "Você clicou uma dúzia de vezes"),
+          }
+        };
+
+    String plural(int value) => localizePlural(value, key, t);
+
+    expect(plural(0), "You haven't clicked the button");
+    expect(plural(1), "You clicked it once");
+    expect(plural(2), "You clicked a couple times");
+    expect(plural(3), "You clicked 3 times");
+    expect(plural(12), "You clicked a dozen times");
+
+    I18n.define(const Locale("pt", "BR"));
+
+    expect(plural(0), "Você não clicou no botão");
+    expect(plural(1), "Você clicou uma única vez");
+    expect(plural(2), "Você clicou um par de vezes");
+    expect(plural(3), "Você clicou 3 vezes");
+    expect(plural(12), "Você clicou uma dúzia de vezes");
+  });
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
   test("Combine 2 translations.", () {
     I18n.define(const Locale("en", "US"));
 
@@ -666,8 +754,8 @@ void main() {
               .two("2 variation")
               .three("3 variation")
               .four("4 variation")
-              // .twoThreeFour will not be used because we've defined
-              // .two .three .four and those take precedence.
+              // .twoThreeFour will not be used because we've
+              // defined .two .three .four and those take precedence.
               .twoThreeFour("234 variation")
               .five("5 variation")
               .six("6 variation")
