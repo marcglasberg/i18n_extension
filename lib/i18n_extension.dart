@@ -519,9 +519,13 @@ class Translations extends ITranslations {
     required String translatedString,
   }) {
     if (locale.isEmpty) throw TranslationsException("Missing locale.");
-    if (key.isEmpty) throw TranslationsException("Missing key.");
+    if (key.isEmpty) {
+      if (translatedString.isEmpty) return;
+      throw TranslationsException("Missing key.");
+    }
     if (translatedString.isEmpty)
       throw TranslationsException("Missing translated string.");
+
     // ---
 
     Map<String, String>? _translations = translations[key];
