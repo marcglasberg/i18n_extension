@@ -1,10 +1,19 @@
+## [4.0.0] - 2021/03/07
+
+* Now allows both string-keys (like `"Hello there".i18n` as shown in the `example1` dir) and identifier-keys (
+  like `greetings.i18n` as shown in the `example2` dir).
+* Breaking change: If some translation did not exist in some language, it would show the translation key itself as the
+  missing translation. This worked well with string-keys, but not with identifier-keys. Now, if some translation is
+  missing, it first tries to show the untranslated string, and only if that is missing too it shows the key as the
+  translation. This change is unlikely to be noticed by anyone, but still a breaking change.
+
 ## [3.0.3] - 2021/03/06
 
 * Nullsafety.
-* Breaking change: During app initialization, the system locale may be `null` for a few moments.
-  During this time, in prior version _2.0.0_ it would use the `Translations` default locale.
-  Now, in version _3.0.0_, it will use the global locale defined in `I18n.defaultLocale`, which by 
-  default is `Locale("en", "US")`. You can change this default in your app's main method.
+* Breaking change: During app initialization, the system locale may be `null` for a few moments. During this time, in
+  prior version _2.0.0_ it would use the `Translations` default locale. Now, in version _3.0.0_, it will use the global
+  locale defined in `I18n.defaultLocale`, which by default is `Locale("en", "US")`. You can change this default in your
+  app's main method.
 * New `Translations.from()` constructor, which responds better to hot reload.
 * Fixed the PO importer to ignore empty keys.
 * The docs now explain better how to add plurals with translations by locale.
@@ -88,8 +97,8 @@
 
 * I18n.observeLocale() can be used to observe locale changes.
 
-* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong. 
-  See "A quick recap of Dart locales" in the docs, for more details.
+* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong. See "A quick recap of
+  Dart locales" in the docs, for more details.
 
 ## [1.2.0] - 2019/12/19
 

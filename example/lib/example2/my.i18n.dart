@@ -11,7 +11,6 @@ const youClickedThisNumberOfTimes = "youClickedThisNumberOfTimes";
 
 extension Localization on String {
   //
-
   /// If you want to use identifiers as translation keys, you can define the
   /// keys here in the translations file, and then use the [Translations.from]
   /// constructor:
@@ -19,7 +18,7 @@ extension Localization on String {
   static final _t = Translations.from("en_us", {
     appbarTitle: {
       "en_us": "i18n Demo",
-      // "pt_br": "Demonstração i18n",
+      "pt_br": "Demonstração i18n",
     },
     greetings: {
       "en_us": "This example demonstrates how to use identifiers as keys.\n\n"
@@ -62,6 +61,4 @@ extension Localization on String {
   String fill(List<Object> params) => localizeFill(this, params);
 
   String plural(int value) => localizePlural(value, this, _t);
-
-  String version(Object modifier) => localizeVersion(modifier, this, _t);
 }
