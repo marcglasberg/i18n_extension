@@ -88,9 +88,9 @@ String localize(
       if (lang == _language(entry.key)) return entry.value;
     }
 
-    // If nothing is found, return the key itself,
+    // If nothing is found, return the value or key,
     // that is the translation in the default locale.
-    return key;
+    return translatedStringPerLocale[translations.defaultLocaleStr] ?? key;
   }
 }
 

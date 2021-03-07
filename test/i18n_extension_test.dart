@@ -422,6 +422,58 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
+  test("Keys can vary from the translations. Should return the value or key.", () {
+    TranslationsByLocale t = Translations.byLocale("en_us") +
+        {
+          "en_us": {
+            "Hi.": "Hello.", // Different key/value for default language
+            "Goodbye.": "Goodbye.",
+          },
+          "es_es": {
+            "Hi.": "Hola.",
+            "Goodbye.": "Adiós.",
+          },
+          "pt_br": {
+            // Hi is missing,
+                        "Goodbye.": "Adeus.",
+          }
+        };
+        expect(t.length, 2);
+
+    expect(t.translations, {
+      "Hi.": {
+        "en_us": "Hello.",
+        "es_es": "Hola.",
+      },
+      "Goodbye.": {
+        "en_us": "Goodbye.",
+        "es_es": "Adiós.",
+        "pt_br": "Adeus.",
+      }
+    });
+
+    expect(
+        t.toString(),
+        '\nTranslations: ---------------\n'
+        '  en_us | Hello.\n'
+        '  es_es | Hola.\n'
+        '-----------------------------\n'
+        '  en_us | Goodbye.\n'
+        '  es_es | Adiós.\n'
+        '  pt_br | Adeus.\n'
+        '-----------------------------\n');
+
+    // The translations should return the default value, rather than the key
+    I18n.define(Locale("en", "US"));
+    expect(localize('Hi.', t), "Hello.");
+
+    I18n.define(Locale("es", "ES"));
+    expect(localize('Hi.', t), "Hola.");
+
+    I18n.define(Locale("pt", "BR"));
+    expect(localize('Hi.', t), "Hello.");
+});
+  
   test("Combine 2 translations, one of them by locale.", () {
     I18n.define(const Locale("en", "US"));
 
