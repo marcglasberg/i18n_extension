@@ -52,7 +52,7 @@ Try running
 the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/main.dart">
 example</a>.
 
-![](./example/lib/i18nScreen.jpg)
+![](./example/lib/example1/i18nScreen.jpg)
 
 ## Good for simple or complex apps
 

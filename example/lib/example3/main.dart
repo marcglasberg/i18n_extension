@@ -10,7 +10,6 @@ import 'my_widget.dart';
 /// It is NOT recommended to have two `I18n` widgets, at all.
 /// However, if for some reason it is inevitable, I've provided
 /// the I18n.forceRebuild() method to help you deal with it.
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
