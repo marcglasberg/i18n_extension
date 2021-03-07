@@ -17,7 +17,7 @@ class MyWidget extends StatelessWidget {
       child: Text(
         "Hello, welcome to this internationalization demo.".i18n,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 20),
+        style: const TextStyle(fontSize: 20),
       ),
     );
   }

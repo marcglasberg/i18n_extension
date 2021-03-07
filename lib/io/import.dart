@@ -2,10 +2,12 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:gettext_parser/gettext_parser.dart' as gettextParser;
+import 'package:gettext_parser/gettext_parser.dart' as gettext_parser;
+
+// /////////////////////////////////////////////////////////////////////////////
 
 abstract class Importer {
-  String _extension;
+  String get _extension;
 
   Map<String, String> _load(String source);
 
@@ -19,14 +21,14 @@ abstract class Importer {
     var manifestContent = await rootBundle.loadString("AssetManifest.json");
     Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
-    Map<String, Map<String, String>> translations = new HashMap();
+    Map<String, Map<String, String>> translations = HashMap();
 
     for (String path in manifestMap.keys) {
       if (!path.startsWith(dir)) continue;
       var fileName = path.split("/").last;
       if (!fileName.endsWith(_extension)) {
-        print(
-            "➜ Ignoring file $path with unexpected file type (expected: $_extension).");
+        print("➜ Ignoring file $path with unexpected file type "
+            "(expected: $_extension).");
         continue;
       }
       var languageCode = fileName.split(".")[0];
@@ -42,26 +44,39 @@ abstract class Importer {
   }
 }
 
+// /////////////////////////////////////////////////////////////////////////////
+
 class JSONImporter extends Importer {
-  var _extension = ".json";
+  @override
+  String get _extension => ".json";
 
   @override
   Map<String, String> _load(String source) {
-    return new Map<String, String>.from(json.decode(source));
+    return Map<String, String>.from(json.decode(source));
   }
 }
 
+// /////////////////////////////////////////////////////////////////////////////
+
 class GettextImporter extends Importer {
-  var _extension = ".po";
+  @override
+  String get _extension => ".po";
 
   @override
   Map<String, String> _load(String source) {
     Map<String, String> out = {};
-    var translations = gettextParser.po.parse(source)["translations"][""];
+    Map translations = gettext_parser.po.parse(source)["translations"][""];
     for (Map translation in translations.values) {
-      if (translation.length > 0 && translation["msgstr"][0] != "")
-        out[translation["msgid"]] = translation["msgstr"][0];
+      if (translation.isNotEmpty) {
+        String? msgstr = translation["msgstr"][0];
+        if (msgstr != null && msgstr.isNotEmpty) {
+          String? msgid = translation["msgid"];
+          if (msgid != null && msgid.isNotEmpty) out[msgid] = msgstr;
+        }
+      }
     }
     return out;
   }
 }
+
+// /////////////////////////////////////////////////////////////////////////////

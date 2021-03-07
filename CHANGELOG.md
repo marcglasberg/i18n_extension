@@ -1,6 +1,13 @@
-## 3.0.0-dev.1
+## [3.0.3] - 2021/03/06
 
-* Addressed breaking change in Flutter framework (https://github.com/flutter/flutter/pull/68911).
+* Nullsafety.
+* Breaking change: During app initialization, the system locale may be `null` for a few moments.
+  During this time, in prior version _2.0.0_ it would use the `Translations` default locale.
+  Now, in version _3.0.0_, it will use the global locale defined in `I18n.defaultLocale`, which by 
+  default is `Locale("en", "US")`. You can change this default in your app's main method.
+* New `Translations.from()` constructor, which responds better to hot reload.
+* Fixed the PO importer to ignore empty keys.
+* The docs now explain better how to add plurals with translations by locale.
 
 ## [2.0.0] - 2021/30/21
 
@@ -81,8 +88,8 @@
 
 * I18n.observeLocale() can be used to observe locale changes.
 
-* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong. See "A quick recap of
-  Dart locales" in the docs, for more details.
+* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong. 
+  See "A quick recap of Dart locales" in the docs, for more details.
 
 ## [1.2.0] - 2019/12/19
 

@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'package:gettext_parser/gettext_parser.dart' as gettextParser;
+import 'package:gettext_parser/gettext_parser.dart' as gettext_parser;
 
 Map<String, Exporter Function(dynamic)> exporters = {
   "pot": (s) => GettextExporter(s),
@@ -42,7 +42,7 @@ class GettextExporter extends Exporter {
       "translations": {"": template}
     };
 
-    await target.writeAsString(gettextParser.po.compile(out));
+    await target.writeAsString(gettext_parser.po.compile(out));
   }
 }
 
@@ -51,7 +51,7 @@ class JsonExporter extends Exporter {
 
   @override
   Future<void> exportTo(File target) async {
-    JsonEncoder encoder = new JsonEncoder.withIndent(' ' * 4);
+    JsonEncoder encoder =JsonEncoder.withIndent(' ' * 4);
     await target.writeAsString(encoder.convert(getTemplate()));
   }
 }

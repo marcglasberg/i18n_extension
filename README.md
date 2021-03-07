@@ -113,7 +113,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  i18n_extension: ^1.4.2
+  i18n_extension: ^3.0.0
 ```
 
 The code `home: I18n(child: ...)` shown above will translate your strings to the **current system
@@ -433,6 +433,32 @@ static var _t = Translations("en_us") +
 String plural(int value) => localizePlural(value, this, _t);
 ```
 
+Or, if you want to define your translations by locale:
+
+```
+static var _t = Translations.byLocale("en_us") +
+    {
+      "en_us": {
+        "You clicked the button %d times": 
+          "You clicked the button %d times"
+            .zero("You haven't clicked the button")
+            .one("You clicked it once")
+            .two("You clicked a couple times")
+            .many("You clicked %d times")
+            .times(12, "You clicked a dozen times"),
+      },
+      "pt_br": {
+        "You clicked the button %d times": 
+          "Você clicou o botão %d vezes"
+            .zero("Você não clicou no botão")
+            .one("Você clicou uma única vez")
+            .two("Você clicou um par de vezes")
+            .many("Você clicou %d vezes")
+            .times(12, "Você clicou uma dúzia de vezes"),
+      }
+    };
+```
+
 The plural modifiers you can use are `zero`, `one`, `two`, `three`, `four`, `five`, `six`, `ten`,
 `times` (for any number of elements, except 0, 1 and 2), `many` (for any number of elements,
 except 1, including 0), `zeroOne` (for 0 or 1 elements), and `oneOrMore` (for 1 and more elements).
@@ -560,16 +586,17 @@ Locale locale = I18n.locale;
 String localeStr = I18n.localeStr;
 
 // Or get the language of the locale, lowercase. Example: "en".
-static language = I18n.language;
-```
+String language = I18n.language;
+```        
 
 ### Observing locale changes
 
 There is a global static callback you can use to observe locale changes:
 
-```
-I18n.observeLocale =
-  ({Locale oldLocale, Locale newLocale}) => print("Changed from $oldLocale to $newLocale.");
+```   
+I18n.observeLocale = 
+  ({required Locale oldLocale, required Locale newLocale}) 
+      => print("Changed from $oldLocale to $newLocale.");
 ```
 
 ### Importing and exporting
@@ -578,11 +605,16 @@ This package is optimized so that you can easily create and manage all of your t
 yourself, by hand.
 
 However, for large projects with big teams you probably need to follow a more involved process:
-Export all your translatable strings to files in some external format your professional translator,
-or your crowdsourcing tool uses (see formats below). Continue developing your app while waiting for
-the translations. Import the translation files into the project and test the app in each language
-you added. Repeat the process as needed, translating just the changes between each app revision. As
-necessary, perform additional localization steps yourself.
+
+* Export all your translatable strings to files in some external format your professional translator,
+or your crowdsourcing tool uses (see formats below). 
+
+* Continue developing your app while waiting for the translations. 
+
+* Import the translation files into the project and test the app in each language you added. 
+
+* Repeat the process as needed, translating just the changes between each app revision. 
+  As necessary, perform additional localization steps yourself.
 
 #### Formats
 
@@ -649,7 +681,7 @@ An utility script to automatically export all translatable strings from your pro
 by <a href="https://github.com/bauerj">Johann Bauer</a>. Simply
 run `flutter pub run i18n_extension:getstrings` in your project root directory and you will get a
 list of strings to translate in `strings.json`. This file can then be sent to your translators or be
-imported in translation services like Crowdin, Transifex or Lokalise. You can use it as part of your
+imported in translation services like _Crowdin_, _Transifex_ or _Lokalise_. You can use it as part of your
 CI pipeline in order to always have your translation templates up to date.
 
 Note the tool simply searches the source code for strings to which getters like `.i18n` are applied.
@@ -658,7 +690,8 @@ Since it is not very smart, you should not make it too hard:
 ```
 print("Hello World!".i18n); // This would work.
 
-// But the tool would not be able to spot this since it doesn't execute the code.
+// But the tool would not be able to spot this 
+// since it doesn't execute the code.
 var x = "Hello World";
 print(x.i18n);
 ```
@@ -667,8 +700,9 @@ print(x.i18n);
 
 As previously discussed, i18n_extension will automatically list all keys into a map if you use some
 unknown locale, run the app, and manually or automatically go through all the screens. For example,
-create a Greek locale if your app doesn't have Greek translations,
-and it will list all keys into `Translations.missingTranslationCallback.`
+create a Greek locale if your app doesn't have Greek translations, 
+and it will list all keys into `Translations.missingTranslationCallback`.
+
 Then you can read from this map and create your exported file. There is
 also <a href="https://pub.dev/packages/flutter_storyboard">this package</a>
 that goes through all screens automatically.

@@ -6,7 +6,7 @@ class GetI18nStrings {
   final String regexTemplate = '"([^"]*)"\.<getter>';
   final List<String> stringDelimiters = ["\"", "'", '"""', "'''"];
   final List<String> suffixes;
-  final String sourceDir;
+  final String? sourceDir;
 
   GetI18nStrings(this.sourceDir,
       {this.suffixes = const [
@@ -18,7 +18,7 @@ class GetI18nStrings {
       ]});
 
   List<String> run() {
-    var libDir = new Directory(this.sourceDir);
+    var libDir =Directory(sourceDir!);
     List<String> sourceStrings = [];
     for (var f in libDir.listSync(recursive: true)) {
       if (f is File && f.path.endsWith(".dart")) {
@@ -100,7 +100,7 @@ class DartStringParser {
       possible.add(nextTwo);
     }
 
-    if (possible.length == 0) {
+    if (possible.isEmpty) {
       return false;
     }
 

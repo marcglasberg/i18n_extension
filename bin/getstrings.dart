@@ -24,7 +24,7 @@ void main(List<String> arguments) async {
 
   var outFile = File(results["output-file"]);
   await outFile.create();
-  exporters[fileFormat](strings).exportTo(outFile);
+  exporters[fileFormat]!(strings).exportTo(outFile);
 
   print(
       "Wrote ${strings.length} strings to template ${results["output-file"]}");

@@ -13,7 +13,7 @@ class MyScreen extends StatefulWidget {
 }
 
 class _MyScreenState extends State<MyScreen> {
-  int counter;
+  late int counter;
 
   @override
   void initState() {
@@ -28,50 +28,48 @@ class _MyScreenState extends State<MyScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Spacer(flex: 2),
+          const Spacer(flex: 2),
           MyWidget(),
-          Spacer(),
+          const Spacer(),
           Container(
             height: 50,
             alignment: Alignment.center,
             child: Text(
               "You clicked the button %d times:".plural(counter),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 17),
+              style: const TextStyle(fontSize: 17),
             ),
           ),
           MaterialButton(
             color: Colors.blue,
             child: Text(
               "Increment".i18n,
-              style: TextStyle(color: Colors.white, fontSize: 17),
+              style: const TextStyle(color: Colors.white, fontSize: 17),
             ),
             onPressed: _increment,
           ),
-          Spacer(),
+          const Spacer(),
           MaterialButton(
             color: Colors.blue,
             child: Text(
               "Change Language".i18n,
-              style: TextStyle(color: Colors.white, fontSize: 17),
+              style: const TextStyle(color: Colors.white, fontSize: 17),
             ),
             onPressed: _onPressed,
           ),
           Text(
             "Locale: ${I18n.locale}",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Colors.grey),
+            style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
-          Spacer(flex: 2),
+          const Spacer(flex: 2),
         ],
       ),
     );
   }
 
-  void _onPressed() =>
-      I18n.of(context).locale = (I18n.localeStr == "pt_br") ? null : Locale("pt", "BR");
+  void _onPressed() => I18n.of(context).locale =
+      (I18n.localeStr == "pt_br") ? null : const Locale("pt", "BR");
 
   void _increment() => setState(() => counter++);
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
