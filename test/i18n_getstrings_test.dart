@@ -4,10 +4,12 @@ import 'package:i18n_extension/i18n_getstrings.dart';
 void main() {
   test("Simple case", () {
     var source = """
-    print("This is a test".i18n);
-    print("This should not match");
-    print('This is another %s test'.fill('great'));
-    print('This should not match');
+    void main() {
+      print("This is a test".i18n);
+      print("This should not match");
+      print('This is another %s test'.fill('great'));
+      print('This should not match');
+    }
     """;
     var results = GetI18nStrings("").processString(source);
     expect(results, ["This is a test", "This is another %s test"]);
@@ -15,11 +17,13 @@ void main() {
 
   test("Triple-quoted strings", () {
     var source = """
-    print("\""This is a
+    void main() {
+      print("\""This is a
 "test" "\"".i18n);
-    print(""\"This should not match"\"");
-    print('\''This is another test'\''.i18n);
-    print('\''This should not match'\'');
+      print(""\"This should not match"\"");
+      print('\''This is another test'\''.i18n);
+      print('\''This should not match'\'');
+    }
     """;
     var results = GetI18nStrings("").processString(source);
     expect(results, ["This is a\n\"test\" ", "This is another test"]);
@@ -108,5 +112,33 @@ class _SettingsRouteState extends State<SettingsRoute> {
     var results = GetI18nStrings("").processString(source);
     expect(results, ["mysamplestring %s"]);
   });
-}
 
+  test("Simple case with comments", () {
+    var source = """
+    void main() {
+      print("This is a test".i18n);
+      // You will find it doesn't work past this point
+      print("This should not match");
+      print('This is another %s test'.fill('great'));
+      print('This should not match');
+    }
+    """;
+    var results = GetI18nStrings("").processString(source);
+    expect(results, ["This is a test", "This is another %s test"]);
+  });
+
+  test("Simple case with adjacent strings", () {
+    var source = """
+    var text = "This should be a single string, "
+               "hopefully it doesn't just recognise "
+               "the last part.".i18n;
+    var toxt = "This will not be translated, "
+               "so it shouldn't be recognised "
+               "at all.";     
+    """;
+    var results = GetI18nStrings("").processString(source);
+    expect(results, [
+      "This should be a single string, hopefully it doesn't just recognise the last part."
+    ]);
+  });
+}

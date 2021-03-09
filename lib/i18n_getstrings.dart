@@ -1,24 +1,24 @@
 import 'dart:io';
 
-import 'dart:math';
+import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
 
 class GetI18nStrings {
-  final String regexTemplate = '"([^"]*)"\.<getter>';
-  final List<String> stringDelimiters = ["\"", "'", '"""', "'''"];
   final List<String> suffixes;
   final String? sourceDir;
 
   GetI18nStrings(this.sourceDir,
       {this.suffixes = const [
-        ".i18n",
-        ".fill",
-        ".plural",
-        ".version",
-        ".allVersions"
+        "i18n",
+        "fill",
+        "plural",
+        "version",
+        "allVersions"
       ]});
 
   List<String> run() {
-    var libDir =Directory(sourceDir!);
+    var libDir = Directory(sourceDir!);
     List<String> sourceStrings = [];
     for (var f in libDir.listSync(recursive: true)) {
       if (f is File && f.path.endsWith(".dart")) {
@@ -33,83 +33,59 @@ class GetI18nStrings {
   }
 
   List<String> processString(String s) {
-    return DartStringParser(s, suffixes).parse();
+    CompilationUnit unit =
+        parseString(content: s, throwIfDiagnostics: false).unit;
+    var extractor = StringExtractor(suffixes);
+    unit.visitChildren(extractor);
+    return extractor.strings;
   }
 }
 
-class DartStringParser {
-  /// [source] should be Dart code, [suffixes] a list of strings.
-  /// The parser will find all Dart strings within the code that are
-  /// followed by any of the suffixes.
-  ///
-  int pos = 0;
+
+class StringExtractor extends UnifyingAstVisitor<void> {
   List<String> strings = [];
+  List<String> suffixes;
 
-  final String source;
-  final List<String> suffixes;
+  StringExtractor(this.suffixes);
 
-  DartStringParser(this.source, this.suffixes);
-
-  List<String> parse() {
-    while (seek()) {
-      _parseString();
-    }
-    return strings;
+  @override
+  void visitNode(AstNode node) {
+    return super.visitNode(node);
   }
 
-  void _parseString() {
-    String endSequence;
-    assert(source[pos] == "'" || source[pos] == '"');
-
-    if (source[pos + 1] == source[pos] && source[pos + 2] == source[pos]) {
-      // start triple-quoted string
-      endSequence = source[pos] * 3;
-      pos += 3;
-    } else {
-      // start single-quoted string
-      endSequence = source[pos];
-      pos += 1;
+  @override
+  void visitSimpleStringLiteral(SimpleStringLiteral node) {
+    if (_hasI18nSyntax(node, node.parent!)) {
+      strings.add(node.value);
     }
 
-    int matchPos = -1, _pos = pos;
-    // Make sure this is not an escaped quotation mark (\" or \""")
-    while (matchPos < 0 || source[matchPos - 1] == "\\") {
-      matchPos = source.indexOf(endSequence, _pos);
-      if (matchPos < 0) return;
-      _pos = matchPos + 1;
-    }
-    if (matchPos <= source.length) {
-      var start = source.substring(matchPos + endSequence.length).trimLeft();
-      if (suffixes.any((s) => start.startsWith(s)))
-        strings.add(source.substring(pos, matchPos));
-    }
-
-    pos = matchPos + endSequence.length;
+    return super.visitSimpleStringLiteral(node);
   }
 
-  bool seek() {
-    List<int> possible = [];
-    int nextOne = source.indexOf("'", pos);
-    int nextTwo = source.indexOf('"', pos);
-
-    if (nextOne > -1) {
-      possible.add(nextOne);
+  @override
+  void visitAdjacentStrings(AdjacentStrings node) {
+    if (_hasI18nSyntax(node.strings.last, node.parent!)) {
+      strings.add(node.stringValue!);
     }
 
-    if (nextTwo > -1) {
-      possible.add(nextTwo);
+    // Dont' call the super method here, since we don't want to visit the
+    // child strings.
+  }
+
+  /*
+  Check if the next sibling in the AST is a DOT operator
+  and after that comes a literal included in our suffixes.
+   */
+  bool _hasI18nSyntax(AstNode self, AstNode parent) {
+    var here = parent.beginToken;
+    while (here != parent.endToken) {
+      if (here == self.beginToken &&
+          here.next!.type.lexeme == "." &&
+          suffixes.contains(here.next!.next!.value())) {
+        return true;
+      }
+      here = here.next!;
     }
-
-    if (possible.isEmpty) {
-      return false;
-    }
-
-    pos = possible.reduce(min);
-
-    if (pos > 0 && source[pos - 1] == "\\" && source[pos - 2] != "\\") {
-      return seek();
-    }
-
-    return true;
+    return false;
   }
 }
