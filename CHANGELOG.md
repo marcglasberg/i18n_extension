@@ -1,3 +1,8 @@
+## [4.0.2] - 2021/04/07
+
+* Downgraded args: 1.6.0 to be compatible with flutter_driver.
+* Better NNBD.
+
 ## [4.0.0] - 2021/03/07
 
 * Now allows both string-keys (like `"Hello there".i18n` as shown in the `example1` dir) and identifier-keys (
