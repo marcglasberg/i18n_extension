@@ -22,7 +22,9 @@ msgid "Edit Server Details"
 msgstr "Serverdetails bearbeiten"
 
 msgid "Error while uploading document"
-msgstr "Fehler beim Hochladen des Dokuments"
+msgid_plural "Error while uploading document"
+msgstr[0] "Fehler beim Hochladen des Dokument"
+msgstr[1] "Fehler beim Hochladen des Dokuments"
 
 msgid "My Documents"
 msgstr "Meine Dokumente"
