@@ -82,6 +82,10 @@ class GettextImporter extends Importer {
             out[msgid] = _splitter1 +
                 translation["msgstr"][0] +
                 _splitter1 +
+                '1' +
+                _splitter2 +
+                translation["msgstr"][0] +
+                _splitter1 +
                 'M' +
                 _splitter2 +
                 translation["msgstr"][1];
