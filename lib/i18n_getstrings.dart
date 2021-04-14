@@ -34,16 +34,16 @@ class ExtractedString extends Equatable {
   List<Object> get props => [string, pluralRequired];
 }
 
-class DecodedSintax {
-  DecodedSintax._({
+class DecodedSyntax {
+  DecodedSyntax._({
     required this.valid,
     this.modifiers = const [],
   });
 
-  DecodedSintax.valid(List<I18nRequiredModifiers> modifiers)
+  DecodedSyntax.valid(List<I18nRequiredModifiers> modifiers)
       : this._(valid: true, modifiers: modifiers);
 
-  DecodedSintax.invalid() : this._(valid: false);
+  DecodedSyntax.invalid() : this._(valid: false);
 
   final bool valid;
   final List<I18nRequiredModifiers> modifiers;
@@ -93,11 +93,11 @@ class StringExtractor extends UnifyingAstVisitor<void> {
 
   @override
   void visitSimpleStringLiteral(SimpleStringLiteral node) {
-    final DecodedSintax sintax = _hasI18nSyntax(node, node.parent!);
-    if (sintax.valid) {
+    final DecodedSyntax syntax = _hasI18nSyntax(node, node.parent!);
+    if (syntax.valid) {
       final ExtractedString s = ExtractedString(node.value,
           pluralRequired:
-              sintax.modifiers.contains(I18nRequiredModifiers.plural));
+              syntax.modifiers.contains(I18nRequiredModifiers.plural));
       strings.add(s);
     }
 
@@ -106,12 +106,12 @@ class StringExtractor extends UnifyingAstVisitor<void> {
 
   @override
   void visitAdjacentStrings(AdjacentStrings node) {
-    final DecodedSintax sintax =
+    final DecodedSyntax syntax =
         _hasI18nSyntax(node.strings.last, node.parent!);
-    if (sintax.valid) {
+    if (syntax.valid) {
       final ExtractedString s = ExtractedString(node.stringValue!,
           pluralRequired:
-              sintax.modifiers.contains(I18nRequiredModifiers.plural));
+              syntax.modifiers.contains(I18nRequiredModifiers.plural));
       strings.add(s);
     }
 
@@ -123,7 +123,7 @@ class StringExtractor extends UnifyingAstVisitor<void> {
   Check if the next sibling in the AST is a DOT operator
   and after that comes a literal included in our suffixes.
    */
-  DecodedSintax _hasI18nSyntax(AstNode self, AstNode parent) {
+  DecodedSyntax _hasI18nSyntax(AstNode self, AstNode parent) {
     Token? here = parent.beginToken;
     while (here != null && here != parent.endToken) {
       if (here == self.beginToken &&
@@ -133,10 +133,10 @@ class StringExtractor extends UnifyingAstVisitor<void> {
         if (here.next!.next!.value() == I18nSuffixes.plural) {
           modifiers.add(I18nRequiredModifiers.plural);
         }
-        return DecodedSintax.valid(modifiers);
+        return DecodedSyntax.valid(modifiers);
       }
       here = here.next;
     }
-    return DecodedSintax.invalid();
+    return DecodedSyntax.invalid();
   }
 }
