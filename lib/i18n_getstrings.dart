@@ -93,19 +93,14 @@ class StringExtractor extends UnifyingAstVisitor<void> {
 
   @override
   void visitSimpleStringLiteral(SimpleStringLiteral node) {
-    final DecodedSyntax syntax = _hasI18nSyntax(node, node.parent!);
-    if (syntax.valid) {
-      final ExtractedString s = ExtractedString(node.value,
-          pluralRequired:
-              syntax.modifiers.contains(I18nRequiredModifiers.plural));
-      strings.add(s);
-    }
-
+    _handleI18nSyntax(node);
     return super.visitSimpleStringLiteral(node);
   }
 
   @override
   void visitAdjacentStrings(AdjacentStrings node) {
+    _handleI18nSyntax(node);
+
     final DecodedSyntax syntax =
         _hasI18nSyntax(node.strings.last, node.parent!);
     if (syntax.valid) {
@@ -117,6 +112,16 @@ class StringExtractor extends UnifyingAstVisitor<void> {
 
     // Dont' call the super method here, since we don't want to visit the
     // child strings.
+  }
+
+  void _handleI18nSyntax(StringLiteral node) {
+    final DecodedSyntax syntax = _hasI18nSyntax(node, node.parent!);
+    if (syntax.valid && node.stringValue != null) {
+      final ExtractedString s = ExtractedString(node.stringValue!,
+          pluralRequired:
+              syntax.modifiers.contains(I18nRequiredModifiers.plural));
+      strings.add(s);
+    }
   }
 
   /*
