@@ -26,12 +26,15 @@ class I18nSuffixes {
 
 class ExtractedString extends Equatable {
   final String string;
+  final int lineNumber;
+  final String sourceFile;
   final bool pluralRequired;
 
-  ExtractedString(this.string, {this.pluralRequired = false});
+  ExtractedString(this.string, this.lineNumber,
+      {this.pluralRequired = false, this.sourceFile = ""});
 
   @override
-  List<Object> get props => [string, pluralRequired];
+  List<Object> get props => [string, sourceFile, lineNumber, pluralRequired];
 }
 
 class DecodedSyntax {
@@ -68,13 +71,13 @@ class GetI18nStrings {
   }
 
   List<ExtractedString> processFile(File f) {
-    return processString(f.readAsStringSync());
+    return processString(f.readAsStringSync(), fileName: f.path);
   }
 
-  List<ExtractedString> processString(String s) {
+  List<ExtractedString> processString(String s, {fileName = ""}) {
     CompilationUnit unit =
         parseString(content: s, throwIfDiagnostics: false).unit;
-    var extractor = StringExtractor(I18nSuffixes.allSuffixes);
+    var extractor = StringExtractor(I18nSuffixes.allSuffixes, s, fileName);
     unit.visitChildren(extractor);
     return extractor.strings;
   }
@@ -83,8 +86,10 @@ class GetI18nStrings {
 class StringExtractor extends UnifyingAstVisitor<void> {
   List<ExtractedString> strings = [];
   List<String> suffixes;
+  final String source;
+  final String fileName;
 
-  StringExtractor(this.suffixes);
+  StringExtractor(this.suffixes, this.source, this.fileName);
 
   @override
   void visitNode(AstNode node) {
@@ -93,33 +98,28 @@ class StringExtractor extends UnifyingAstVisitor<void> {
 
   @override
   void visitSimpleStringLiteral(SimpleStringLiteral node) {
-    _handleI18nSyntax(node);
+    final DecodedSyntax syntax = _hasI18nSyntax(node, node.parent!);
+    _handleI18nSyntax(syntax, node);
     return super.visitSimpleStringLiteral(node);
   }
 
   @override
   void visitAdjacentStrings(AdjacentStrings node) {
-    _handleI18nSyntax(node);
-
     final DecodedSyntax syntax =
         _hasI18nSyntax(node.strings.last, node.parent!);
-    if (syntax.valid) {
-      final ExtractedString s = ExtractedString(node.stringValue!,
-          pluralRequired:
-              syntax.modifiers.contains(I18nRequiredModifiers.plural));
-      strings.add(s);
-    }
+    _handleI18nSyntax(syntax, node);
 
     // Dont' call the super method here, since we don't want to visit the
     // child strings.
   }
 
-  void _handleI18nSyntax(StringLiteral node) {
-    final DecodedSyntax syntax = _hasI18nSyntax(node, node.parent!);
+  void _handleI18nSyntax(DecodedSyntax syntax, StringLiteral node) {
     if (syntax.valid && node.stringValue != null) {
-      final ExtractedString s = ExtractedString(node.stringValue!,
+      var lineNo = "\n".allMatches(source.substring(0, node.offset)).length + 1;
+      final ExtractedString s = ExtractedString(node.stringValue!, lineNo,
           pluralRequired:
-              syntax.modifiers.contains(I18nRequiredModifiers.plural));
+              syntax.modifiers.contains(I18nRequiredModifiers.plural),
+          sourceFile: fileName);
       strings.add(s);
     }
   }
