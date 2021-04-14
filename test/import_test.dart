@@ -19,6 +19,17 @@ void main() {
     var myTranslations = Translations.byLocale("en_gb") + translation;
     expect(myTranslations.translations.length, 30);
     expect(localize("View", myTranslations, locale: "de"), "Ansicht");
+    expect(
+        localizePlural(0, "Error while uploading document", myTranslations,
+            locale: "de"),
+        "Fehler beim Hochladen des Dokuments");
+    expect(
+        localizePlural(1, "Error while uploading document", myTranslations,
+            locale: "de"),
+        "Fehler beim Hochladen des Dokument");
+    expect(
+        localizePlural(2, "Error while uploading document", myTranslations,
+            locale: "de"),
+        "Fehler beim Hochladen des Dokuments");
   });
 }
-

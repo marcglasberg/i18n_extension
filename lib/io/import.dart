@@ -57,6 +57,8 @@ class JSONImporter extends Importer {
 }
 
 // /////////////////////////////////////////////////////////////////////////////
+const _splitter1 = "\uFFFF";
+const _splitter2 = "\uFFFE";
 
 class GettextImporter extends Importer {
   @override
@@ -68,10 +70,25 @@ class GettextImporter extends Importer {
     Map translations = gettext_parser.po.parse(source)["translations"][""];
     for (Map translation in translations.values) {
       if (translation.isNotEmpty) {
-        String? msgstr = translation["msgstr"][0];
-        if (msgstr != null && msgstr.isNotEmpty) {
+        if (translation["msgstr"].length == 1) {
+          String? msgstr = translation["msgstr"][0];
+          if (msgstr != null && msgstr.isNotEmpty) {
+            String? msgid = translation["msgid"];
+            if (msgid != null && msgid.isNotEmpty) out[msgid] = msgstr;
+          }
+        } else {
           String? msgid = translation["msgid"];
-          if (msgid != null && msgid.isNotEmpty) out[msgid] = msgstr;
+          if (msgid != null && msgid.isNotEmpty)
+            out[msgid] = _splitter1 +
+                translation["msgstr"][0] +
+                _splitter1 +
+                '1' +
+                _splitter2 +
+                translation["msgstr"][0] +
+                _splitter1 +
+                'M' +
+                _splitter2 +
+                translation["msgstr"][1];
         }
       }
     }
