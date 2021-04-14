@@ -1,3 +1,7 @@
+## [4.0.3] - 2021/04/14
+
+* Plural support for the `.PO` importer.
+
 ## [4.0.2] - 2021/04/07
 
 * Downgraded args: 1.6.0 to be compatible with flutter_driver.
