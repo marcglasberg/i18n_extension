@@ -12,10 +12,10 @@ void main() {
     }
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(
-        results,
-        ["This is a test", "This is another %s test"]
-            .map((e) => ExtractedString(e)));
+    expect(results, [
+      ExtractedString("This is a test", 2),
+      ExtractedString("This is another %s test", 4),
+    ]);
   });
 
   test("Triple-quoted strings", () {
@@ -29,10 +29,10 @@ void main() {
     }
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(
-        results,
-        ["This is a\n\"test\" ", "This is another test"]
-            .map((e) => ExtractedString(e)));
+    expect(results, [
+      ExtractedString("This is a\n\"test\" ", 2),
+      ExtractedString("This is another test", 5),
+    ]);
   });
 
   test("Invalid Dart", () {
@@ -74,8 +74,8 @@ void main() {
     """;
     var results = GetI18nStrings("").processString(source);
     expect(results, [
-      ExtractedString('%s order on %s', pluralRequired: true),
-      ExtractedString('%s order', pluralRequired: true)
+      ExtractedString('%s order on %s', 5, pluralRequired: true),
+      ExtractedString('%s order', 16, pluralRequired: true),
     ]);
   });
 
@@ -141,10 +141,10 @@ class _SettingsRouteState extends State<SettingsRoute> {
   }
 }""";
     var results = GetI18nStrings("").processString(source);
-    expect(
-        results,
-        ['View', 'Invert Document Preview in Dark Mode']
-            .map((e) => ExtractedString(e)));
+    expect(results, [
+      ExtractedString('View', 40),
+      ExtractedString('Invert Document Preview in Dark Mode', 43),
+    ]);
   });
 
   test("Multi-line statements", () {
@@ -154,7 +154,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
       .fill("test");
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(results, ["mysamplestring %s"].map((e) => ExtractedString(e)));
+    expect(results, [ExtractedString("mysamplestring %s", 1)]);
   });
 
   test("Simple case with comments", () {
@@ -168,10 +168,10 @@ class _SettingsRouteState extends State<SettingsRoute> {
     }
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(
-        results,
-        ["This is a test", "This is another %s test"]
-            .map((e) => ExtractedString(e)));
+    expect(results, [
+      ExtractedString("This is a test", 2),
+      ExtractedString("This is another %s test", 5),
+    ]);
   });
 
   test("Simple case with adjacent strings", () {
@@ -184,10 +184,10 @@ class _SettingsRouteState extends State<SettingsRoute> {
                "at all.";     
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(
-        results,
-        [
-          "This should be a single string, hopefully it doesn't just recognise the last part."
-        ].map((e) => ExtractedString(e)));
+    expect(results, [
+      ExtractedString(
+          "This should be a single string, hopefully it doesn't just recognise the last part.",
+          1),
+    ]);
   });
 }
