@@ -1,3 +1,7 @@
+## [4.1.0-dev.0] - 2021/05/20
+
+* Trying to bump dependencies versions (in special args: ^2.1.0).
+
 ## [4.0.3] - 2021/04/14
 
 * Plural support for the `.PO` importer.
