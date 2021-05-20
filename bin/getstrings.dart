@@ -1,5 +1,6 @@
 import 'dart:io';
 
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
 import 'package:i18n_extension/i18n_getstrings.dart';
 import 'package:i18n_extension/io/export.dart';
