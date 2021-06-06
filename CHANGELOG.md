@@ -1,6 +1,11 @@
-## [4.0.3] - 2021/06/05
+## [4.1.0] - 2021/06/05
 
 * Removed useless `uses-material-design: true`.
+* Bumped dependencies versions (in special args: ^2.0.0).
+
+## [4.0.3] - 2021/04/14
+
+* Plural support for the `.PO` importer.
 
 ## [4.0.2] - 2021/04/07
 

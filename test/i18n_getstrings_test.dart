@@ -12,7 +12,10 @@ void main() {
     }
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(results, ["This is a test", "This is another %s test"]);
+    expect(results, [
+      ExtractedString("This is a test", 2),
+      ExtractedString("This is another %s test", 4),
+    ]);
   });
 
   test("Triple-quoted strings", () {
@@ -26,7 +29,10 @@ void main() {
     }
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(results, ["This is a\n\"test\" ", "This is another test"]);
+    expect(results, [
+      ExtractedString("This is a\n\"test\" ", 2),
+      ExtractedString("This is another test", 5),
+    ]);
   });
 
   test("Invalid Dart", () {
@@ -36,6 +42,41 @@ void main() {
     """;
     var results = GetI18nStrings("").processString(source);
     expect(results, []);
+  });
+
+  test("Plurals in .POT", () {
+    var source = """
+    return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TranslatableRichText(
+                    Text(
+                      '''%s order on %s'''.plural(_orders!.length).fill(
+                        <String>[
+                          _orders!.length.toStringAsFixed(
+                            0,
+                          ),
+                          formattedPickup
+                        ],
+                      ),
+                    ),
+                    richTexts: <BaseRichText>[
+                      BaseRichText(
+                        text: '%s order'
+                            .plural(_orders!.length)
+                            .fill(<String>[_orders!.length.toStringAsFixed(0)]),
+                        style: AppTextStyles.vocalOrderBoldTitle.copyWith(
+                          color: AppColors.vocalOrderErrorColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+    """;
+    var results = GetI18nStrings("").processString(source);
+    expect(results, [
+      ExtractedString('%s order on %s', 5, pluralRequired: true),
+      ExtractedString('%s order', 16, pluralRequired: true),
+    ]);
   });
 
   test("Real-world example", () {
@@ -100,7 +141,10 @@ class _SettingsRouteState extends State<SettingsRoute> {
   }
 }""";
     var results = GetI18nStrings("").processString(source);
-    expect(results, ['View', 'Invert Document Preview in Dark Mode']);
+    expect(results, [
+      ExtractedString('View', 40),
+      ExtractedString('Invert Document Preview in Dark Mode', 43),
+    ]);
   });
 
   test("Multi-line statements", () {
@@ -110,7 +154,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
       .fill("test");
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(results, ["mysamplestring %s"]);
+    expect(results, [ExtractedString("mysamplestring %s", 1)]);
   });
 
   test("Simple case with comments", () {
@@ -124,7 +168,10 @@ class _SettingsRouteState extends State<SettingsRoute> {
     }
     """;
     var results = GetI18nStrings("").processString(source);
-    expect(results, ["This is a test", "This is another %s test"]);
+    expect(results, [
+      ExtractedString("This is a test", 2),
+      ExtractedString("This is another %s test", 5),
+    ]);
   });
 
   test("Simple case with adjacent strings", () {
@@ -138,7 +185,9 @@ class _SettingsRouteState extends State<SettingsRoute> {
     """;
     var results = GetI18nStrings("").processString(source);
     expect(results, [
-      "This should be a single string, hopefully it doesn't just recognise the last part."
+      ExtractedString(
+          "This should be a single string, hopefully it doesn't just recognise the last part.",
+          1),
     ]);
   });
 }
