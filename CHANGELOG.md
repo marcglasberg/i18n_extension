@@ -1,3 +1,7 @@
+## [4.0.3] - 2021/06/05
+
+* Removed useless `uses-material-design: true`.
+
 ## [4.0.2] - 2021/04/07
 
 * Downgraded args: 1.6.0 to be compatible with flutter_driver.
