@@ -15,15 +15,15 @@ msgstr ""
 msgid "Error while connecting to server"
 msgstr "Fehler beim Verbinden mit dem Server"
 
-#: msgctxt "some context for this string"
+msgctxt "some context for this string"
 msgid "Retry"
 msgstr "Wiederholen"
 
-#: msgctxt "another context for this string"
+msgctxt "another context for this string"
 msgid "Edit Server Details"
 msgstr "Serverdetails bearbeiten"
 
-#: msgctxt "some context for this string"
+msgctxt "some context for this string"
 msgid "Error while uploading document"
 msgid_plural "Error while uploading document"
 msgstr[0] "Fehler beim Hochladen des Dokument"
@@ -35,11 +35,11 @@ msgstr "Meine Dokumente"
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: msgctxt "another context for this string"
+msgctxt "another context for this string"
 msgid "Logout"
 msgstr "Abmelden"
 
-#: msgctxt "another context for this string"
+msgctxt "another context for this string"
 msgid "Uploading 1 scanned document"
 msgstr "Lade 1 gescanntes Dokument hoch"
 
@@ -49,15 +49,15 @@ msgstr "Anmeldedaten prüfen..."
 msgid "Welcome to Paperless"
 msgstr "Willkommen bei Paperless"
 
-#: msgctxt "and another context for this string"
+msgctxt "and another context for this string"
 msgid "Please enter your credentials to continue:"
 msgstr "Gib deine Anmeldedaten ein, um fortzufahren:"
 
-#: msgctxt "and another context for this string"
+msgctxt "and another context for this string"
 msgid "Please enter your username"
 msgstr "Bitte Benutzernamen eingeben"
 
-#: msgctxt "and another context for this string"
+msgctxt "and another context for this string"
 msgid "Connecting to %s..."
 msgstr "Verbinde mit %s..."
 
