@@ -34,7 +34,6 @@ class GettextExporter extends Exporter {
     for (var string in sourceStrings) {
       template[string.string] = {
         "msgid": string.string,
-        "msgctxt": "${string.sourceFile}:${string.lineNumber}"
       };
       template[string.string]?["msgstr"] = [""];
       if (string.pluralRequired) {
