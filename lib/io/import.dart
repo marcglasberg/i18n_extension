@@ -67,28 +67,30 @@ class GettextImporter extends Importer {
   @override
   Map<String, String> _load(String source) {
     Map<String, String> out = {};
-    Map translations = gettext_parser.po.parse(source)["translations"][""];
-    for (Map translation in translations.values) {
-      if (translation.isNotEmpty) {
-        if (translation["msgstr"].length == 1) {
-          String? msgstr = translation["msgstr"][0];
-          if (msgstr != null && msgstr.isNotEmpty) {
+    Map translations = gettext_parser.po.parse(source)["translations"];
+    for (Map context in translations.values) {
+      for (Map translation in context.values) {
+        if (translation.isNotEmpty) {
+          if (translation["msgstr"].length == 1) {
+            String? msgstr = translation["msgstr"][0];
+            if (msgstr != null && msgstr.isNotEmpty) {
+              String? msgid = translation["msgid"];
+              if (msgid != null && msgid.isNotEmpty) out[msgid] = msgstr;
+            }
+          } else {
             String? msgid = translation["msgid"];
-            if (msgid != null && msgid.isNotEmpty) out[msgid] = msgstr;
+            if (msgid != null && msgid.isNotEmpty)
+              out[msgid] = _splitter1 +
+                  translation["msgstr"][0] +
+                  _splitter1 +
+                  '1' +
+                  _splitter2 +
+                  translation["msgstr"][0] +
+                  _splitter1 +
+                  'M' +
+                  _splitter2 +
+                  translation["msgstr"][1];
           }
-        } else {
-          String? msgid = translation["msgid"];
-          if (msgid != null && msgid.isNotEmpty)
-            out[msgid] = _splitter1 +
-                translation["msgstr"][0] +
-                _splitter1 +
-                '1' +
-                _splitter2 +
-                translation["msgstr"][0] +
-                _splitter1 +
-                'M' +
-                _splitter2 +
-                translation["msgstr"][1];
         }
       }
     }
