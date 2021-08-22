@@ -6,19 +6,19 @@
 
 Start with a widget with some text in it:
 
-```
+```dart
 Text("Hello, how are you?")
 ```
 
 Translate it simply by adding `.i18n` to the string:
 
-```
+```dart
 Text("Hello, how are you?".i18n)
 ```
 
 Or you can also use identifiers, as you prefer:
 
-```
+```dart
 Text(greetings.i18n)
 ```
 
@@ -27,7 +27,7 @@ translation to the above text. And so on for any other locales you want to suppo
 
 You can also provide different translations depending on modifiers, for example `plural` quantities:
 
-```
+```dart
 print("There is 1 item".plural(0)); // Prints 'There are no items'
 print("There is 1 item".plural(1)); // Prints 'There is 1 item'
 print("There is 1 item".plural(2)); // Prints 'There are 2 items'
@@ -36,7 +36,7 @@ print("There is 1 item".plural(2)); // Prints 'There are 2 items'
 And you can invent your own modifiers according to any conditions. For example, some languages have different
 translations for different genders. So you could create `gender` versions for `Gender` modifiers:
 
-```
+```dart
 print("There is a person".gender(Gender.male)); // Prints 'There is a man'
 print("There is a person".gender(Gender.female)); // Prints 'There is a woman'
 print("There is a person".gender(Gender.they)); // Prints 'There is a person'
@@ -44,7 +44,7 @@ print("There is a person".gender(Gender.they)); // Prints 'There is a person'
 
 Also, interpolating strings is easy, with the `fill` method:
 
-```
+```dart
 // Prints 'Hello John, this is Mary' in English.
 // Prints 'Olá John, aqui é Mary' in Portuguese.
 print("Hello %s, this is %s".i18n.fill(["John", "Mary"]));
@@ -85,7 +85,7 @@ all stages of your translation efforts:
 Wrap your widget tree with the `I18n` widget, below the `MaterialApp`, together with the `localizationsDelegates` and
 the `supportedLocales`:
 
-```
+```dart
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -121,7 +121,7 @@ dependencies:
 The code `home: I18n(child: ...)` shown above will translate your strings to the **current system locale**. Or you can
 override it with your own locale, like this:
 
-```
+```dart
 I18n(
   initialLocale: Locale("pt", "BR"),
   child: ...
@@ -130,7 +130,7 @@ I18n(
 **Note:** Don't ever put translatable strings in the same widget where you declared the `I18n`
 widget, since they may not respond to future locale changes. For example, this is a mistake:
 
-```
+```dart
 Widget build(BuildContext context) {
   return I18n(
     child: Scaffold(
@@ -149,7 +149,7 @@ and a country code (usually 2 uppercase letters), as two **separate** Strings.
 
 For example:
 
-```
+```dart
 var locale = Locale("en", "US");
 
 print(locale); // Prints `en_US`.
@@ -158,7 +158,7 @@ print(locale.languageCode); // Prints `en`.
 
 You can, if you want, omit the country code:
 
-```
+```dart
 var locale = Locale("en");
 
 print(locale); // Prints `en`.
@@ -167,7 +167,7 @@ print(locale.languageCode); // Prints `en`.
 
 But you **cannot** provide language code and country code as a single String. This is wrong:
 
-```
+```dart
 // This will create a language called "en_US" and no country code.
 var locale = Locale("en_US");
 
@@ -181,7 +181,7 @@ To help avoiding this mistake, the `i18n_extension` may throw an error if your l
 
 When you create a widget that has translatable strings, add this default import to the widget's file:
 
-```
+```dart
 import 'package:i18n_extension/default.i18n.dart';
 ```
 
@@ -194,13 +194,13 @@ For example, if your widget is in file `my_widget.dart`, the translations could 
 
 You must then remove the previous default import, and instead import your own translation file:
 
-```
+```dart
 import 'my_widget.i18n.dart';
 ```
 
 Your translation file itself will be something like this:
 
-```
+```dart
 import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
@@ -224,7 +224,7 @@ Spanish, French and German.
 You can, however, translate as many strings as you want, by simply adding more
 **translation maps**:
 
-```
+```dart
 import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
@@ -257,7 +257,7 @@ The strings themselves are used as **keys** when searching for translations to t
 the `Text` below, `"Hello, how are you?"` is both the translation to English, and the key to use when searching for its
 other translations:
 
-```
+```dart
 Text("Hello, how are you?".i18n)
 ```
 
@@ -283,19 +283,19 @@ example using strings as translation keys</a>.
 
 Instead of:
 
-```
-"Helo there".i18n
+```dart
+"Hello there".i18n
 ```
 
 You can also do:
 
-```
+```dart
 greetings.i18n
 ```
 
 To that end, you can use the `Translations.from` constructor:
 
-```
+```dart
 const appbarTitle = "appbarTitle";
 const greetings = "greetings";
 
@@ -342,14 +342,14 @@ to `Translations.missingTranslations`.
 
 You can manually inspect those sets to see if they're empty, or create tests to do that automatically, for example:
 
-```
+```dart
 expect(Translations.missingKeys, isEmpty);
 expect(Translations.missingTranslations, isEmpty);
 ```
 
 Note: You can disable the recording of missing keys and translations by doing:
 
-```
+```dart
 Translations.recordMissingKeys = false;
 Translations.recordMissingTranslations = false;
 ```
@@ -363,7 +363,7 @@ To do that, simply inject your callbacks into `Translations.missingKeyCallback` 
 
 For example:
 
-```
+```dart
 Translations.missingTranslationCallback =
   (key, locale) =>
     throw TranslationsException("There are no translations in '$locale' for '$key'.");
@@ -379,7 +379,7 @@ However, in other situations, such as when you are hiring professional translati
 translations, it may be easier if you can provide the translations by locale/language, instead of by key. You can do
 that by using the `Translations.byLocale()` constructor.
 
-```
+```dart
 static var _t = Translations.byLocale("en_us") +
     {
       "en_us": {
@@ -395,7 +395,7 @@ static var _t = Translations.byLocale("en_us") +
 
 You can also add maps using the `+` operator:
 
-```
+```dart
 static var _t = Translations.byLocale("en_us") +
     {
       "en_us": {
@@ -417,7 +417,7 @@ Note above, since "en_us" is the default locale you don't need to provide transl
 
 To combine translations you can use the `*` operator. For example:
 
-```
+```dart
 var t1 = Translations("en_us") +
     {
       "en_us": "Hi.",
@@ -441,7 +441,7 @@ print(localize("Goodbye.", translations, locale: "pt_br");
 Sometimes you have different translations that depend on a number quantity. Instead of `.i18n` you can use `.plural()`
 and pass it a number. For example:
 
-```
+```dart
 int numOfItems = 3;
 return Text("You clicked the button %d times".plural(numOfItems));
 ```
@@ -450,7 +450,7 @@ This will be translated, and if the translated string contains `%d` it will be r
 
 Then, your translations file should contain something like this:
 
-```
+```dart
 static var _t = Translations("en_us") +
   {
     "en_us": "You clicked the button %d times"
@@ -472,7 +472,7 @@ String plural(int value) => localizePlural(value, this, _t);
 
 Or, if you want to define your translations by locale:
 
-```
+```dart
 static var _t = Translations.byLocale("en_us") +
     {
       "en_us": {
@@ -513,7 +513,7 @@ for 1, 2, 3, or more than 5 elements.
 You can actually create any modifiers you want. For example, some languages have different translations for different
 genders. So you could create `.gender()` that accepts `Gender` modifiers:
 
-```
+```dart
 enum Gender {they, female, male}
 
 int gnd = Gender.female;
@@ -522,7 +522,7 @@ return Text("There is a person".gender(gnd));
 
 Then, your translations file should use `.modifier()` and `localizeVersion()` like this:
 
-```
+```dart
 static var _t = Translations("en_us") +
   {
     "en_us": "There is a person"
@@ -542,7 +542,7 @@ String gender(Gender gnd) => localizeVersion(gnd, this, _t);
 
 Your translations file may declare a `fill` method to do interpolations:
 
-```
+```dart
 static var _t = Translations("en_us") +
   {
     "en_us": "Hello %s, this is %s",
@@ -556,7 +556,7 @@ String fill(List<Object> params) => localizeFill(this, params);
 
 Then you may use it like this:
 
-```
+```dart
 print("Hello %s, this is %s".i18n.fill(["John", "Mary"]));
 ```
 
@@ -571,7 +571,7 @@ but <a href="https://www.tutorialspoint.com/c_standard_library/c_function_sprint
 
 If you have a translation object you can use the `localize` function directly to perform translations:
 
-```
+```dart
 var translations = Translations("en_us") +
     {
       "en_us": "Hi",
@@ -592,13 +592,13 @@ print(localize("Hi", translations, locale: "not valid");
 
 To change the current locale, do this:
 
-```
+```dart
 I18n.of(context).locale = Locale("pt", "BR");
 ```
 
 To return the current locale to the **system default**, do this:
 
-```
+```dart
 I18n.of(context).locale = null;
 ```
 
@@ -608,7 +608,7 @@ I18n.of(context).locale = null;
 
 To read the current locale, do this:
 
-```
+```dart
 // Both ways work:
 Locale locale = I18n.of(context).locale;
 Locale locale = I18n.locale;
@@ -624,7 +624,7 @@ String language = I18n.language;
 
 There is a global static callback you can use to observe locale changes:
 
-```   
+```dart 
 I18n.observeLocale = 
   ({required Locale oldLocale, required Locale newLocale}) 
       => print("Changed from $oldLocale to $newLocale.");
@@ -726,7 +726,7 @@ part of your CI pipeline in order to always have your translation templates up t
 Note the tool simply searches the source code for strings to which getters like `.i18n` are applied. Since it is not
 very smart, you should not make it too hard:
 
-```
+```dart
 print("Hello World!".i18n); // This would work.
 
 // But the tool would not be able to spot this 
