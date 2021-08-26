@@ -1,0 +1,113 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: paperless-app\n"
+"X-Crowdin-Project-ID: 405180\n"
+"X-Crowdin-Language: de\n"
+"X-Crowdin-File: strings.pot\n"
+"X-Crowdin-File-ID: 10\n"
+"Project-Id-Version: paperless-app\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: German\n"
+"Language: de_DE\n"
+"PO-Revision-Date: 2021-01-04 16:55\n"
+
+msgid "Error while connecting to server"
+msgstr "Fehler beim Verbinden mit dem Server"
+
+msgctxt "some context for this string"
+msgid "Retry"
+msgstr "Wiederholen"
+
+msgctxt "another context for this string"
+msgid "Edit Server Details"
+msgstr "Serverdetails bearbeiten"
+
+msgctxt "some context for this string"
+msgid "Error while uploading document"
+msgid_plural "Error while uploading document"
+msgstr[0] "Fehler beim Hochladen des Dokument"
+msgstr[1] "Fehler beim Hochladen des Dokuments"
+
+msgid "My Documents"
+msgstr "Meine Dokumente"
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgctxt "another context for this string"
+msgid "Logout"
+msgstr "Abmelden"
+
+msgctxt "another context for this string"
+msgid "Uploading 1 scanned document"
+msgstr "Lade 1 gescanntes Dokument hoch"
+
+msgid "Checking credentials..."
+msgstr "Anmeldedaten prüfen..."
+
+msgid "Welcome to Paperless"
+msgstr "Willkommen bei Paperless"
+
+msgctxt "and another context for this string"
+msgid "Please enter your credentials to continue:"
+msgstr "Gib deine Anmeldedaten ein, um fortzufahren:"
+
+msgctxt "and another context for this string"
+msgid "Please enter your username"
+msgstr "Bitte Benutzernamen eingeben"
+
+msgctxt "and another context for this string"
+msgid "Connecting to %s..."
+msgstr "Verbinde mit %s..."
+
+msgid "Please enter your Paperless server URL:"
+msgstr "Bitte gib die URL deines Paperless-Servers ein:"
+
+msgid "Please enter a URL"
+msgstr "Bitte eine URL eingeben"
+
+msgid "Connect"
+msgstr "Verbinden"
+
+msgid "View"
+msgstr "Ansicht"
+
+msgid "Invert Document Preview in Dark Mode"
+msgstr "Dokumentvorschau im Dark Mode invertieren"
+
+msgid "Downloading Document"
+msgstr "Lade Dokument"
+
+msgid "Search for document..."
+msgstr "Suche nach Dokumenten..."
+
+msgid "Sort Documents By"
+msgstr "Dokumente sortieren nach"
+
+msgid "Date created"
+msgstr "Erstellungsdatum"
+
+msgid "Date added"
+msgstr "Hinzugefügt am"
+
+msgid "Last Modification"
+msgstr "Letzte Änderung"
+
+msgid "Document Title"
+msgstr "Dokumententitel"
+
+msgid "Correspondent"
+msgstr "Korrespondent"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Okay"
+msgstr "Okay"
+
+msgid "Ascending"
+msgstr "Aufsteigend"
+
+msgid "Descending"
+msgstr "Absteigend"

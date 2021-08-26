@@ -1,3 +1,7 @@
+## [4.1.1] - 2021/08/22
+
+* `.po` importer fix.
+
 ## [4.1.0] - 2021/06/05
 
 * Removed useless `uses-material-design: true`.
