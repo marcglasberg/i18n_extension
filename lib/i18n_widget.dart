@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/number_symbols.dart';
+import 'package:intl/number_symbols_data.dart';
+
 import 'i18n_extension.dart';
-import 'package:intl/number_symbols_data.dart' show numberFormatSymbols;
 
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
@@ -81,7 +83,6 @@ class I18n extends StatefulWidget {
     return x?.DECIMAL_SEP ?? ".";
   }
 
-
   /// This global callback is called whenever the locale changes. Notes:
   ///
   /// • To obtain the language, you can do:
@@ -93,8 +94,7 @@ class I18n extends StatefulWidget {
   static void Function({
     required Locale oldLocale,
     required Locale newLocale,
-  }) observeLocale =
-      ({required Locale oldLocale, required Locale newLocale}) {};
+  }) observeLocale = ({required Locale oldLocale, required Locale newLocale}) {};
 
   final Widget child;
   final Locale? initialLocale;
@@ -109,11 +109,7 @@ class I18n extends StatefulWidget {
     String? id,
     required this.child,
     this.initialLocale,
-  }) : super(
-            key: key ??
-                ((id != null && id.isNotEmpty)
-                    ? GlobalObjectKey<_I18nState>(id)
-                    : null));
+  }) : super(key: key ?? ((id != null && id.isNotEmpty) ? GlobalObjectKey<_I18nState>(id) : null));
 
   /// Getter:
   /// print(I18n.of(context).locale);
@@ -122,12 +118,10 @@ class I18n extends StatefulWidget {
   /// I18n.of(context).locale = Locale("en", "US");
   ///
   static _I18nState of(BuildContext context) {
-    _InheritedI18n? inherited =
-        context.dependOnInheritedWidgetOfExactType<_InheritedI18n>();
+    _InheritedI18n? inherited = context.dependOnInheritedWidgetOfExactType<_InheritedI18n>();
 
     if (inherited == null)
-      throw TranslationsException(
-          "Can't find the `I18n` widget up in the tree. "
+      throw TranslationsException("Can't find the `I18n` widget up in the tree. "
           "Please make sure to wrap some ancestor widget with `I18n`.");
 
     return inherited.data;
@@ -178,14 +172,12 @@ class I18n extends StatefulWidget {
     _forcedLocale = locale;
     Locale newLocale = I18n.locale;
     _checkLanguageCode(newLocale);
-    if (oldLocale != newLocale)
-      I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+    if (oldLocale != newLocale) I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
   }
 
   static void _checkLanguageCode(Locale locale) {
     if (locale.languageCode.contains("_"))
-      throw TranslationsException(
-          "Language code '${locale.languageCode}' is invalid: "
+      throw TranslationsException("Language code '${locale.languageCode}' is invalid: "
           "Contains an underscore character.");
   }
 
@@ -249,8 +241,7 @@ class _I18nState extends State<I18n> {
 
     I18n._checkLanguageCode(newLocale);
 
-    if (oldLocale != newLocale)
-      I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+    if (oldLocale != newLocale) I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
   }
 
   @override
@@ -275,8 +266,7 @@ class _I18nState extends State<I18n> {
   }
 
   void _processSystemLocale() {
-    Locale newSystemLocale =
-        Localizations.maybeLocaleOf(context) ?? I18n.defaultLocale;
+    Locale newSystemLocale = Localizations.maybeLocaleOf(context) ?? I18n.defaultLocale;
 
     if (newSystemLocale != I18n._systemLocale) {
       //
@@ -286,8 +276,7 @@ class _I18nState extends State<I18n> {
 
       I18n._checkLanguageCode(newLocale);
 
-      if (oldLocale != newLocale)
-        I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+      if (oldLocale != newLocale) I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
 
       if (I18n._forcedLocale == null)
         WidgetsBinding.instance!.addPostFrameCallback((_) => setState(() {}));
