@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'i18n_extension.dart';
+import 'package:intl/number_symbols_data.dart' show numberFormatSymbols;
 
 // Developed by Marcelo Glasberg (Aug 2019).
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
@@ -71,6 +72,15 @@ class I18n extends StatefulWidget {
     RegExp pattern = RegExp('^[_ ]+|[_ ]+\$');
     return str.replaceAll(pattern, '');
   }
+
+  /// Given a locale, return the decimal separator.
+  /// For example, for en_US it's "." but for pt_BR it's ",".
+  static String getDecimalSeparator(Locale locale) {
+    String language = locale.languageCode;
+    NumberSymbols? x = numberFormatSymbols[language];
+    return x?.DECIMAL_SEP ?? ".";
+  }
+
 
   /// This global callback is called whenever the locale changes. Notes:
   ///

@@ -1,3 +1,7 @@
+## [4.1.1] - 2021/09/08
+
+* Version bump.
+
 ## [4.1.0] - 2021/06/05
 
 * Removed useless `uses-material-design: true`.
