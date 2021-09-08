@@ -115,7 +115,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  i18n_extension: ^3.0.0
+  i18n_extension: ^4.1.0
 ```
 
 The code `home: I18n(child: ...)` shown above will translate your strings to the **current system locale**. Or you can
@@ -284,7 +284,7 @@ example using strings as translation keys</a>.
 Instead of:
 
 ```
-"Helo there".i18n
+"Hello there".i18n
 ```
 
 You can also do:
@@ -624,7 +624,7 @@ String language = I18n.language;
 
 There is a global static callback you can use to observe locale changes:
 
-```   
+``` 
 I18n.observeLocale = 
   ({required Locale oldLocale, required Locale newLocale}) 
       => print("Changed from $oldLocale to $newLocale.");
@@ -692,12 +692,24 @@ Then you can import them using `GettextImporter` or `JSONImporter`:
 import 'package:i18n_extension/io/import.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
-void loadTranslations() async {
-  TranslationsByLocale translations =
-    Translations.byLocale("en_GB")
-    + await GettextImporter().fromAssetDirectory("assets/locales");
+class MyI18n {
+  static TranslationsByLocale translations = Translations.byLocale("en");
+
+  static Future<void> loadTranslations() async {
+    translations +=
+        await GettextImporter().fromAssetDirectory("assets/locales");
+  }
+}
+
+extension Localization on String {
+  String get i18n => localize(this, MyI18n.translations);
+  String plural(int value) => localizePlural(value, this, MyI18n.translations);
+  String fill(List<Object> params) => localizeFill(this, params);
 }
 ```
+For usage in main.dart, see <a href="https://github.com/marcglasberg/i18n_extension/issues/63#issuecomment-770056237">here</a>.
+
+**Note**: When using .po files, make sure not to include the country code, because the locales are generated from the filenames which don't contain the country code and if you'd include the country codes, you'll get errors like this: `There are no translations in 'en_us' for "Hello there"`.
 
 **Note:** If you need to import any other custom format, remember importing is easy to do because the Translation
 constructors use maps as input. If you can generate a map from your file format, you can then use the `Translation()`

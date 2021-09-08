@@ -10,7 +10,7 @@ environment:
 dependencies:
   sprintf: ^6.0.0
   args: ^2.0.0
-  analyzer: ^1.5.0
+  analyzer: '>=1.0.0 <3.0.0'
   gettext_parser: ^0.2.0
   equatable: ^2.0.2
   flutter:
