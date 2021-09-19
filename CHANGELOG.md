@@ -1,6 +1,6 @@
-## [4.1.2] - 2021/09/08
+## [4.1.3] - 2021/09/19
 
-* Bump version.
+* Bump version. Docs improvement.
 
 ## [4.1.1] - 2021/08/22
 
