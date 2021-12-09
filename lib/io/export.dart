@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:gettext_parser/gettext_parser.dart' as gettext_parser;
 
 import '../i18n_getstrings.dart';
@@ -34,7 +35,7 @@ class GettextExporter extends Exporter {
     for (var string in sourceStrings) {
       template[string.string] = {
         "msgid": string.string,
-        "msgctxt": "${string.sourceFile}:${string.lineNumber}"
+        "comments": {"reference": "${string.sourceFile}:${string.lineNumber}"},
       };
       template[string.string]?["msgstr"] = [""];
       if (string.pluralRequired) {
