@@ -152,16 +152,14 @@ void main() {
     var t = Translations("en_us") +
         {
           "en_us": "MyString".zero("Zero").one("One").two("Two").many("many"),
-          "pt_br":
-              "MinhaString".zero("Zero").one("Um").two("Dois").many("Muitos"),
+          "pt_br": "MinhaString".zero("Zero").one("Um").two("Dois").many("Muitos"),
         };
 
     expect(t.length, 1);
 
     expect(t.translations, {
       "MyString": {
-        "en_us":
-            "\uFFFFMyString\uFFFF0\uFFFEZero\uFFFF1\uFFFEOne\uFFFF2\uFFFETwo\uFFFFM\uFFFEmany",
+        "en_us": "\uFFFFMyString\uFFFF0\uFFFEZero\uFFFF1\uFFFEOne\uFFFF2\uFFFETwo\uFFFFM\uFFFEmany",
         "pt_br":
             "\uFFFFMinhaString\uFFFF0\uFFFEZero\uFFFF1\uFFFEUm\uFFFF2\uFFFEDois\uFFFFM\uFFFEMuitos",
       },
@@ -191,12 +189,10 @@ void main() {
     var t = Translations.byLocale("en_us") +
         {
           "en_us": {
-            "MyString":
-                "MyString".zero("Zero").one("One").two("Two").many("many"),
+            "MyString": "MyString".zero("Zero").one("One").two("Two").many("many"),
           },
           "pt_br": {
-            "MyString":
-                "MinhaString".zero("Zero").one("Um").two("Dois").many("Muitos"),
+            "MyString": "MinhaString".zero("Zero").one("Um").two("Dois").many("Muitos"),
           }
         };
 
@@ -204,8 +200,7 @@ void main() {
 
     expect(t.translations, {
       "MyString": {
-        "en_us":
-            "\uFFFFMyString\uFFFF0\uFFFEZero\uFFFF1\uFFFEOne\uFFFF2\uFFFETwo\uFFFFM\uFFFEmany",
+        "en_us": "\uFFFFMyString\uFFFF0\uFFFEZero\uFFFF1\uFFFEOne\uFFFF2\uFFFETwo\uFFFFM\uFFFEmany",
         "pt_br":
             "\uFFFFMinhaString\uFFFF0\uFFFEZero\uFFFF1\uFFFEUm\uFFFF2\uFFFEDois\uFFFFM\uFFFEMuitos",
       },
@@ -254,13 +249,14 @@ void main() {
           }
         };
 
-    String plural(int value) => localizePlural(value, key, t);
+    String plural(value) => localizePlural(value, key, t);
 
     expect(plural(0), "You haven't clicked the button");
     expect(plural(1), "You clicked it once");
     expect(plural(2), "You clicked a couple times");
     expect(plural(3), "You clicked 3 times");
     expect(plural(12), "You clicked a dozen times");
+    expect(plural('12'), "You clicked a dozen times");
 
     I18n.define(const Locale("pt", "BR"));
 
@@ -422,8 +418,7 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////
 
-  test("Keys can vary from the translations. Should return the value or key.",
-      () {
+  test("Keys can vary from the translations. Should return the value or key.", () {
     TranslationsByLocale t = Translations.byLocale("en_us") +
         {
           "en_us": {
@@ -619,8 +614,7 @@ void main() {
 
   //////////////////////////////////////////////////////////////////////////////
 
-  test(
-      "Don't record unnecessary missing translations with the Translation.byLocale constructor.",
+  test("Don't record unnecessary missing translations with the Translation.byLocale constructor.",
       () {
     //
     // ---------------
@@ -707,8 +701,7 @@ void main() {
     text = "MyKey".modifier("x", "abc").modifier("y", "def");
     expect(text, "\uFFFFMyKey\uFFFFx\uFFFEabc\uFFFFy\uFFFEdef");
 
-    text =
-        "MyKey".zero("abc").one("def").two("ghi").many("jkl").times(5, "mno");
+    text = "MyKey".zero("abc").one("def").two("ghi").many("jkl").times(5, "mno");
     expect(text,
         "\uFFFFMyKey\uFFFF0\uFFFEabc\uFFFF1\uFFFEdef\uFFFF2\uFFFEghi\uFFFFM\uFFFEjkl\uFFFF5\uFFFEmno");
 
@@ -936,11 +929,8 @@ void main() {
 
     t = Translations("en_us") +
         {
-          "en_us": "1 beer"
-              .zeroOne("0 or 1 beers")
-              .two("2 beers")
-              .three("3 beers")
-              .many("many beers"),
+          "en_us":
+              "1 beer".zeroOne("0 or 1 beers").two("2 beers").three("3 beers").many("many beers"),
         };
 
     expect(localizePlural(0, key, t, locale: "en_us"), "0 or 1 beers");
@@ -990,12 +980,7 @@ void main() {
     // ---
 
     t = Translations("en_us") +
-        {
-          "en_us": "1 beer"
-              .oneOrMore("1 or more beers")
-              .zero("0 beers")
-              .three("3 beers")
-        };
+        {"en_us": "1 beer".oneOrMore("1 or more beers").zero("0 beers").three("3 beers")};
 
     expect(localizePlural(0, key, t, locale: "en_us"), "0 beers");
     expect(localizePlural(1, key, t, locale: "en_us"), "1 or more beers");
@@ -1022,8 +1007,7 @@ void main() {
     var key = "1 beer";
 
     // Make sure "1 or more" DOES NOT include zero (but includes 1).
-    var t =
-        Translations("en_us") + {"en_us": "1 beer".oneOrMore("1 or more beer")};
+    var t = Translations("en_us") + {"en_us": "1 beer".oneOrMore("1 or more beer")};
 
     expect(localizePlural(0, key, t, locale: "en_us"), "1 beer");
     expect(localizePlural(1, key, t, locale: "en_us"), "1 or more beer");
@@ -1048,8 +1032,7 @@ void main() {
     I18n.define(const Locale("en", "US"));
     var key = "1 beer";
 
-    var t = Translations("en_us") +
-        {"en_us": "1 beer".zero("").three("").many("many beers")};
+    var t = Translations("en_us") + {"en_us": "1 beer".zero("").three("").many("many beers")};
 
     expect(localizePlural(0, key, t, locale: "en_us"), "");
     expect(localizePlural(1, key, t, locale: "en_us"), "1 beer");
@@ -1114,6 +1097,77 @@ void main() {
   });
 
   //////////////////////////////////////////////////////////////////////////////
+
+  test("Conversion of plural modifier.", () {
+    //
+
+    // Integer
+    expect(convertToIntegerModifier(-10), 10);
+    expect(convertToIntegerModifier(-2), 2);
+    expect(convertToIntegerModifier(-1), 1);
+    expect(convertToIntegerModifier(0), 0);
+    expect(convertToIntegerModifier(1), 1);
+    expect(convertToIntegerModifier(2), 2);
+    expect(convertToIntegerModifier(10), 10);
+
+    // Double
+    expect(convertToIntegerModifier(-10.0), 10);
+    expect(convertToIntegerModifier(-10.25), 11);
+    expect(convertToIntegerModifier(-2.0), 2);
+    expect(convertToIntegerModifier(-2.2), 3);
+    expect(convertToIntegerModifier(-2.7), 3);
+    expect(convertToIntegerModifier(-1.0), 1);
+    expect(convertToIntegerModifier(0.0), 0);
+    expect(convertToIntegerModifier(0.2), 0);
+    expect(convertToIntegerModifier(0.5), 0);
+    expect(convertToIntegerModifier(0.7), 0);
+    expect(convertToIntegerModifier(1.0), 1);
+    expect(convertToIntegerModifier(1.1), 2);
+    expect(convertToIntegerModifier(1.8), 2);
+    expect(convertToIntegerModifier(2.0), 2);
+    expect(convertToIntegerModifier(2.4), 3);
+    expect(convertToIntegerModifier(2.5), 3);
+    expect(convertToIntegerModifier(2.81232), 3);
+    expect(convertToIntegerModifier(10.0), 10);
+
+    // String
+    expect(convertToIntegerModifier("-10"), 10);
+    expect(convertToIntegerModifier("-10.0"), 10);
+    expect(convertToIntegerModifier("-10.25"), 11);
+    expect(convertToIntegerModifier("0.3"), 0);
+    expect(convertToIntegerModifier("5"), 5);
+    expect(convertToIntegerModifier("5.6"), 6);
+    expect(convertToIntegerModifier(" 5.6 "), 6);
+    expect(convertToIntegerModifier(" 5.6a"), 6);
+    expect(convertToIntegerModifier("5 .6"), 0);
+    expect(convertToIntegerModifier("5. 6"), 0);
+    expect(convertToIntegerModifier("5.6 2 3"), 0);
+    expect(convertToIntegerModifier("5.6a2x3"), 0);
+    expect(convertToIntegerModifier("5.a"), 5);
+    expect(convertToIntegerModifier("^&-5.a"), 5);
+    expect(convertToIntegerModifier("^-&-5.a"), 5);
+    expect(convertToIntegerModifier("^-&-5.1.2a"), 0);
+
+    // Some object which is not int, double, or String (will use the object's toString()).
+    expect(convertToIntegerModifier(SomeObj("-10")), 10);
+    expect(convertToIntegerModifier(SomeObj("-10.0")), 10);
+    expect(convertToIntegerModifier(SomeObj("-10.25")), 11);
+    expect(convertToIntegerModifier(SomeObj("0.3")), 0);
+    expect(convertToIntegerModifier(SomeObj("5")), 5);
+    expect(convertToIntegerModifier(SomeObj("5.6")), 6);
+    expect(convertToIntegerModifier(SomeObj(" 5.6 ")), 6);
+    expect(convertToIntegerModifier(SomeObj(" 5.6a")), 6);
+    expect(convertToIntegerModifier(SomeObj("5 .6")), 0);
+    expect(convertToIntegerModifier(SomeObj("5. 6")), 0);
+    expect(convertToIntegerModifier(SomeObj("5.6 2 3")), 0);
+    expect(convertToIntegerModifier(SomeObj("5.6a2x3")), 0);
+    expect(convertToIntegerModifier(SomeObj("5.a")), 5);
+    expect(convertToIntegerModifier(SomeObj("^&-5.a")), 5);
+    expect(convertToIntegerModifier(SomeObj("^-&-5.a")), 5);
+    expect(convertToIntegerModifier(SomeObj("^-&-5.1.2a")), 0);
+  });
+
+  //////////////////////////////////////////////////////////////////////////////
 }
 
 extension Localization on String {
@@ -1162,7 +1216,7 @@ extension Localization on String {
 
   String fill(List<Object> params) => localizeFill(this, params);
 
-  String? plural(int value) => localizePlural(value, this, _t);
+  String? plural(value) => localizePlural(value, this, _t);
 
   String version(Object modifier) => localizeVersion(modifier, this, _t);
 
@@ -1172,3 +1226,12 @@ extension Localization on String {
 }
 
 enum Gender { they, female, male, x }
+
+class SomeObj {
+  final String value;
+
+  SomeObj(this.value);
+
+  @override
+  String toString() => 'SomeObj{value: $value}';
+}

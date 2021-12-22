@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'i18n_widget.dart';
@@ -43,8 +44,8 @@ String localize(
 
   if (translatedStringPerLocale == null) {
     if (Translations.recordMissingKeys)
-      Translations.missingKeys.add(
-          TranslatedString(locale: translations.defaultLocaleStr, text: key));
+      Translations.missingKeys
+          .add(TranslatedString(locale: translations.defaultLocaleStr, text: key));
 
     Translations.missingKeyCallback(key, translations.defaultLocaleStr);
 
@@ -55,8 +56,7 @@ String localize(
     locale = _effectiveLocale(locale);
 
     if (locale == "null")
-      throw TranslationsException(
-          "Locale is the 4 letter string 'null', which is invalid.");
+      throw TranslationsException("Locale is the 4 letter string 'null', which is invalid.");
 
     // Get the translated string in the language we want.
     String? translatedString = translatedStringPerLocale[locale];
@@ -65,10 +65,8 @@ String localize(
     if (translatedString != null) return translatedString;
 
     // If there's no translated string in the locale, record it.
-    if (Translations.recordMissingTranslations &&
-        locale != translations.defaultLocaleStr) {
-      Translations.missingTranslations
-          .add(TranslatedString(locale: locale, text: key));
+    if (Translations.recordMissingTranslations && locale != translations.defaultLocaleStr) {
+      Translations.missingTranslations.add(TranslatedString(locale: locale, text: key));
       Translations.missingTranslationCallback(key, locale);
     }
 
@@ -123,91 +121,129 @@ String localizeFill(String text, List<Object> params) => sprintf(text, params);
 /// string. For example, this: `"a".zero("b").four("c:")` will default to `"a"`
 /// for 1, 2, 3, or more than 5 elements.
 ///
+/// The modifier should usually be an integer. But in case it's not, it will
+/// be converted into an integer. The rules are:
+///
+/// 1) If the modifier is an int, its absolute value will be used.
+/// Note: absolute value means a negative value will become positive.
+///
+/// 2) If the modifier is a double, its absolute value will be used, like so:
+/// - 1.0 will be 1.
+/// - Values below 1.0 will become 0.
+/// - Values larger than 1.0 will be rounded up.
+///
+/// 3) Strings will be converted to integer or if that fails to a double.
+/// Conversion is done like so:
+/// - First, it will discard other chars than numbers, dot and the minus sign,
+///   by converting them to spaces.
+/// - Then it will convert to int using `int.tryParse`.
+/// - Then it will convert to double using `double.tryParse`.
+/// - If all fails, it will be zero.
+///
+/// 4) Other objects will be converted to a string (using the toString method), and then the above
+/// rules will apply.
+///
 String localizePlural(
-  int modifier,
+  Object? modifier,
   String key,
   ITranslations translations, {
   String? locale,
 }) {
+  int modifierInt = convertToIntegerModifier(modifier);
+
   locale = locale?.toLowerCase();
 
-  Map<String?, String> versions =
-      localizeAllVersions(key, translations, locale: locale);
+  Map<String?, String> versions = localizeAllVersions(key, translations, locale: locale);
 
   String? text;
 
   /// For plural(0), returns the version 0, otherwise the version the version
   /// 0-1, otherwise the version many, otherwise the unversioned.
-  if (modifier == 0)
+  if (modifierInt == 0)
     text = versions["0"] ?? versions["F"] ?? versions["M"] ?? versions[null];
 
   /// For plural(1), returns the version 1, otherwise the version the version
   /// 0-1, otherwise the version the version 1-many, otherwise the unversioned.
-  else if (modifier == 1)
+  else if (modifierInt == 1)
     text = versions["1"] ?? versions["F"] ?? versions["R"] ?? versions[null];
 
   /// For plural(2), returns the version 2, otherwise the version 2-3-4,
   /// otherwise the version many/1-many, otherwise the unversioned.
-  else if (modifier == 2)
-    text = versions["2"] ??
-        versions["C"] ??
-        versions["M"] ??
-        versions["R"] ??
-        versions[null];
+  else if (modifierInt == 2)
+    text = versions["2"] ?? versions["C"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   /// For plural(3), returns the version 3, otherwise the version 2-3-4,
   /// otherwise the version many/1-many, otherwise the unversioned.
-  else if (modifier == 3)
-    text = versions["3"] ??
-        versions["C"] ??
-        versions["M"] ??
-        versions["R"] ??
-        versions[null];
+  else if (modifierInt == 3)
+    text = versions["3"] ?? versions["C"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   /// For plural(4), returns the version 4, otherwise the version 2-3-4,
   /// otherwise the version many/1-many, otherwise the unversioned.
-  else if (modifier == 4)
-    text = versions["4"] ??
-        versions["C"] ??
-        versions["M"] ??
-        versions["R"] ??
-        versions[null];
+  else if (modifierInt == 4)
+    text = versions["4"] ?? versions["C"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   /// For plural(5), returns the version 5, otherwise the version many/1-many,
   /// otherwise the unversioned.
-  else if (modifier == 5)
+  else if (modifierInt == 5)
     text = versions["5"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   /// For plural(6), returns the version 6, otherwise the version many/1-many,
   /// otherwise the unversioned.
-  else if (modifier == 6)
+  else if (modifierInt == 6)
     text = versions["6"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   /// For plural(10), returns the version 10, otherwise the version many/1-many,
   /// For plural(10), returns the version 10, otherwise the version many/1-many,
   /// otherwise the unversioned.
-  else if (modifier == 10)
+  else if (modifierInt == 10)
     text = versions["T"] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   /// For plural(<0 or >2), returns the version many/1-many,
   /// otherwise the unversioned.
   else
-    text = versions[modifier.toString()] ??
-        versions["M"] ??
-        versions["R"] ??
-        versions[null];
+    text = versions[modifierInt.toString()] ?? versions["M"] ?? versions["R"] ?? versions[null];
 
   // ---
 
   if (text == null)
     throw TranslationsException("No version found "
-        "(modifier: $modifier, "
+        "(modifier: $modifierInt, "
         "key: '$key', "
         "locale: '${_effectiveLocale(locale)}').");
 
-  text = text.replaceAll("%d", modifier.toString());
+  text = text.replaceAll("%d", modifierInt.toString());
 
   return text;
+}
+
+/// See rules stated in [localizePlural]'s documentation.
+@visibleForTesting
+int convertToIntegerModifier(Object? modifierObj) {
+  //
+  if (modifierObj is! int && modifierObj is! double) {
+    String modifierStr = modifierObj.toString();
+    modifierStr = modifierStr.replaceAll(RegExp(r'[^0-9\.]'), ' ');
+
+    modifierObj = int.tryParse(modifierStr);
+    modifierObj ??= double.tryParse(modifierStr) ?? 0.0;
+  }
+
+  if (modifierObj is double) {
+    modifierObj = modifierObj.abs();
+
+    if (modifierObj == 1.0)
+      return 1;
+    else if (modifierObj < 1.0)
+      return 0;
+    else
+      return modifierObj.ceil();
+  }
+  //
+  else if (modifierObj is int)
+    return modifierObj.abs();
+  //
+  else
+    throw AssertionError(modifierObj);
 }
 
 /// Return the localized string, according to key and modifier.
@@ -227,8 +263,7 @@ String localizeVersion(
   String total = localize(key, translations, locale: locale);
 
   if (!total.startsWith(_splitter1))
-    throw TranslationsException(
-        "This text has no version for modifier '$modifier' "
+    throw TranslationsException("This text has no version for modifier '$modifier' "
         "(modifier: $modifier, "
         "key: '$key', "
         "locale: '${_effectiveLocale(locale)}').");
@@ -245,8 +280,7 @@ String localizeVersion(
     if (_modifier == modifier.toString()) return text;
   }
 
-  throw TranslationsException(
-      "This text has no version for modifier '$modifier' "
+  throw TranslationsException("This text has no version for modifier '$modifier' "
       "(modifier: $modifier, "
       "key: '$key', "
       "locale: '${_effectiveLocale(locale)}').");
@@ -288,8 +322,7 @@ Map<String?, String> localizeAllVersions(
   return all;
 }
 
-String _effectiveLocale(String? locale) =>
-    locale?.toLowerCase() ?? I18n.localeStr;
+String _effectiveLocale(String? locale) => locale?.toLowerCase() ?? I18n.localeStr;
 
 const _splitter1 = "\uFFFF";
 const _splitter2 = "\uFFFE";
@@ -319,11 +352,11 @@ class TranslatedString {
 
         var defaultLanguageStr = defaultLocaleStr.substring(0, 2);
 
-        if (ts1.locale.startsWith(defaultLanguageStr) &&
-            !ts2.locale.startsWith(defaultLocaleStr)) return -1;
+        if (ts1.locale.startsWith(defaultLanguageStr) && !ts2.locale.startsWith(defaultLocaleStr))
+          return -1;
 
-        if (ts2.locale.startsWith(defaultLanguageStr) &&
-            !ts1.locale.startsWith(defaultLocaleStr)) return 1;
+        if (ts2.locale.startsWith(defaultLanguageStr) && !ts1.locale.startsWith(defaultLocaleStr))
+          return 1;
 
         return ts1.locale.compareTo(ts2.locale);
       };
@@ -353,9 +386,7 @@ class TranslationsException {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TranslationsException &&
-          runtimeType == other.runtimeType &&
-          msg == other.msg;
+      other is TranslationsException && runtimeType == other.runtimeType && msg == other.msg;
 
   @override
   int get hashCode => msg.hashCode;
@@ -370,8 +401,7 @@ abstract class ITranslations {
 
   String get defaultLocaleStr;
 
-  String get defaultLanguageStr =>
-      Translations.trim(defaultLocaleStr).substring(0, 2);
+  String get defaultLanguageStr => Translations.trim(defaultLocaleStr).substring(0, 2);
 
   int get length;
 
@@ -391,13 +421,12 @@ class Translations extends ITranslations {
   static bool recordMissingTranslations = true;
 
   /// Replace this to log missing keys.
-  static void Function(String, String) missingKeyCallback = (key, locale) =>
-      print("➜ Translation key in '$locale' is missing: \"$key\".");
+  static void Function(String, String) missingKeyCallback =
+      (key, locale) => print("➜ Translation key in '$locale' is missing: \"$key\".");
 
   /// Replace this to log missing translations.
   static void Function(String, String) missingTranslationCallback =
-      (key, locale) =>
-          print("➜ There are no translations in '$locale' for \"$key\".");
+      (key, locale) => print("➜ There are no translations in '$locale' for \"$key\".");
 
   @override
   final Map<String, Map<String, String>> translations;
@@ -446,8 +475,7 @@ class Translations extends ITranslations {
   static String trim(String locale) {
     locale = locale.trim();
 
-    while (locale.endsWith("_"))
-      locale = locale.substring(0, locale.length - 1);
+    while (locale.endsWith("_")) locale = locale.substring(0, locale.length - 1);
 
     return locale;
   }
@@ -463,8 +491,7 @@ class Translations extends ITranslations {
     var defaultTranslation = translations[defaultLocaleStr];
 
     if (defaultTranslation == null)
-      throw TranslationsException(
-          "No default translation for '$defaultLocaleStr'.");
+      throw TranslationsException("No default translation for '$defaultLocaleStr'.");
 
     String key = _getKey(defaultTranslation);
 
@@ -487,19 +514,16 @@ class Translations extends ITranslations {
   Translations operator *(ITranslations translationsByLocale) {
     //
     if (translationsByLocale.defaultLocaleStr != defaultLocaleStr)
-      throw TranslationsException(
-          "Can't combine translations with different default locales: "
+      throw TranslationsException("Can't combine translations with different default locales: "
           "'$defaultLocaleStr' and "
           "'${translationsByLocale.defaultLocaleStr}'.");
 
-    for (MapEntry<String, Map<String, String>> entry
-        in translationsByLocale.translations.entries) {
+    for (MapEntry<String, Map<String, String>> entry in translationsByLocale.translations.entries) {
       var key = entry.key;
       for (MapEntry<String, String> entry2 in entry.value.entries) {
         String locale = entry2.key;
         String translatedString = entry2.value;
-        addTranslation(
-            locale: locale, key: key, translatedString: translatedString);
+        addTranslation(locale: locale, key: key, translatedString: translatedString);
       }
     }
     return this;
@@ -531,8 +555,7 @@ class Translations extends ITranslations {
     for (int i = 2; i < parts.length; i++) {
       var part = parts[i];
       List<String> par = part.split(_splitter2);
-      if (par.length != 2 || par[0].isEmpty || par[1].isEmpty)
-        return translation;
+      if (par.length != 2 || par[0].isEmpty || par[1].isEmpty) return translation;
       String modifier = par[0];
       String text = par[1];
       result += "\n          $modifier → $text";
@@ -540,12 +563,10 @@ class Translations extends ITranslations {
     return result;
   }
 
-  List<TranslatedString> _translatedStrings(Map<String, String> translation) =>
-      translation.entries
-          .map(
-              (entry) => TranslatedString(locale: entry.key, text: entry.value))
-          .toList()
-            ..sort(TranslatedString.comparable(defaultLocaleStr));
+  List<TranslatedString> _translatedStrings(Map<String, String> translation) => translation.entries
+      .map((entry) => TranslatedString(locale: entry.key, text: entry.value))
+      .toList()
+    ..sort(TranslatedString.comparable(defaultLocaleStr));
 
   /// Add a [key]/[translatedString] pair to the translations.
   /// You must provide non-empty [locale] and [key], but the [translatedString]
@@ -586,11 +607,9 @@ class TranslationsByLocale extends ITranslations {
   @override
   Map<String, Map<String, String>> get translations => byKey.translations;
 
-  TranslationsByLocale._(String defaultLocaleStr)
-      : byKey = Translations(defaultLocaleStr);
+  TranslationsByLocale._(String defaultLocaleStr) : byKey = Translations(defaultLocaleStr);
 
-  TranslationsByLocale operator +(
-      Map<String, Map<String, String>> translations) {
+  TranslationsByLocale operator +(Map<String, Map<String, String>> translations) {
     for (MapEntry<String, Map<String, String>> entry in translations.entries) {
       String locale = entry.key;
       for (MapEntry<String, String> entry2 in entry.value.entries) {
@@ -609,14 +628,12 @@ class TranslationsByLocale extends ITranslations {
   /// Combine this translation with another translation.
   TranslationsByLocale operator *(ITranslations translationsByLocale) {
     if (translationsByLocale.defaultLocaleStr != defaultLocaleStr)
-      throw TranslationsException(
-          "Can't combine translations with different default locales: "
+      throw TranslationsException("Can't combine translations with different default locales: "
           "'$defaultLocaleStr' and "
           "'${translationsByLocale.defaultLocaleStr}'.");
     // ---
 
-    for (MapEntry<String, Map<String, String>> entry
-        in translationsByLocale.translations.entries) {
+    for (MapEntry<String, Map<String, String>> entry in translationsByLocale.translations.entries) {
       var key = entry.key;
       for (MapEntry<String, String> entry2 in entry.value.entries) {
         String locale = entry2.key;

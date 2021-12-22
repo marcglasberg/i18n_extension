@@ -60,5 +60,5 @@ extension Localization on String {
 
   String fill(List<Object> params) => localizeFill(this, params);
 
-  String plural(int value) => localizePlural(value, this, _t);
+  String plural(value) => localizePlural(value, this, _t);
 }

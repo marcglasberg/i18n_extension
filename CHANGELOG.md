@@ -1,3 +1,12 @@
+## [4.2.0] - 2021/12/22
+
+* The `localizePlural` method now accepts any object (not only an integer anymore). It will convert
+  that object into an integer, and use that result. Se the method documentation for more
+  information. To make use of it, you may declare your `plural()` methods as
+  `String plural(value) => localizePlural(value, this, _t);` from now on.
+  Example: `'This is one item'.plural(2)` is now the same as
+  writing `'This is one item'.plural('2')`.
+
 ## [4.1.3] - 2021/09/19
 
 * Bump version. Docs improvement.
@@ -22,20 +31,22 @@
 
 ## [4.0.0] - 2021/03/07
 
-* Now allows both string-keys (like `"Hello there".i18n` as shown in the `example1` dir) and identifier-keys (
+* Now allows both string-keys (like `"Hello there".i18n` as shown in the `example1` dir) and
+  identifier-keys (
   like `greetings.i18n` as shown in the `example2` dir).
-* Breaking change: If some translation did not exist in some language, it would show the translation key itself as the
-  missing translation. This worked well with string-keys, but not with identifier-keys. Now, if some translation is
-  missing, it first tries to show the untranslated string, and only if that is missing too it shows the key as the
-  translation. This change is unlikely to be noticed by anyone, but still a breaking change.
+* Breaking change: If some translation did not exist in some language, it would show the translation
+  key itself as the missing translation. This worked well with string-keys, but not with
+  identifier-keys. Now, if some translation is missing, it first tries to show the untranslated
+  string, and only if that is missing too it shows the key as the translation. This change is
+  unlikely to be noticed by anyone, but still a breaking change.
 
 ## [3.0.3] - 2021/03/06
 
 * Nullsafety.
-* Breaking change: During app initialization, the system locale may be `null` for a few moments. During this time, in
-  prior version _2.0.0_ it would use the `Translations` default locale. Now, in version _3.0.0_, it will use the global
-  locale defined in `I18n.defaultLocale`, which by default is `Locale("en", "US")`. You can change this default in your
-  app's main method.
+* Breaking change: During app initialization, the system locale may be `null` for a few moments.
+  During this time, in prior version _2.0.0_ it would use the `Translations` default locale. Now, in
+  version _3.0.0_, it will use the global locale defined in `I18n.defaultLocale`, which by default
+  is `Locale("en", "US")`. You can change this default in your app's main method.
 * New `Translations.from()` constructor, which responds better to hot reload.
 * Fixed the PO importer to ignore empty keys.
 * The docs now explain better how to add plurals with translations by locale.
@@ -43,7 +54,8 @@
 ## [2.0.0] - 2021/30/21
 
 * Plural modifiers: `zeroOne` (for 0 or 1 elements), and `oneOrMore` (for 1 and more elements).
-* Fix for when no applicable plural modifier is found. It now correctly defaults to the unversioned string.
+* Fix for when no applicable plural modifier is found. It now correctly defaults to the unversioned
+  string.
 
 ## [1.5.1] - 2021/01/21
 
@@ -67,8 +79,8 @@
 
 ## [1.4.2] - 2020/06/26
 
-* Bumped `sprintf` to version `4.1.0`, which adds compatibility for future Dart features that require a Dart SDK
-  constraint with a lower bound that is `>=2.0.0`.
+* Bumped `sprintf` to version `4.1.0`, which adds compatibility for future Dart features that
+  require a Dart SDK constraint with a lower bound that is `>=2.0.0`.
 
 ## [1.4.1] - 2020/06/22
 
@@ -119,8 +131,8 @@
 
 * I18n.observeLocale() can be used to observe locale changes.
 
-* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong. See "A quick recap of
-  Dart locales" in the docs, for more details.
+* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong.
+  See "A quick recap of Dart locales" in the docs, for more details.
 
 ## [1.2.0] - 2019/12/19
 
