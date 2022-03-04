@@ -1,4 +1,4 @@
-## [4.2.0] - 2021/12/22
+## [4.2.1] - 2021/12/22
 
 * The `localizePlural` method now accepts any object (not only an integer anymore). It will convert
   that object into an integer, and use that result. Se the method documentation for more

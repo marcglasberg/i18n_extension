@@ -1,32 +1,36 @@
 import 'dart:io';
 
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:args/args.dart';
 import 'package:i18n_extension/i18n_getstrings.dart';
 import 'package:i18n_extension/io/export.dart';
 
 void main(List<String> arguments) async {
+  const OUTPUT_FILE = "output-file";
+  const SOURCE_DIR = "source-dir";
+
   var parser = ArgParser()
-    ..addOption("output-file",
+    ..addOption(OUTPUT_FILE,
         abbr: "f",
         defaultsTo: "strings.pot",
         valueHelp: "Supported formats: ${exporters.keys.join(", ")}")
-    ..addOption("source-dir", abbr: "s", defaultsTo: "./lib");
-  var results = parser.parse(arguments);
+    ..addOption(SOURCE_DIR, abbr: "s", defaultsTo: "./lib");
 
-  var fileFormat = results["output-file"].split(".").last;
+  ArgResults results = parser.parse(arguments);
+
+  String outputFilename = results[OUTPUT_FILE];
+  var fileFormat = outputFilename.split(".").last;
   if (!exporters.containsKey(fileFormat)) {
-    print("Unable to write to ${results["output-file"]}.");
+    print("Unable to write to $outputFilename.");
     print("Supported formats: ${exporters.keys.join(", ")}");
     exit(1);
   }
 
-  List<ExtractedString> strings = GetI18nStrings(results["source-dir"]).run();
+  String? sourceDir = results[SOURCE_DIR];
+  List<ExtractedString> strings = GetI18nStrings(sourceDir).run();
 
-  var outFile = File(results["output-file"]);
-  await outFile.create();
-  exporters[fileFormat]!(strings).exportTo(outFile);
+  var outputFile = File(outputFilename);
+  await outputFile.create();
+  exporters[fileFormat]!(strings).exportTo(outputFile);
 
-  print(
-      "Wrote ${strings.length} strings to template ${results["output-file"]}");
+  print("Wrote ${strings.length} strings to template $outputFilename");
 }
