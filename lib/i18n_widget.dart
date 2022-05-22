@@ -278,7 +278,7 @@ class _I18nState extends State<I18n> {
       if (oldLocale != newLocale) I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
 
       if (I18n._forcedLocale == null)
-        WidgetsBinding.instance!.addPostFrameCallback((_) => setState(() {}));
+        WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
     }
   }
 }

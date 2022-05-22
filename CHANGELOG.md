@@ -1,3 +1,7 @@
+## [5.0.0] - 2021/05/13
+                    
+* Flutter 3.0
+
 ## [4.2.1] - 2021/12/22
 
 * The `localizePlural` method now accepts any object (not only an integer anymore). It will convert
