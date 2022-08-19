@@ -256,7 +256,7 @@ extension Localization on String {
 
 ## Strings themselves are the translation keys
 
-The locale you pass in the `Translations()` constructor is called the **default locale**. For
+The locale you pass in the [`Translations()`](https://www.scaler.com/topics/translate-in-python/) constructor is called the **default locale**. For
 example, in `Translations("en_us")` the default locale is `en_us`. All translatable strings in the
 widget file should be in the language of that locale.
 
