@@ -1,3 +1,7 @@
+## [6.0.0] - 2021/11/15
+                    
+* Analyzer and sprintf version bump.
+
 ## [5.0.1] - 2021/08/29
                     
 * Analyzer version bump.
