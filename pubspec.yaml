@@ -8,9 +8,9 @@ environment:
   sdk: '>=2.15.0 <3.0.0'
 
 dependencies:
-  sprintf: ^6.0.0
+  sprintf: ^7.0.0
   args: ^2.3.0
-  analyzer: ^4.6.0
+  analyzer: ^5.2.0
   gettext_parser: ^0.2.0
   equatable: ^2.0.3
   intl: ^0.17.0
