@@ -190,4 +190,18 @@ class _SettingsRouteState extends State<SettingsRoute> {
           1),
     ]);
   });
+
+  test("Test case for markForI18n", () {
+    var source = """
+    void main() {
+      print("This is a test".markForI18n);
+    }
+    """;
+    var results = GetI18nStrings("").processString(source);
+    expect(results, [
+      ExtractedString("This is a test", 2),
+    ]);
+  });
+
+
 }

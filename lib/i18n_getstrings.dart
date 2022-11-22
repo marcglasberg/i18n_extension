@@ -14,6 +14,7 @@ class I18nSuffixes {
   static const String plural = 'plural';
   static const String version = 'version';
   static const String allVersions = 'allVersions';
+  static const String markForI18n = 'markForI18n';
 
   static const List<String> allSuffixes = const [
     i18n,
@@ -21,6 +22,7 @@ class I18nSuffixes {
     plural,
     version,
     allVersions,
+    markForI18n
   ];
 }
 
