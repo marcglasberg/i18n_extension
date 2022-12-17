@@ -9,11 +9,11 @@ environment:
 
 dependencies:
   sprintf: ^7.0.0
-  args: ^2.3.0
-  analyzer: ^5.2.0
+  args: ^2.3.1
+  analyzer: ^5.3.1
   gettext_parser: ^0.2.0
-  equatable: ^2.0.3
-  intl: ^0.17.0
+  equatable: ^2.0.5
+  intl: ^0.18.0
   flutter:
     sdk: flutter
 
