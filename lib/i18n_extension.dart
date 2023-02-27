@@ -667,7 +667,7 @@ extension Localization on String {
   //
   String modifier(Object identifier, String text) {
     return ((!startsWith(_splitter1)) ? _splitter1 : "") +
-        "${this}$_splitter1$identifier$_splitter2$text";
+        "$this$_splitter1$identifier$_splitter2$text";
   }
 
   /// Plural modifier for zero elements.

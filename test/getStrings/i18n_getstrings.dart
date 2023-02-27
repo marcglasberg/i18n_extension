@@ -75,8 +75,7 @@ class GetI18nStrings {
   }
 
   List<ExtractedString> processString(String s, {fileName = ""}) {
-    CompilationUnit unit =
-        parseString(content: s, throwIfDiagnostics: false).unit;
+    CompilationUnit unit = parseString(content: s, throwIfDiagnostics: false).unit;
     var extractor = StringExtractor(I18nSuffixes.allSuffixes, s, fileName);
     unit.visitChildren(extractor);
     return extractor.strings;
@@ -92,11 +91,6 @@ class StringExtractor extends UnifyingAstVisitor<void> {
   StringExtractor(this.suffixes, this.source, this.fileName);
 
   @override
-  void visitNode(AstNode node) {
-    return super.visitNode(node);
-  }
-
-  @override
   void visitSimpleStringLiteral(SimpleStringLiteral node) {
     final DecodedSyntax syntax = _hasI18nSyntax(node, node.parent!);
     _handleI18nSyntax(syntax, node);
@@ -105,8 +99,7 @@ class StringExtractor extends UnifyingAstVisitor<void> {
 
   @override
   void visitAdjacentStrings(AdjacentStrings node) {
-    final DecodedSyntax syntax =
-        _hasI18nSyntax(node.strings.last, node.parent!);
+    final DecodedSyntax syntax = _hasI18nSyntax(node.strings.last, node.parent!);
     _handleI18nSyntax(syntax, node);
 
     // Dont' call the super method here, since we don't want to visit the
@@ -117,8 +110,7 @@ class StringExtractor extends UnifyingAstVisitor<void> {
     if (syntax.valid && node.stringValue != null) {
       var lineNo = "\n".allMatches(source.substring(0, node.offset)).length + 1;
       final ExtractedString s = ExtractedString(node.stringValue!, lineNo,
-          pluralRequired:
-              syntax.modifiers.contains(I18nRequiredModifiers.plural),
+          pluralRequired: syntax.modifiers.contains(I18nRequiredModifiers.plural),
           sourceFile: fileName);
       strings.add(s);
     }
