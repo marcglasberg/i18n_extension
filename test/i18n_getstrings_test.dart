@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:i18n_extension/i18n_getstrings.dart';
+
+import 'getStrings/i18n_getstrings.dart';
 
 void main() {
   test("Simple case", () {
@@ -186,8 +187,7 @@ class _SettingsRouteState extends State<SettingsRoute> {
     var results = GetI18nStrings("").processString(source);
     expect(results, [
       ExtractedString(
-          "This should be a single string, hopefully it doesn't just recognise the last part.",
-          1),
+          "This should be a single string, hopefully it doesn't just recognise the last part.", 1),
     ]);
   });
 }

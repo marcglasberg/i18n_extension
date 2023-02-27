@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension/io/import.dart';
+
+import 'getStrings/io/import.dart';
 
 void main() {
   test("Import JSON translation", () async {
@@ -19,17 +20,11 @@ void main() {
     var myTranslations = Translations.byLocale("en_gb") + translation;
     expect(myTranslations.translations.length, 30);
     expect(localize("View", myTranslations, locale: "de"), "Ansicht");
-    expect(
-        localizePlural(0, "Error while uploading document", myTranslations,
-            locale: "de"),
+    expect(localizePlural(0, "Error while uploading document", myTranslations, locale: "de"),
         "Fehler beim Hochladen des Dokuments");
-    expect(
-        localizePlural(1, "Error while uploading document", myTranslations,
-            locale: "de"),
+    expect(localizePlural(1, "Error while uploading document", myTranslations, locale: "de"),
         "Fehler beim Hochladen des Dokument");
-    expect(
-        localizePlural(2, "Error while uploading document", myTranslations,
-            locale: "de"),
+    expect(localizePlural(2, "Error while uploading document", myTranslations, locale: "de"),
         "Fehler beim Hochladen des Dokuments");
   });
 
@@ -39,17 +34,11 @@ void main() {
     var myTranslations = Translations.byLocale("en_gb") + translation;
     expect(myTranslations.translations.length, 30);
     expect(localize("View", myTranslations, locale: "de"), "Ansicht");
-    expect(
-        localizePlural(0, "Error while uploading document", myTranslations,
-            locale: "de"),
+    expect(localizePlural(0, "Error while uploading document", myTranslations, locale: "de"),
         "Fehler beim Hochladen des Dokuments");
-    expect(
-        localizePlural(1, "Error while uploading document", myTranslations,
-            locale: "de"),
+    expect(localizePlural(1, "Error while uploading document", myTranslations, locale: "de"),
         "Fehler beim Hochladen des Dokument");
-    expect(
-        localizePlural(2, "Error while uploading document", myTranslations,
-            locale: "de"),
+    expect(localizePlural(2, "Error while uploading document", myTranslations, locale: "de"),
         "Fehler beim Hochladen des Dokuments");
   });
 }

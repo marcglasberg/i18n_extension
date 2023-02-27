@@ -1,12 +1,16 @@
-## [6.0.0] - 2021/11/15
+## [8.0.0-dev.1] - 2023/02/27
+                    
+* Removed dependency on analyzer and gettext_parser.
+
+## [6.0.0] - 2022/11/15
                     
 * Analyzer and sprintf version bump.
 
-## [5.0.1] - 2021/08/29
+## [5.0.1] - 2022/08/29
                     
 * Analyzer version bump.
 
-## [5.0.0] - 2021/05/13
+## [5.0.0] - 2022/05/13
                     
 * Flutter 3.0
 
