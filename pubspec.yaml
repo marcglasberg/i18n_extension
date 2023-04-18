@@ -13,7 +13,7 @@ dependencies:
   analyzer: ^5.3.1
   gettext_parser: ^0.2.0
   equatable: ^2.0.5
-  intl: ^0.17.0
+  intl: ^0.18.0
   flutter:
     sdk: flutter
 

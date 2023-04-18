@@ -91,10 +91,6 @@ class StringExtractor extends UnifyingAstVisitor<void> {
 
   StringExtractor(this.suffixes, this.source, this.fileName);
 
-  @override
-  void visitNode(AstNode node) {
-    return super.visitNode(node);
-  }
 
   @override
   void visitSimpleStringLiteral(SimpleStringLiteral node) {
