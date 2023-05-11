@@ -11,7 +11,7 @@ dependencies:
   sprintf: ^7.0.0
   args: ^2.3.1
   equatable: ^2.0.5
-  intl: ^0.17.0
+  intl: ^0.18.0
   flutter:
     sdk: flutter
 
