@@ -1,3 +1,7 @@
+## [9.0.0] - 2023/05/12
+
+* Flutter 3.10 e Dart 3.0.0
+
 ## [8.0.0] - 2023/02/27
 
 * Breaking change: Removed dependency on analyzer and gettext_parser. The getStrings doesn't work in

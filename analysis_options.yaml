@@ -52,7 +52,6 @@ linter:
     # - prefer_const_constructors_in_immutables
     - prefer_const_declarations
     - prefer_contains
-    - prefer_equal_for_default_values
     - prefer_final_fields
     # - prefer_foreach
     - prefer_generic_function_type_aliases
