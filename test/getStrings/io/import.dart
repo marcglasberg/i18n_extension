@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:gettext_parser/gettext_parser.dart' as gettext_parser;
 
-// /////////////////////////////////////////////////////////////////////////////
+// 
 
 abstract class Importer {
   String get _extension;
@@ -44,7 +44,7 @@ abstract class Importer {
   }
 }
 
-// /////////////////////////////////////////////////////////////////////////////
+// 
 
 class JSONImporter extends Importer {
   @override
@@ -56,7 +56,7 @@ class JSONImporter extends Importer {
   }
 }
 
-// /////////////////////////////////////////////////////////////////////////////
+// 
 const _splitter1 = "\uFFFF";
 const _splitter2 = "\uFFFE";
 
@@ -98,4 +98,4 @@ class GettextImporter extends Importer {
   }
 }
 
-// /////////////////////////////////////////////////////////////////////////////
+// 

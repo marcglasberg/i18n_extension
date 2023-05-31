@@ -5,8 +5,6 @@ import 'package:i18n_extension/i18n_widget.dart';
 
 void main() {
   //
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test("String interpolations.", () {
     //
     I18n.define(const Locale("en", "US"));
@@ -17,8 +15,6 @@ void main() {
     expect("Hello %s, this is %s.".i18n, "Olá %s, aqui é %s.");
     expect("Hello %s, this is %s.".i18n.fill(["John", "Mary"]), "Olá John, aqui é Mary.");
   });
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 extension Localization on String {

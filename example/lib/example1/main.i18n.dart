@@ -1,11 +1,9 @@
-import 'package:i18n_extension/i18n_extension.dart';
-
-// Developed by Marcelo Glasberg (Aug 2019).
+// Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
+import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
   //
-
   /// Note you may also define this as a static const,
   /// if you use the [Translations.from] constructor:
   ///

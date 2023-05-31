@@ -1,11 +1,10 @@
+// Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 
 import 'my.i18n.dart';
 import 'my_widget.dart';
-
-// Developed by Marcelo Glasberg (Aug 2019).
-// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 
 class MyScreen extends StatefulWidget {
   @override
@@ -68,8 +67,8 @@ class _MyScreenState extends State<MyScreen> {
     );
   }
 
-  void _onPressed() => I18n.of(context).locale =
-      (I18n.localeStr == "pt_br") ? null : const Locale("pt", "BR");
+  void _onPressed() =>
+      I18n.of(context).locale = (I18n.localeStr == "pt_br") ? null : const Locale("pt", "BR");
 
   void _increment() => setState(() => counter++);
 }

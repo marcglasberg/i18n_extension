@@ -102,7 +102,7 @@ class StringExtractor extends UnifyingAstVisitor<void> {
     final DecodedSyntax syntax = _hasI18nSyntax(node.strings.last, node.parent!);
     _handleI18nSyntax(syntax, node);
 
-    // Dont' call the super method here, since we don't want to visit the
+    // Don't call the super method here, since we don't want to visit the
     // child strings.
   }
 
@@ -116,10 +116,8 @@ class StringExtractor extends UnifyingAstVisitor<void> {
     }
   }
 
-  /*
-  Check if the next sibling in the AST is a DOT operator
-  and after that comes a literal included in our suffixes.
-   */
+  /// Check if the next sibling in the AST is a DOT operator
+  /// and after that comes a literal included in our suffixes.
   DecodedSyntax _hasI18nSyntax(AstNode self, AstNode parent) {
     Token? here = parent.beginToken;
     while (here != null && here != parent.endToken) {

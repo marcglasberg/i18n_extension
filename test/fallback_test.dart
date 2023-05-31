@@ -5,8 +5,6 @@ import 'package:i18n_extension/i18n_widget.dart';
 
 void main() {
   //
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test(
       "If the translation to the exact locale is found, this will be returned. "
       "Otherwise, it tries to return a translation for the general language of the locale. "
@@ -87,8 +85,6 @@ void main() {
     expect("Address".i18n_1, "Morada");
   });
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test(
       "If the translation to the exact locale is found, this will be returned. "
       "Otherwise, it tries to return a translation for the general language of the locale. "
@@ -164,8 +160,6 @@ void main() {
     expect("Address".i18n_2, "Address");
   });
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test("Ignores spaces or underscore.", () {
     expect(Translations("en_").defaultLocaleStr, "en");
     expect(Translations("en ").defaultLocaleStr, "en");
@@ -199,8 +193,6 @@ void main() {
     I18n.define(const Locale("  en", "us _ "));
     expect(I18n.localeStr, "en_us");
   });
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 extension Localization on String {

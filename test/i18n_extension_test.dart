@@ -5,8 +5,6 @@ import 'package:i18n_extension/i18n_widget.dart';
 
 void main() {
   //
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Empty translations.", () {
     I18n.define(const Locale("en", "US"));
 
@@ -18,8 +16,6 @@ void main() {
         '\n'
         'Translations: ---------------\n');
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Add translation in English only.", () {
     I18n.define(const Locale("en", "US"));
@@ -34,8 +30,6 @@ void main() {
         '  en_us | Hi.\n'
         '-----------------------------\n');
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Add translation in many languages.", () {
     I18n.define(const Locale("en", "US"));
@@ -72,8 +66,6 @@ void main() {
         '-----------------------------\n');
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Add 2 translations in a single language.", () {
     I18n.define(const Locale("en", "US"));
 
@@ -104,8 +96,6 @@ void main() {
         '  en_us | Goodbye.\n'
         '-----------------------------\n');
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Add 2 translations in 2 languages.", () {
     I18n.define(const Locale("en", "US"));
@@ -144,8 +134,6 @@ void main() {
         '-----------------------------\n');
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Translations with versions.", () {
     I18n.define(const Locale("en", "US"));
 
@@ -180,8 +168,6 @@ void main() {
         '          M → Muitos\n'
         '-----------------------------\n');
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Translations by locale with versions.", () {
     I18n.define(const Locale("en", "US"));
@@ -221,8 +207,6 @@ void main() {
         '          M → Muitos\n'
         '-----------------------------\n');
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Translations by locale with plurals.", () {
     I18n.define(const Locale("en", "US"));
@@ -267,8 +251,6 @@ void main() {
     expect(plural(12), "Você clicou uma dúzia de vezes");
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Combine 2 translations.", () {
     I18n.define(const Locale("en", "US"));
 
@@ -309,8 +291,6 @@ void main() {
         '  pt_br | Adeus.\n'
         '-----------------------------\n');
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Add 2 translations in 3 languages, by locale.", () {
     I18n.define(const Locale("en", "US"));
@@ -360,8 +340,6 @@ void main() {
         '  pt_br | Adeus.\n'
         '-----------------------------\n');
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Combine 2 translations by locale.", () {
     I18n.define(const Locale("en", "US"));
@@ -416,8 +394,6 @@ void main() {
         '-----------------------------\n');
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Keys can vary from the translations. Should return the value or key.", () {
     TranslationsByLocale t = Translations.byLocale("en_us") +
         {
@@ -469,8 +445,6 @@ void main() {
     I18n.define(const Locale("pt", "BR"));
     expect(localize('Hi.', t), "Hello.");
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Combine 2 translations, one of them by locale.", () {
     I18n.define(const Locale("en", "US"));
@@ -525,8 +499,6 @@ void main() {
     });
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Translate manually.", () {
     //
     var t = Translations("en_us") +
@@ -548,8 +520,6 @@ void main() {
     expect(localize("Goodbye.", t), "Adeus.");
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Translate using the extension.", () {
     //
     I18n.define(const Locale("en", "US"));
@@ -562,8 +532,6 @@ void main() {
     expect("Goodbye.".i18n, "Adeus.");
     expect("XYZ".i18n, "XYZ");
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Record missing keys and missing translations.", () {
     //
@@ -611,8 +579,6 @@ void main() {
     expect(Translations.missingTranslations.single.locale, "xx_yy");
     expect(Translations.missingTranslations.single.text, "Hi.");
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Don't record unnecessary missing translations with the Translation.byLocale constructor.",
       () {
@@ -680,8 +646,6 @@ void main() {
     // ---------------
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("You must provide the translation in the default language.", () {
     //
     expect(() => Translations("en_us") + {"pt_br": "Olá."},
@@ -690,8 +654,6 @@ void main() {
     expect(() => Translations("en_us") + {"pt_br": "Olá."},
         throwsA(TranslationsException("No default translation for 'en_us'.")));
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Translations with version.", () {
     //
@@ -726,8 +688,6 @@ void main() {
     expect(text.allVersions()["5"], "mno");
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Numeric modifiers.", () {
     //
     I18n.define(const Locale("en", "US"));
@@ -748,8 +708,6 @@ void main() {
     expect(text.plural(4), "Há 4 itens.");
     expect(text.plural(5), "Sim, você alcançou 5 items.");
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Custom modifiers.", () {
     //
@@ -777,8 +735,6 @@ void main() {
         throwsA(TranslationsException(
             "This text has no version for modifier 'Gender.x' (modifier: Gender.x, key: 'There is a person', locale: 'pt_br').")));
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Czech variations.", () {
     I18n.define(const Locale("en", "US"));
@@ -899,8 +855,6 @@ void main() {
     expect(localizePlural(14, key, t, locale: "cz_cz"), "many variation");
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("0 and 1 plural.", () {
     I18n.define(const Locale("en", "US"));
     var key = "1 beer";
@@ -951,8 +905,6 @@ void main() {
         '-----------------------------\n');
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("1 or more plural.", () {
     I18n.define(const Locale("en", "US"));
     var key = "1 beer";
@@ -999,8 +951,6 @@ void main() {
         '-----------------------------\n');
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Comparison between .oneOrMore and .many.", () {
     //
     I18n.define(const Locale("en", "US"));
@@ -1025,8 +975,6 @@ void main() {
     expect(localizePlural(4, key, t, locale: "en_us"), "many beers");
   });
 
-  //////////////////////////////////////////////////////////////////////////////
-
   test("Empty strings are allowed.", () {
     //
     I18n.define(const Locale("en", "US"));
@@ -1040,8 +988,6 @@ void main() {
     expect(localizePlural(3, key, t, locale: "en_us"), "");
     expect(localizePlural(4, key, t, locale: "en_us"), "many beers");
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Plurals not provided default to the unversioned string.", () {
     //
@@ -1095,8 +1041,6 @@ void main() {
         '  pt_br | não versionada\n'
         '-----------------------------\n');
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 
   test("Conversion of plural modifier.", () {
     //
@@ -1166,8 +1110,6 @@ void main() {
     expect(convertToIntegerModifier(SomeObj("^-&-5.a")), 5);
     expect(convertToIntegerModifier(SomeObj("^-&-5.1.2a")), 0);
   });
-
-  //////////////////////////////////////////////////////////////////////////////
 }
 
 extension Localization on String {

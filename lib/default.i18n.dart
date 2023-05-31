@@ -1,6 +1,5 @@
-// Developed by Marcelo Glasberg (Aug 2019).
+// Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
-
 import 'i18n_extension.dart';
 
 /// When you create a widget that has translatable strings,

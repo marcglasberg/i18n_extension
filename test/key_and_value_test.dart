@@ -26,8 +26,6 @@ import 'package:i18n_extension/i18n_extension.dart';
 ///
 void main() {
   //
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test(
       "The translatable key is usually the same as the default locale translation, "
       "but it can be different."
@@ -58,8 +56,6 @@ void main() {
 //    expect("Good morning".i18n, "Bom dia");
   });
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test("Should not accept empty keys or values.", () {
     //
     /// TODO: Uncomment if necessary:
@@ -69,8 +65,6 @@ void main() {
 //    // This works ok too, because the "" locale means "any" the default.
 //    var y = Translations("en_us") + {"": "some text"};
   });
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 extension Localization on String {

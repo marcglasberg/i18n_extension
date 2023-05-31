@@ -1,9 +1,8 @@
+// Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:flutter/material.dart';
 
 import 'my.i18n.dart';
-
-// Developed by Marcelo Glasberg (Aug 2019).
-// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 
 class MyWidget extends StatelessWidget {
   @override

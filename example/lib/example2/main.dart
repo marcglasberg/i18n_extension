@@ -1,12 +1,11 @@
+// Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 
 import 'my.i18n.dart';
 import 'my_screen.dart';
-
-// Developed by Marcelo Glasberg (Aug 2019).
-// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 
 /// This example demonstrates basic translations using a `I18n` widget.
 ///

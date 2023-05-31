@@ -1,10 +1,10 @@
+// Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_widget.dart';
-import 'my_widget.dart';
 
-// Developed by Marcelo Glasberg (Aug 2019).
-// For more info, see: https://pub.dartlang.org/packages/i18n_extension
+import 'my_widget.dart';
 
 /// This example demonstrates having two `I18n` widgets.
 /// It is NOT recommended to have two `I18n` widgets, at all.
@@ -72,8 +72,6 @@ class _MyScreenState extends State<MyScreen> {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 class Widget1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -96,9 +94,8 @@ class Widget2 extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 17),
             ),
             onPressed: () {
-              var newLocale = (I18n.localeStr == "pt_br")
-                  ? const Locale("en", "US")
-                  : const Locale("pt", "BR");
+              var newLocale =
+                  (I18n.localeStr == "pt_br") ? const Locale("en", "US") : const Locale("pt", "BR");
 
               // This changes the language and rebuilds the FIRST I18n widget.
               I18n.of(context).locale = newLocale;
@@ -112,5 +109,3 @@ class Widget2 extends StatelessWidget {
     );
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////

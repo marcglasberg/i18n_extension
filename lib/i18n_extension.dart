@@ -1,12 +1,9 @@
+// Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:flutter/cupertino.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'i18n_widget.dart';
-
-// Developed by Marcelo Glasberg (Aug 2019).
-// For more info, see: https://pub.dartlang.org/packages/i18n_extension
-
-// /////////////////////////////////////////////////////////////////////////////
 
 /// To localize a translatable string, pass its [key] and the [translations]
 /// object.
@@ -327,8 +324,6 @@ String _effectiveLocale(String? locale) => locale?.toLowerCase() ?? I18n.localeS
 const _splitter1 = "\uFFFF";
 const _splitter2 = "\uFFFE";
 
-// /////////////////////////////////////////////////////////////////////////////
-
 class TranslatedString {
   //
   final String locale;
@@ -373,8 +368,6 @@ class TranslatedString {
   int get hashCode => locale.hashCode ^ text.hashCode;
 }
 
-// /////////////////////////////////////////////////////////////////////////////
-
 class TranslationsException {
   String msg;
 
@@ -392,8 +385,6 @@ class TranslationsException {
   int get hashCode => msg.hashCode;
 }
 
-// /////////////////////////////////////////////////////////////////////////////
-
 abstract class ITranslations {
   const ITranslations();
 
@@ -407,8 +398,6 @@ abstract class ITranslations {
 
   Map<String, String>? operator [](String key) => translations[key];
 }
-
-// /////////////////////////////////////////////////////////////////////////////
 
 class Translations extends ITranslations {
   //
@@ -599,8 +588,6 @@ class Translations extends ITranslations {
   }
 }
 
-// /////////////////////////////////////////////////////////////////////////////
-
 class TranslationsByLocale extends ITranslations {
   final Translations byKey;
 
@@ -661,7 +648,7 @@ class TranslationsByLocale extends ITranslations {
   String toString() => byKey.toString();
 }
 
-// /////////////////////////////////////////////////////////////////////////////
+//
 
 extension Localization on String {
   //
@@ -716,4 +703,4 @@ extension Localization on String {
   String many(String text) => modifier("M", text);
 }
 
-// /////////////////////////////////////////////////////////////////////////////
+//

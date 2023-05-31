@@ -4,8 +4,6 @@ import 'package:i18n_extension/i18n_extension.dart';
 
 void main() {
   //
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test("Record missing keys used with .i18n of the default import.", () {
     //
     Translations.missingKeys.clear();
@@ -33,8 +31,6 @@ void main() {
     expect(Translations.missingTranslations, isEmpty);
   });
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
   test("Record missing keys used with .plural() of the default import.", () {
     //
     Translations.missingKeys.clear();
@@ -52,6 +48,4 @@ void main() {
     expect(Translations.missingKeys.single.text, "There are %d people");
     expect(Translations.missingTranslations, isEmpty);
   });
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
 }

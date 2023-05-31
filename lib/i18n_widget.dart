@@ -1,12 +1,11 @@
+// Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
+// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 
 import 'i18n_extension.dart';
-
-// Developed by Marcelo Glasberg (Aug 2019).
-// For more info, see: https://pub.dartlang.org/packages/i18n_extension
 
 /// Wrap your widget tree with the `I18n` widget.
 /// This will translate your strings to the **current system locale**:
@@ -184,8 +183,6 @@ class I18n extends StatefulWidget {
   _I18nState createState() => _I18nState();
 }
 
-// /////////////////////////////////////////////////////////////////////////////
-
 class _I18nState extends State<I18n> {
   //
   Locale? _locale;
@@ -283,8 +280,6 @@ class _I18nState extends State<I18n> {
   }
 }
 
-// /////////////////////////////////////////////////////////////////////////////
-
 class _InheritedI18n extends InheritedWidget {
   //
   final _I18nState data;
@@ -298,5 +293,3 @@ class _InheritedI18n extends InheritedWidget {
   @override
   bool updateShouldNotify(_InheritedI18n old) => true;
 }
-
-// /////////////////////////////////////////////////////////////////////////////
