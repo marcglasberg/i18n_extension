@@ -1,8 +1,14 @@
 [![pub package](https://img.shields.io/pub/v/i18n_extension.svg)](https://pub.dartlang.org/packages/i18n_extension)
 
-# i18n_extension
+# i18n_extension<br>No boilerplate Translation and Internationalization (i18n) for Flutter
+> There is an IntelliJ plugin that will soon support this package:
+<a href="https://plugins.jetbrains.com/files/21898/340924/icon/pluginIcon.svg"><img src="https://plugins.jetbrains.com/files/21898/340924/icon/pluginIcon.svg" height="20px" style="position: relative;top: 5px;"/>
+https://plugins.jetbrains.com/plugin/21898-marcelo-s-flutter-dart-essentials
+</a>
 
-## Non-boilerplate Translation and Internationalization (i18n) for Flutter
+<hr>
+
+&nbsp;<br>
 
 Start with a widget with some text in it:
 
@@ -10,7 +16,7 @@ Start with a widget with some text in it:
 Text("Hello, how are you?")
 ```
 
-Translate it simply by adding `.i18n` to the string:
+Translate it by simply adding `.i18n` to the string:
 
 ```
 Text("Hello, how are you?".i18n)
@@ -25,7 +31,7 @@ Text(greetings.i18n)
 If the current locale is `'pt_BR'`, then the text in the screen will be `"Olá, como vai você?"`, the
 Portuguese translation to the above text. And so on for any other locales you want to support.
 
-You can also provide different translations depending on modifiers, for example `plural` quantities:
+You can also provide different translations depending on modifiers, such as `plural` quantities:
 
 ```
 print("There is 1 item".plural(0)); // Prints 'There are no items'
@@ -67,20 +73,20 @@ and [align_positioned](https://pub.dev/packages/align_positioned) is about creat
 fewer widgets. This current package is also about reducing boilerplate for translations, so it
 doesn't do anything you can't already do with plain old `Localizations.of(context)`.
 
-That said, this package is meant both for the one person app developer, and the big company team. It
+That said, this package is meant both for the one person app developer and the big company team. It
 has you covered in all stages of your translation efforts:
 
 1. When you create your widgets, it makes it easy for you to define which strings should be
-   translated, by simply adding `.i18n` to them. These strings are called _"translatable strings"_.
+   translated by simply adding `.i18n` to them. These strings are called _"translatable strings"_.
 
 2. When you want to start your translation efforts, it can automatically list for you all strings
    that need translation. If you miss any strings, or if you later add more strings or modify some
    of them, it will let you know what changed and how to fix it.
 
-3. You can then provide your translations manually, in a very easy-to-use format.
+3. You can then provide your translations manually in a very easy-to-use format.
 
-4. Or you can easily integrate it with professional translation services, importing it from, or
-   exporting it to any format you want.
+4. Or you can easily integrate it with professional translation services, importing it from or
+   exporting to any format you want.
 
 ## Setup
 
