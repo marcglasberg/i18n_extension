@@ -1,7 +1,7 @@
 [![pub package](https://img.shields.io/pub/v/i18n_extension.svg)](https://pub.dartlang.org/packages/i18n_extension)
 
 # i18n_extension<br>No boilerplate Translation and Internationalization
-> There is an IntelliJ plugin that will soon support this package:<br>
+> This IntelliJ plugin will soon support this package:<br>
 <a href="https://plugins.jetbrains.com/files/21898/340924/icon/pluginIcon.svg"><img src="https://plugins.jetbrains.com/files/21898/340924/icon/pluginIcon.svg" height="20px" style="position: relative;top: 5px;"/>
 https://plugins.jetbrains.com/plugin/21898-marcelo-s-flutter-dart-essentials
 </a>
