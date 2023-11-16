@@ -714,7 +714,7 @@ It has now been separated and is now independently available as a standalone pac
 You can find it at: https://pub.dev/packages/i18n_extension_importer.
 
 **Note:** Those importers were contributed by <a href="https://github.com/bauerj">Johann Bauer</a>,
-and were separated into its own package by <a href="https://github.com/c0dezli>">Xiang Li</a>.
+and were separated into their own package by <a href="https://github.com/c0dezli>">Xiang Li</a>.
 
 Currently, only `.PO` and `.JSON` importers are supported out-of-the-box.
 If you want to help creating importers for any of the other formats above, please PR there.
