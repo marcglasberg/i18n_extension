@@ -1,4 +1,4 @@
-## [10.0.0] - 2023/11/16
+## [10.0.1] - 2023/11/16
 
 * Up to version 8.0.0, the i18n_extension package contained the importer library developed by Johann
   Bauer. This importer library has been separated and is now independently available as a standalone 
