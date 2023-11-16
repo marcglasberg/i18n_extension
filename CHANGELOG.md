@@ -1,3 +1,12 @@
+## [10.0.0] - 2023/11/16
+
+* Up to version 8.0.0, the i18n_extension package contained the importer library developed by Johann
+  Bauer. This importer library has been separated and is now independently available as a standalone 
+  package. You can find it at: https://pub.dev/packages/i18n_extension_importer. This new package
+  offers capabilities for importing translations in both `.PO` and `.JSON` formats.
+  It also includes the `GetStrings` exporting utility, which is a useful script designed to
+  automate the export of all translatable strings from your project.
+
 ## [9.0.2] - 2023/05/12
 
 * Flutter 3.10 e Dart 3.0.0

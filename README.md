@@ -1,6 +1,7 @@
 [![pub package](https://img.shields.io/pub/v/i18n_extension.svg)](https://pub.dartlang.org/packages/i18n_extension)
 
 # i18n_extension<br>No boilerplate Translation and Internationalization
+
 > IntelliJ plugin that supports this package coming soon:<br>
 <a href="https://plugins.jetbrains.com/files/21898/340924/icon/pluginIcon.svg"><img src="https://plugins.jetbrains.com/files/21898/340924/icon/pluginIcon.svg" height="20px" style="position: relative;top: 5px;"/>
 https://plugins.jetbrains.com/plugin/21898-marcelo-s-flutter-dart-essentials
@@ -669,8 +670,8 @@ I18n.observeLocale =
 
 ### Importing and exporting
 
-This package is optimized so that you can easily create and manage all of your translations
-yourself, by hand.
+The `i18n_extension` package is optimized so that you can easily create and manage all of your
+translations yourself, by hand.
 
 However, for large projects with big teams you probably need to follow a more involved process:
 
@@ -708,11 +709,18 @@ The following formats may be used with translations:
 
 #### Importing
 
-Currently, only `.PO` and `.JSON` importers are supported out-of-the-box.
+Up to version `8.0.0`, the `i18n_extension` package contained the importer library.
+It has now been separated and is now independently available as a standalone package.
+You can find it at: https://pub.dev/packages/i18n_extension_importer.
 
-**Note:** Those importers were contributed by <a href="https://github.com/bauerj">Johann Bauer</a>.
-If you want to help creating importers for any of the other formats above, please PR
-here: https://github.com/marcglasberg/i18n_extension.
+**Note:** Those importers were contributed by <a href="https://github.com/bauerj">Johann Bauer</a>,
+and were separated into its own package by <a href="https://github.com/c0dezli>">Xiang Li</a>.
+
+Currently, only `.PO` and `.JSON` importers are supported out-of-the-box.
+If you want to help creating importers for any of the other formats above, please PR there.
+
+It also includes the `GetStrings` exporting utility, which is a useful script designed to
+automate the export of all translatable strings from your project.
 
 Add your translation files as assets to your app in a directory structure like this:
 
@@ -728,7 +736,7 @@ app
 Then you can import them using `GettextImporter` or `JSONImporter`:
 
 ```
-import 'package:i18n_extension/io/import.dart';
+import 'package:i18n_extension_importer/io/import.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
 class MyI18n {
@@ -757,17 +765,19 @@ codes, you'll get errors like this: `There are no translations in 'en_us' for "H
 
 **Note:** If you need to import any other custom format, remember importing is easy to do because
 the Translation constructors use maps as input. If you can generate a map from your file format, you
-can then use the `Translation()`
-or `Translation.byLocale()` constructors to create the translation objects.
+can then use the `Translation()` or `Translation.byLocale()` constructors to create the translation
+objects.
 
 #### The GetStrings exporting utility
 
-An utility script to automatically export all translatable strings from your project was contributed
-by <a href="https://github.com/bauerj">Johann Bauer</a>. Simply
-run `flutter pub run i18n_extension:getstrings` in your project root directory and you will get a
-list of strings to translate in `strings.json`. This file can then be sent to your translators or be
-imported in translation services like _Crowdin_, _Transifex_ or _Lokalise_. You can use it as part
-of your CI pipeline in order to always have your translation templates up to date.
+A utility script to automatically export all translatable strings from your project was also
+contributed by <a href="https://github.com/bauerj">Johann Bauer</a>.
+
+Simply run `flutter pub run i18n_extension_importer:getstrings` in your project root directory, and
+you will get a list of strings to translate in `strings.json`. This file can then be sent to your
+translators or be imported in translation services like _Crowdin_, _Transifex_ or _Lokalise_. You
+can use it as part of your CI pipeline in order to always have your translation templates up to
+date.
 
 Note the tool simply searches the source code for strings to which getters like `.i18n` are applied.
 Since it is not very smart, you should not make it too hard:
