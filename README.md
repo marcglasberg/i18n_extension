@@ -125,7 +125,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  i18n_extension: ^4.1.0
+  i18n_extension: ...
 ```
 
 The code `home: I18n(child: ...)` shown above will translate your strings to the **current system
@@ -973,7 +973,9 @@ it's not completely without boilerplate, but saying "Less-boilerplate" is not th
   Flutter: The Advanced Layout Rule Even Beginners Must Know</a> (
   versions: <a href="https://habr.com/ru/post/500210/">русский</a>)
 * <a href="https://medium.com/flutter-community/the-new-way-to-create-themes-in-your-flutter-app-7fdfc4f3df5f">
-  The New Way to create Themes in your Flutter App</a> 
+  The New Way to create Themes in your Flutter App</a>
+* <a href="https://medium.com/@marcglasberg/a-new-bdd-tool-for-typescript-javascript-and-dart-673933b3b38e">
+  A new BDD tool for TypeScript/React, and Flutter/Dart</a>
 
 *My article in the official Flutter documentation*:
 
