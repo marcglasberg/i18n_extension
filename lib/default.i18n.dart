@@ -14,10 +14,10 @@ import 'i18n_extension.dart';
 ///
 extension Localization on String {
   //
-  String get i18n => recordKey(this);
+  String get i18n => recordMissingKey(this);
 
   String plural(value) {
-    recordKey(this);
+    recordMissingKey(this);
     return replaceAll("%d", value.toString());
   }
 

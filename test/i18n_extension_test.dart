@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 
 void main() {
   //
   test("Empty translations.", () {
     I18n.define(const Locale("en", "US"));
 
-    var t = Translations("en_us");
+    var t = Translations.byText("en_us");
     expect(t.length, 0);
-    expect(t.translations, {});
+    expect(t.translationByLocale_ByTranslationKey, {});
     expect(
         t.toString(),
         '\n'
@@ -19,9 +18,9 @@ void main() {
 
   test("Add translation in English only.", () {
     I18n.define(const Locale("en", "US"));
-    var t = Translations("en_us") + {"en_us": "Hi."};
+    var t = Translations.byText("en_us") + {"en_us": "Hi."};
     expect(t.length, 1);
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       'Hi.': {'en_us': 'Hi.'}
     });
     expect(
@@ -34,7 +33,7 @@ void main() {
   test("Add translation in many languages.", () {
     I18n.define(const Locale("en", "US"));
 
-    var t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "cs_cz": "Ahoj.",
           "en_us": "Hi.",
@@ -45,7 +44,7 @@ void main() {
 
     expect(t.length, 1);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "Hi.": {
         "en_us": "Hi.",
         "en_uk": "Hi.",
@@ -69,7 +68,7 @@ void main() {
   test("Add 2 translations in a single language.", () {
     I18n.define(const Locale("en", "US"));
 
-    var t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "en_us": "Hi.",
         } +
@@ -79,7 +78,7 @@ void main() {
 
     expect(t.length, 2);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "Hi.": {
         "en_us": "Hi.",
       },
@@ -100,7 +99,7 @@ void main() {
   test("Add 2 translations in 2 languages.", () {
     I18n.define(const Locale("en", "US"));
 
-    var t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "en_us": "Hi.",
           "pt_br": "Olá.",
@@ -112,7 +111,7 @@ void main() {
 
     expect(t.length, 2);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "Hi.": {
         "en_us": "Hi.",
         "pt_br": "Olá.",
@@ -137,7 +136,7 @@ void main() {
   test("Translations with versions.", () {
     I18n.define(const Locale("en", "US"));
 
-    var t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "en_us": "MyString".zero("Zero").one("One").two("Two").many("many"),
           "pt_br": "MinhaString".zero("Zero").one("Um").two("Dois").many("Muitos"),
@@ -145,7 +144,7 @@ void main() {
 
     expect(t.length, 1);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "MyString": {
         "en_us": "\uFFFFMyString\uFFFF0\uFFFEZero\uFFFF1\uFFFEOne\uFFFF2\uFFFETwo\uFFFFM\uFFFEmany",
         "pt_br":
@@ -184,7 +183,7 @@ void main() {
 
     expect(t.length, 1);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "MyString": {
         "en_us": "\uFFFFMyString\uFFFF0\uFFFEZero\uFFFF1\uFFFEOne\uFFFF2\uFFFETwo\uFFFFM\uFFFEmany",
         "pt_br":
@@ -254,13 +253,13 @@ void main() {
   test("Combine 2 translations.", () {
     I18n.define(const Locale("en", "US"));
 
-    var t1 = Translations("en_us") +
+    var t1 = Translations.byText("en_us") +
         {
           "en_us": "Hi.",
           "pt_br": "Olá.",
         };
 
-    var t2 = Translations("en_us") +
+    var t2 = Translations.byText("en_us") +
         {
           "en_us": "Goodbye.",
           "pt_br": "Adeus.",
@@ -270,7 +269,7 @@ void main() {
 
     expect(t.length, 2);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "Hi.": {
         "en_us": "Hi.",
         "pt_br": "Olá.",
@@ -315,7 +314,7 @@ void main() {
 
     expect(t.length, 2);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "Hi.": {
         "en_us": "Hi.",
         "es_es": "Hola.",
@@ -344,7 +343,7 @@ void main() {
   test("Combine 2 translations by locale.", () {
     I18n.define(const Locale("en", "US"));
 
-    TranslationsByLocale t1 = Translations.byLocale("en_us") +
+    var t1 = Translations.byLocale("en_us") +
         {
           "en_us": {
             "Hi.": "Hi.",
@@ -356,7 +355,7 @@ void main() {
           }
         };
 
-    TranslationsByLocale t2 = Translations.byLocale("en_us") +
+    var t2 = Translations.byLocale("en_us") +
         {
           "pt_br": {
             "Hi.": "Olá.",
@@ -368,7 +367,7 @@ void main() {
 
     expect(t.length, 2);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "Hi.": {
         "en_us": "Hi.",
         "es_es": "Hola.",
@@ -395,7 +394,7 @@ void main() {
   });
 
   test("Keys can vary from the translations. Should return the value or key.", () {
-    TranslationsByLocale t = Translations.byLocale("en_us") +
+    var t = Translations.byLocale("en_us") +
         {
           "en_us": {
             "Hi.": "Hello.", // Different key/value for default language
@@ -412,7 +411,7 @@ void main() {
         };
     expect(t.length, 2);
 
-    expect(t.translations, {
+    expect(t.translationByLocale_ByTranslationKey, {
       "Hi.": {
         "en_us": "Hello.",
         "es_es": "Hola.",
@@ -449,14 +448,14 @@ void main() {
   test("Combine 2 translations, one of them by locale.", () {
     I18n.define(const Locale("en", "US"));
 
-    var t1 = Translations("en_us") +
+    var t1 = Translations.byText("en_us") +
         {
           "cs_cz": "Ahoj.",
           "en_us": "Hi.",
           "pt_br": "Olá.",
         };
 
-    TranslationsByLocale t2 = Translations.byLocale("en_us") +
+    var t2 = Translations.byLocale("en_us") +
         {
           "pt_br": {
             "Hi.": "Olá.",
@@ -470,7 +469,7 @@ void main() {
 
     expect(t12.length, 2);
 
-    expect(t12.translations, {
+    expect(t12.translationByLocale_ByTranslationKey, {
       'Hi.': {
         'cs_cz': 'Ahoj.',
         'en_us': 'Hi.',
@@ -487,7 +486,7 @@ void main() {
 
     expect(t21.length, 2);
 
-    expect(t21.translations, {
+    expect(t21.translationByLocale_ByTranslationKey, {
       'Hi.': {
         'cs_cz': 'Ahoj.',
         'en_us': 'Hi.',
@@ -501,7 +500,7 @@ void main() {
 
   test("Translate manually.", () {
     //
-    var t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "en_us": "Hi.",
           "pt_br": "Olá.",
@@ -562,7 +561,7 @@ void main() {
 
     expect(Translations.missingKeys.length, 1);
     expect(Translations.missingKeys.single.locale, "en_us");
-    expect(Translations.missingKeys.single.text, "Unknown text");
+    expect(Translations.missingKeys.single.key, "Unknown text");
     expect(Translations.missingTranslations, isEmpty);
 
     // ---------------
@@ -577,7 +576,7 @@ void main() {
 
     expect(Translations.missingKeys, isEmpty);
     expect(Translations.missingTranslations.single.locale, "xx_yy");
-    expect(Translations.missingTranslations.single.text, "Hi.");
+    expect(Translations.missingTranslations.single.key, "Hi.");
   });
 
   test("Don't record unnecessary missing translations with the Translation.byLocale constructor.",
@@ -628,7 +627,7 @@ void main() {
     Translations.missingKeys.clear();
     Translations.missingTranslations.clear();
 
-    var t3 = Translations("en_us") +
+    var t3 = Translations.byText("en_us") +
         {
           "en_us": "Hi.",
           "es_es": "Hola.",
@@ -640,7 +639,7 @@ void main() {
     expect(Translations.missingKeys, isEmpty);
     expect(Translations.missingTranslations, isEmpty);
 
-    expect(() => Translations("en_us") + {"es_es": "Hola."},
+    expect(() => Translations.byText("en_us") + {"es_es": "Hola."},
         throwsA(TranslationsException("No default translation for 'en_us'.")));
 
     // ---------------
@@ -648,10 +647,10 @@ void main() {
 
   test("You must provide the translation in the default language.", () {
     //
-    expect(() => Translations("en_us") + {"pt_br": "Olá."},
+    expect(() => Translations.byText("en_us") + {"pt_br": "Olá."},
         throwsA(TranslationsException("No default translation for 'en_us'.")));
 
-    expect(() => Translations("en_us") + {"pt_br": "Olá."},
+    expect(() => Translations.byText("en_us") + {"pt_br": "Olá."},
         throwsA(TranslationsException("No default translation for 'en_us'.")));
   });
 
@@ -739,7 +738,7 @@ void main() {
   test("Czech variations.", () {
     I18n.define(const Locale("en", "US"));
 
-    Translations t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "en_us": "1 beer"
               .zero("0 beers")
@@ -816,7 +815,7 @@ void main() {
         '-----------------------------\n');
 
     // Now try again without defining .two .three .four.
-    t = Translations("en_us") +
+    t = Translations.byText("en_us") +
         {
           "en_us": "1 beer"
               .zero("0 beers")
@@ -861,7 +860,7 @@ void main() {
 
     // ---
 
-    Translations t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "en_us": "1 beer"
               .zeroOne("0 or 1 beers")
@@ -881,7 +880,7 @@ void main() {
 
     // ---
 
-    t = Translations("en_us") +
+    t = Translations.byText("en_us") +
         {
           "en_us":
               "1 beer".zeroOne("0 or 1 beers").two("2 beers").three("3 beers").many("many beers"),
@@ -911,7 +910,7 @@ void main() {
 
     // ---
 
-    Translations t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "en_us": "1 beer"
               .oneOrMore("1 or more beers")
@@ -931,7 +930,7 @@ void main() {
 
     // ---
 
-    t = Translations("en_us") +
+    t = Translations.byText("en_us") +
         {"en_us": "1 beer".oneOrMore("1 or more beers").zero("0 beers").three("3 beers")};
 
     expect(localizePlural(0, key, t, locale: "en_us"), "0 beers");
@@ -957,7 +956,7 @@ void main() {
     var key = "1 beer";
 
     // Make sure "1 or more" DOES NOT include zero (but includes 1).
-    var t = Translations("en_us") + {"en_us": "1 beer".oneOrMore("1 or more beer")};
+    var t = Translations.byText("en_us") + {"en_us": "1 beer".oneOrMore("1 or more beer")};
 
     expect(localizePlural(0, key, t, locale: "en_us"), "1 beer");
     expect(localizePlural(1, key, t, locale: "en_us"), "1 or more beer");
@@ -966,7 +965,7 @@ void main() {
     expect(localizePlural(4, key, t, locale: "en_us"), "1 or more beer");
 
     // While "many" DOES INCLUDE zero (but not one).
-    t = Translations("en_us") + {"en_us": "1 beer".many("many beers")};
+    t = Translations.byText("en_us") + {"en_us": "1 beer".many("many beers")};
 
     expect(localizePlural(0, key, t, locale: "en_us"), "many beers");
     expect(localizePlural(1, key, t, locale: "en_us"), "1 beer");
@@ -980,7 +979,8 @@ void main() {
     I18n.define(const Locale("en", "US"));
     var key = "1 beer";
 
-    var t = Translations("en_us") + {"en_us": "1 beer".zero("").three("").many("many beers")};
+    var t =
+        Translations.byText("en_us") + {"en_us": "1 beer".zero("").three("").many("many beers")};
 
     expect(localizePlural(0, key, t, locale: "en_us"), "");
     expect(localizePlural(1, key, t, locale: "en_us"), "1 beer");
@@ -997,7 +997,7 @@ void main() {
 
     // ---
 
-    Translations t = Translations("en_us") +
+    var t = Translations.byText("en_us") +
         {
           "en_us": "unversioned".zero("version 0").many("version many"),
           "pt_br": "não versionada".zero("versão 0").many("versão várias"),
@@ -1015,7 +1015,7 @@ void main() {
 
     // ---
 
-    t = Translations("en_us") +
+    t = Translations.byText("en_us") +
         {
           "en_us": "unversioned".zero("version 0").many("version many"),
           "pt_br": "não versionada",
@@ -1041,80 +1041,11 @@ void main() {
         '  pt_br | não versionada\n'
         '-----------------------------\n');
   });
-
-  test("Conversion of plural modifier.", () {
-    //
-
-    // Integer
-    expect(convertToIntegerModifier(-10), 10);
-    expect(convertToIntegerModifier(-2), 2);
-    expect(convertToIntegerModifier(-1), 1);
-    expect(convertToIntegerModifier(0), 0);
-    expect(convertToIntegerModifier(1), 1);
-    expect(convertToIntegerModifier(2), 2);
-    expect(convertToIntegerModifier(10), 10);
-
-    // Double
-    expect(convertToIntegerModifier(-10.0), 10);
-    expect(convertToIntegerModifier(-10.25), 11);
-    expect(convertToIntegerModifier(-2.0), 2);
-    expect(convertToIntegerModifier(-2.2), 3);
-    expect(convertToIntegerModifier(-2.7), 3);
-    expect(convertToIntegerModifier(-1.0), 1);
-    expect(convertToIntegerModifier(0.0), 0);
-    expect(convertToIntegerModifier(0.2), 0);
-    expect(convertToIntegerModifier(0.5), 0);
-    expect(convertToIntegerModifier(0.7), 0);
-    expect(convertToIntegerModifier(1.0), 1);
-    expect(convertToIntegerModifier(1.1), 2);
-    expect(convertToIntegerModifier(1.8), 2);
-    expect(convertToIntegerModifier(2.0), 2);
-    expect(convertToIntegerModifier(2.4), 3);
-    expect(convertToIntegerModifier(2.5), 3);
-    expect(convertToIntegerModifier(2.81232), 3);
-    expect(convertToIntegerModifier(10.0), 10);
-
-    // String
-    expect(convertToIntegerModifier("-10"), 10);
-    expect(convertToIntegerModifier("-10.0"), 10);
-    expect(convertToIntegerModifier("-10.25"), 11);
-    expect(convertToIntegerModifier("0.3"), 0);
-    expect(convertToIntegerModifier("5"), 5);
-    expect(convertToIntegerModifier("5.6"), 6);
-    expect(convertToIntegerModifier(" 5.6 "), 6);
-    expect(convertToIntegerModifier(" 5.6a"), 6);
-    expect(convertToIntegerModifier("5 .6"), 0);
-    expect(convertToIntegerModifier("5. 6"), 0);
-    expect(convertToIntegerModifier("5.6 2 3"), 0);
-    expect(convertToIntegerModifier("5.6a2x3"), 0);
-    expect(convertToIntegerModifier("5.a"), 5);
-    expect(convertToIntegerModifier("^&-5.a"), 5);
-    expect(convertToIntegerModifier("^-&-5.a"), 5);
-    expect(convertToIntegerModifier("^-&-5.1.2a"), 0);
-
-    // Some object which is not int, double, or String (will use the object's toString()).
-    expect(convertToIntegerModifier(SomeObj("-10")), 10);
-    expect(convertToIntegerModifier(SomeObj("-10.0")), 10);
-    expect(convertToIntegerModifier(SomeObj("-10.25")), 11);
-    expect(convertToIntegerModifier(SomeObj("0.3")), 0);
-    expect(convertToIntegerModifier(SomeObj("5")), 5);
-    expect(convertToIntegerModifier(SomeObj("5.6")), 6);
-    expect(convertToIntegerModifier(SomeObj(" 5.6 ")), 6);
-    expect(convertToIntegerModifier(SomeObj(" 5.6a")), 6);
-    expect(convertToIntegerModifier(SomeObj("5 .6")), 0);
-    expect(convertToIntegerModifier(SomeObj("5. 6")), 0);
-    expect(convertToIntegerModifier(SomeObj("5.6 2 3")), 0);
-    expect(convertToIntegerModifier(SomeObj("5.6a2x3")), 0);
-    expect(convertToIntegerModifier(SomeObj("5.a")), 5);
-    expect(convertToIntegerModifier(SomeObj("^&-5.a")), 5);
-    expect(convertToIntegerModifier(SomeObj("^-&-5.a")), 5);
-    expect(convertToIntegerModifier(SomeObj("^-&-5.1.2a")), 0);
-  });
 }
 
 extension Localization on String {
   //
-  static final _t = Translations("en_us") +
+  static final _t = Translations.byText("en_us") +
       {
         "en_us": "Hi.",
         "cs_cz": "Zdravím tě",

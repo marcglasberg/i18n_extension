@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 
 void main() {
   //
@@ -19,7 +18,7 @@ void main() {
 
 extension Localization on String {
   //
-  static final _t = Translations("en_us") +
+  static final _t = Translations.byText("en_us") +
       {
         "en_us": "Hello %s, this is %s.",
         "pt_br": "Olá %s, aqui é %s.",

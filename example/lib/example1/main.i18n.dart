@@ -16,7 +16,7 @@ extension Localization on String {
   ///     }});
   /// ```
   ///
-  static final _t = Translations("en_us") +
+  static final _t = Translations.byText("en_us") +
       const {
         "en_us": "i18n Demo",
         "pt_br": "Demonstração i18n",

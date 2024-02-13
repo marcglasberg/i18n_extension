@@ -2,7 +2,7 @@
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:i18n_extension/i18n_widget.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 
 import 'main.i18n.dart';
 import 'my_screen.dart';

@@ -14,7 +14,7 @@ extension Localization on String {
   /// keys here in the translations file, and then use the [Translations.from]
   /// constructor:
   ///
-  static final _t = Translations.from("en_us", {
+  static final _t = ConstTranslations("en_us", {
     appbarTitle: {
       "en_us": "i18n Demo",
       "pt_br": "Demonstração i18n",

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 
 void main() {
   //
@@ -161,19 +160,19 @@ void main() {
   });
 
   test("Ignores spaces or underscore.", () {
-    expect(Translations("en_").defaultLocaleStr, "en");
-    expect(Translations("en ").defaultLocaleStr, "en");
-    expect(Translations(" en ").defaultLocaleStr, "en");
-    expect(Translations(" en_ ").defaultLocaleStr, "en");
-    expect(Translations(" en___ ").defaultLocaleStr, "en");
-    expect(Translations(" en_us_ ").defaultLocaleStr, "en_us");
+    expect(Translations.byText("en_").defaultLocaleStr, "en");
+    expect(Translations.byText("en ").defaultLocaleStr, "en");
+    expect(Translations.byText(" en ").defaultLocaleStr, "en");
+    expect(Translations.byText(" en_ ").defaultLocaleStr, "en");
+    expect(Translations.byText(" en___ ").defaultLocaleStr, "en");
+    expect(Translations.byText(" en_us_ ").defaultLocaleStr, "en_us");
 
-    expect(Translations("en_").defaultLanguageStr, "en");
-    expect(Translations("en ").defaultLanguageStr, "en");
-    expect(Translations(" en ").defaultLanguageStr, "en");
-    expect(Translations(" en_ ").defaultLanguageStr, "en");
-    expect(Translations(" en___ ").defaultLanguageStr, "en");
-    expect(Translations(" en_us_ ").defaultLanguageStr, "en");
+    expect(Translations.byText("en_").defaultLanguageStr, "en");
+    expect(Translations.byText("en ").defaultLanguageStr, "en");
+    expect(Translations.byText(" en ").defaultLanguageStr, "en");
+    expect(Translations.byText(" en_ ").defaultLanguageStr, "en");
+    expect(Translations.byText(" en___ ").defaultLanguageStr, "en");
+    expect(Translations.byText(" en_us_ ").defaultLanguageStr, "en");
 
     I18n.define(const Locale("en"));
     expect(I18n.localeStr, "en");
@@ -197,7 +196,7 @@ void main() {
 
 extension Localization on String {
   //
-  static var t1 = Translations("en_us") +
+  static var t1 = Translations.byText("en_us") +
       {
         "en_us": "Mobile phone",
         "pt_br": "Celular",
@@ -209,7 +208,7 @@ extension Localization on String {
         "pt": "Morada",
       };
 
-  static var t2 = Translations("en") +
+  static var t2 = Translations.byText("en") +
       {
         "en": "Mobile phone",
         "pt_br": "Celular",

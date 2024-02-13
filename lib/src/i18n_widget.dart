@@ -2,10 +2,9 @@
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
-
-import 'i18n_extension.dart';
 
 /// Wrap your widget tree with the `I18n` widget.
 /// This will translate your strings to the **current system locale**:
@@ -38,9 +37,12 @@ class I18n extends StatefulWidget {
 
   /// Returns the forced-locale, if it is not null.
   /// Otherwise, returns the system-locale.
-  /// Note: If the system-locale is not defined by some reason,
+  /// Note: If the system-locale is not defined for some reason,
   /// the locale will be `Locale("en", "US")`.
   static Locale get locale => _forcedLocale ?? _systemLocale;
+
+  /// The locale, as a lowercase string. For example: "en_us" or "pt_br".
+  static String get localeStr => normalizeLocale(locale);
 
   /// The locale read from the system.
   static Locale _systemLocale = defaultLocale;
@@ -51,9 +53,6 @@ class I18n extends StatefulWidget {
   static Locale? _forcedLocale;
 
   static Locale? get forcedLocale => _forcedLocale;
-
-  /// The locale, as a lowercase string. For example: "en_us" or "pt_br".
-  static String get localeStr => normalizeLocale(locale);
 
   /// The language of the current locale, as a lowercase string.
   /// For example: "en" or "pt".

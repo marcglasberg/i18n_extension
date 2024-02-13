@@ -14,7 +14,7 @@ void main() {
 
     expect(Translations.missingKeys.length, 1);
     expect(Translations.missingKeys.single.locale, "");
-    expect(Translations.missingKeys.single.text, "Hello");
+    expect(Translations.missingKeys.single.key, "Hello");
     expect(Translations.missingTranslations, isEmpty);
 
     // ---
@@ -23,11 +23,11 @@ void main() {
     Translations.missingTranslations.clear();
 
     // Call recordKey() directly.
-    recordKey("Goodbye");
+    recordMissingKey("Goodbye");
 
     expect(Translations.missingKeys.length, 1);
     expect(Translations.missingKeys.single.locale, "");
-    expect(Translations.missingKeys.single.text, "Goodbye");
+    expect(Translations.missingKeys.single.key, "Goodbye");
     expect(Translations.missingTranslations, isEmpty);
   });
 
@@ -45,7 +45,7 @@ void main() {
     // But the recorded key should contain "%d".
     expect(Translations.missingKeys.length, 1);
     expect(Translations.missingKeys.single.locale, "");
-    expect(Translations.missingKeys.single.text, "There are %d people");
+    expect(Translations.missingKeys.single.key, "There are %d people");
     expect(Translations.missingTranslations, isEmpty);
   });
 }
