@@ -11,7 +11,7 @@ https://plugins.jetbrains.com/plugin/21898-marcelo-s-flutter-dart-essentials
 
 &nbsp;<br>
 
-Start with a widget with some text in it:
+Start with a widget containing some text:
 
 ```
 Text("How are you?")
@@ -23,8 +23,8 @@ Translate it by simply adding `.i18n` to the string:
 Text("How are you?".i18n)
 ``` 
 
-If the current locale is `'pt_BR'`, then the text in the screen will be `"Como vai você?"`, the
-Portuguese translation to the above text. And so on for any other locales you want to support:
+If the current locale is `'pt_BR'`, then the text shown in the screen will be `"Como vai você?"`,
+the Portuguese translation to the above text. And so on for any other locales you want to support:
 
 ```
 // Shows "How are you?" when current locale is 'en_US'.
