@@ -14,23 +14,52 @@ https://plugins.jetbrains.com/plugin/21898-marcelo-s-flutter-dart-essentials
 Start with a widget with some text in it:
 
 ```
-Text("Hello, how are you?")
+Text("How are you?")
 ```
 
 Translate it by simply adding `.i18n` to the string:
 
 ```
-Text("Hello, how are you?".i18n)
+Text("How are you?".i18n)
+``` 
+
+If the current locale is `'pt_BR'`, then the text in the screen will be `"Como vai você?"`, the
+Portuguese translation to the above text. And so on for any other locales you want to support:
+
+```
+// Shows "How are you?" when current locale is 'en_US'.
+// Shows "Como vai você?" when current locale is 'pt_BR'.
+// Shows "¿Cómo estás?" when current locale is 'es'.
+// Shows "Comment ca va?" when current locale is 'fr'.
+Text('How are you?'.i18n)
 ```
 
-Or you can also use identifiers, as you prefer:
+Or you can use objects of any type as translation keys:
 
 ```
-Text(greetings.i18n)
-```
+// Const values  
+const greetings = UniqueKey();
+Text(greetings.i18n) // "How are you?" for 'en', "Como vai você?" for 'pt' 
 
-If the current locale is `'pt_BR'`, then the text in the screen will be `"Olá, como vai você?"`, the
-Portuguese translation to the above text. And so on for any other locales you want to support.
+// Final variables  
+final faq = 'faq';
+Text(faq.i18n) // "FAQ" for 'en', "Perguntas frequentes" for 'pt'
+
+// Enums  
+enum MyColors { red, blue }
+Text(MyColors.red.i18n) // "Red" for 'en', "Vermelho" for 'pt'
+Text(MyColors.blue.i18n) // "Blue" for 'en', "Azul" for 'pt'
+
+// Numbers, booleans, Dates  
+Text(12.i18n) // "Twelve" for 'en', "Doze" for 'pt'
+Text(true.i18n) // "Yes" for 'en', "Sim" for 'pt'
+Text(false.i18n) // "No" for 'en', "Não" for 'pt'
+Text(DateTime(2021, 1, 1).i18n) // "New Year" for 'en', "Ano Novo" for 'pt'
+
+// Your own object types  
+class User { ... }
+Text(User('Mary')) // "User Mark" for 'en', "Usuária Mary" for 'pt'
+```
 
 You can also provide different translations depending on modifiers, such as `plural` quantities:
 
@@ -68,26 +97,29 @@ example</a>.
 
 ## Good for simple or complex apps
 
-I'm always interested in creating packages to reduce boilerplate. For
-example, [async_redux](https://pub.dev/packages/async_redux/) is about Redux without boilerplate,
-and [align_positioned](https://pub.dev/packages/align_positioned) is about creating layouts using
-fewer widgets. This current package is also about reducing boilerplate for translations, so it
-doesn't do anything you can't already do with plain old `Localizations.of(context)`.
+I'm always interested in creating packages to reduce boilerplate.
+For example, [async_redux](https://pub.dev/packages/async_redux/) is about Redux without
+boilerplate, [align_positioned](https://pub.dev/packages/align_positioned) is about creating layouts
+using fewer widgets, and [themed](https://pub.dev/packages/themed) is about simplifying
+the usage of colors and fonts.
+Likewise, the current package is about reducing boilerplate for translations.
+It does everything the plain old `Localizations.of(context)` does, but much easier.
 
-That said, this package is meant both for the one person app developer and the big company team. It
+It's meant for both the one-person app developer and the big company team. It
 has you covered in all stages of your translation efforts:
 
-1. When you create your widgets, it makes it easy for you to define which strings should be
-   translated by simply adding `.i18n` to them. These strings are called _"translatable strings"_.
+1. When you create your widgets, it makes it easy for you to define which strings (or identifiers)
+   should be translated by simply adding `.i18n` to them. These are called _"translatable strings"_
+   or _"translatable identifiers"_.
 
 2. When you want to start your translation efforts, it can automatically list for you all strings
-   that need translation. If you miss any strings, or if you later add more strings or modify some
+   that need translation. If you miss any of them, or if you later add more strings or modify some
    of them, it will let you know what changed and how to fix it.
 
 3. You can then provide your translations manually in a very easy-to-use format.
 
 4. Or you can easily integrate it with professional translation services, importing it from or
-   exporting to any format you want.
+   exporting it to any format you want.
 
 ## Setup
 

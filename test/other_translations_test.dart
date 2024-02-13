@@ -40,8 +40,8 @@ void main() {
 enum MyColors { red, green }
 
 const legalTerms = "legalTerms";
-var privacyPolicy = UniqueKey();
-var faq = UniqueKey();
+final privacyPolicy = UniqueKey();
+final faq = UniqueKey();
 
 extension Localization on Object? {
   //
