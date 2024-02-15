@@ -59,11 +59,11 @@ void main() {
   test("Should not accept empty keys or values.", () {
     //
     /// TODO: Uncomment if necessary:
-//    // This should work ok (and not do anything).
-//    var x = Translations("en_us") + {};
-//
-//    // This works ok too, because the "" locale means "any" the default.
-//    var y = Translations("en_us") + {"": "some text"};
+    //    // This should work ok (and not do anything).
+    //    var x = Translations.byText("en_us") + {};
+    //
+    //    // This works ok too, because the "" locale means "any" the default.
+    //    var y = Translations.byText("en_us") + {"": "some text"};
   });
 }
 

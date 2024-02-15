@@ -15,7 +15,7 @@ environment:
 
 dependencies:
   intl: ^0.18.0
-  i18n_extension_core: ^2.0.0
+  i18n_extension_core: ^2.0.1
   flutter:
     sdk: flutter
 
