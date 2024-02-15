@@ -1,14 +1,15 @@
 [![pub package](https://img.shields.io/pub/v/i18n_extension.svg)](https://pub.dartlang.org/packages/i18n_extension)
 
-# i18n_extension<br>No boilerplate Translation and Internationalization
+# i18n_extension | Translate your app
 
-> See also: [i18n_extension_core](https://pub.dev/packages/i18n_extension_core) for a Dart-only
-> package. Use with Dart servers, like [Celest](https://celest.dev).
-
-> <img src="https://plugins.jetbrains.com/files/21898/340924/icon/pluginIcon.svg" height="20px" style="position: relative;top: 5px;"></img> [An IntelliJ plugin](https://plugins.jetbrains.com/plugin/21898-marcelo-s-flutter-dart-essentials)
-> that supports this package is coming soon.<br>
-
-<hr>
+<table>
+  <tr>
+    <td>      
+        <p><strong>"Thank you for making i18n_extension plugin - it has helped me a lot in my latest project and I will surely use it again in my next Flutter project - it is so easy to set up and use and the code boilerplate is indeed very minimal."</p>
+        <footer>— Tomáš Jeřábek, Consultant/Developer</footer>      
+    </td>
+  </tr>
+</table>
 
 &nbsp;<br>
 
@@ -93,13 +94,19 @@ Also, interpolating strings is easy, with the `fill` method:
 print("Hello %s, this is %s".i18n.fill(['John', 'Mary']));
 ```
 
-### See it working
+## See it working
 
 Try running
 the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/example1/main.dart">
 example</a>.
 
 ![](./example/lib/example1/i18nScreen.jpg)
+
+> See the [i18n_extension_core](https://pub.dev/packages/i18n_extension_core) for a Dart-only
+> package.
+>
+> An [IntelliJ plugin](https://plugins.jetbrains.com/plugin/21898-marcelo-s-flutter-dart-essentials)
+> that supports this package is coming soon.<br>
 
 ## Good for simple or complex apps
 
