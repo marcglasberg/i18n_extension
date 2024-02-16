@@ -1,28 +1,27 @@
 [![pub package](https://img.shields.io/pub/v/i18n_extension.svg)](https://pub.dartlang.org/packages/i18n_extension)
 
-# i18n_extension | Translate your app
+# Translate your app!
 
-<table>
-  <tr>
-    <td>      
-        <p><strong>"Thank you for making i18n_extension plugin - it has helped me a lot in my latest project and I will surely use it again in my next Flutter project - it is so easy to set up and use and the code boilerplate is indeed very minimal."</p>
-        <footer>— Tomáš Jeřábek, Consultant/Developer</footer>      
-    </td>
-  </tr>
-</table>
+> **_"Thank you for making the i18n_extension plugin - it has helped me a lot in my latest project and I will surely use it again in my next Flutter project - it is so easy to set up and use and the code boilerplate is indeed very minimal."_**
+> 
+> **_— Tomáš Jeřábek, Consultant/Developer_**
+
+> This is a Flutter package. See [i18n_extension_core](https://pub.dev/packages/i18n_extension_core)
+> for a Dart-only
+> package.
 
 &nbsp;<br>
 
 Start with a widget containing some text:
 
 ```dart
-Text("How are you?")
+Text('How are you?')
 ```
 
 Translate it by simply adding `.i18n` to the string:
 
 ```dart
-Text("How are you?".i18n)
+Text('How are you?'.i18n)
 ``` 
 
 If the current locale is `'pt'` (the language code for Portuguese) or `pt_BR` (language code for
@@ -70,9 +69,9 @@ User('John').i18n // "Mr. John" in en, "Sr. John" in pt
 You can also provide different translations depending on modifiers, such as `plural` quantities:
 
 ```dart
-print("There is 1 item".plural(0)); // Prints 'There are no items'
-print("There is 1 item".plural(1)); // Prints 'There is 1 item'
-print("There is 1 item".plural(2)); // Prints 'There are 2 items'
+print('There is 1 item'.plural(0)); // Prints 'There are no items'
+print('There is 1 item'.plural(1)); // Prints 'There is 1 item'
+print('There is 1 item'.plural(2)); // Prints 'There are 2 items'
 ```
 
 And you can invent your own modifiers according to any conditions. For example, some languages have
@@ -80,9 +79,9 @@ different translations for different genders. So you could create `gender` versi
 modifiers:
 
 ```dart
-print("There is a person".gender(Gender.male)); // Prints 'There is a man'
-print("There is a person".gender(Gender.female)); // Prints 'There is a woman'
-print("There is a person".gender(Gender.they)); // Prints 'There is a person'
+print('There is a person'.gender(Gender.male)); // Prints 'There is a man'
+print('There is a person'.gender(Gender.female)); // Prints 'There is a woman'
+print('There is a person'.gender(Gender.they)); // Prints 'There is a person'
 ```
 
 Also, interpolating strings is easy, with the `fill` method:
@@ -91,7 +90,7 @@ Also, interpolating strings is easy, with the `fill` method:
 // Prints 'Hello John, this is Mary' in English.
 // Prints 'Olá John, aqui é Mary' in Portuguese.
 // Prints 'Olá John, aqui é Mary' in Portuguese.
-print("Hello %s, this is %s".i18n.fill(['John', 'Mary']));
+print('Hello %s, this is %s'.i18n.fill(['John', 'Mary']));
 ```
 
 ## See it working
@@ -101,12 +100,6 @@ the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/
 example</a>.
 
 ![](./example/lib/example1/i18nScreen.jpg)
-
-> See the [i18n_extension_core](https://pub.dev/packages/i18n_extension_core) for a Dart-only
-> package.
->
-> An [IntelliJ plugin](https://plugins.jetbrains.com/plugin/21898-marcelo-s-flutter-dart-essentials)
-> that supports this package is coming soon.<br>
 
 ## Good for simple or complex apps
 
@@ -154,8 +147,8 @@ Widget build(BuildContext context) {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: [
-        const Locale('en', "US"),
-        const Locale('pt', "BR"),
+        const Locale('en', 'US'),
+        const Locale('pt', 'BR'),
       ],
       home: I18n(child: ...)
   );
@@ -178,7 +171,7 @@ locale**. Or you can override it with your own locale, like this:
 
 ```dart
 I18n(
-  initialLocale: Locale("pt", "BR"),
+  initialLocale: Locale('pt', 'BR'),
   child: ...
 ```
 
@@ -189,7 +182,7 @@ widget, since they may not respond to future locale changes. For example, this i
 Widget build(BuildContext context) {
   return I18n(
     child: Scaffold(
-      appBar: AppBar(title: Text("Hello there".i18n)),
+      appBar: AppBar(title: Text('Hello there'.i18n)),
       body: MyScreen(),
   );
 }
@@ -205,7 +198,7 @@ letters) and a country code (usually 2 uppercase letters), as two **separate** S
 For example:
 
 ```dart
-var locale = Locale("en", "US");
+var locale = Locale('en', 'US');
 
 print(locale); // Prints `en_US`.
 print(locale.languageCode); // Prints `en`.
@@ -214,7 +207,7 @@ print(locale.languageCode); // Prints `en`.
 You can, if you want, omit the country code:
 
 ```dart
-var locale = Locale("en");
+var locale = Locale('en');
 
 print(locale); // Prints `en`.
 print(locale.languageCode); // Prints `en`.
@@ -365,14 +358,14 @@ final greetings = UniqueKey();
 
 extension Localization on UniqueKey {
     
-  static final _t = Translations.byId<UniqueKey>("en_us", {
+  static final _t = Translations.byId<UniqueKey>('en_us', {
     appbarTitle: {
-      "en_us": "i18n Demo",
-      "pt_br": "Demonstração i18n",
+      'en_us': "i18n Demo',
+      'pt_br': "Demonstração i18n',
     },
     greetings: {
-      "en_us": "Helo there",
-      "pt_br": "Olá como vai",
+      'en_us': 'Helo there',
+      'pt_br': 'Olá como vai',
     },    
   });
 
@@ -429,9 +422,9 @@ extension Localization on Object {
   static final _t = Translations.byId<UniqueKey>('en_us', {
     privacyPolicy: { 'en_us': 'Very Looong text', 'pt_br': 'Very Looong text' },
     termsOfUse: { 'en_us': 'Very Looong text', 'pt_br': 'Very Looong text' },
-    "My Settings": { 'en_us': 'My Settings', 'pt_br': 'Meus ajustes' },    
-    "Ok": { 'en_us': 'Ok', 'pt_br': 'Salvar ajustes' },
-    "Back": { 'en_us': 'Back', 'pt_br': 'Voltar' },
+    'My Settings': { 'en_us': 'My Settings', 'pt_br': 'Meus ajustes' },    
+    'Ok': { 'en_us': 'Ok', 'pt_br': 'Salvar ajustes' },
+    'Back': { 'en_us': 'Back', 'pt_br': 'Voltar' },
   });
 
   String get i18n => localize(this, _t);    
@@ -443,9 +436,9 @@ You use them like this, respectively:
 ```dart
 Text(privacyPolicy.i18n);
 Text(termsOfUse.i18n);
-Text("My Settings".i18n);
-Text("Ok".i18n);
-Text("Back".i18n);
+Text('My Settings'.i18n);
+Text('Ok'.i18n);
+Text('Back'.i18n);
 ```
 
 ## Finding missing translations
@@ -655,7 +648,7 @@ translations for different genders. So you could create `.gender()` that accepts
 enum Gender {they, female, male}
 
 int gnd = Gender.female;
-return Text("There is a person".gender(gnd));
+return Text('There is a person'.gender(gnd));
 ```
 
 Then, your translations file should use `.modifier()` and `localizeVersion()` like this:
@@ -900,11 +893,11 @@ import 'package:i18n_extension_importer/io/import.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
 class MyI18n {
-  static var translations = Translations.byLocale("en");
+  static var translations = Translations.byLocale('en');
 
   static Future<void> loadTranslations() async {
     translations +=
-        await GettextImporter().fromAssetDirectory("assets/locales");
+        await GettextImporter().fromAssetDirectory('assets/locales');
   }
 }
 
@@ -921,7 +914,7 @@ here</a>.
 
 **Note**: When using .po files, make sure not to include the country code, because the locales are
 generated from the filenames which don't contain the country code and if you'd include the country
-codes, you'll get errors like this: `There are no translations in 'en_us' for "Hello there"`.
+codes, you'll get errors like this: `There are no translations in 'en_us' for 'Hello there'`.
 
 **Note:** If you need to import any other custom format, remember importing is easy to do because
 the Translation constructors use maps as input. If you can generate a map from your file format, you
@@ -943,11 +936,11 @@ Note the tool simply searches the source code for strings to which getters like 
 Since it is not very smart, you should not make it too hard:
 
 ```dart
-print("Hello World!".i18n); // This would work.
+print('Hello World!'.i18n); // This would work.
 
 // But the tool would not be able to spot this 
 // since it doesn't execute the code.
-var x = "Hello World";
+var x = 'Hello World';
 print(x.i18n);
 ```
 
