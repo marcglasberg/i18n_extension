@@ -688,7 +688,7 @@ String fill(List<Object> params) => localizeFill(this, params);
 Then you may use it like this:
 
 ```dart
-print('Hello %s, this is %s' .i18n.fill(['John', 'Mary']));
+print('Hello %s, this is %s'.i18n.fill(['John', 'Mary']));
 ```
 
 The above code will print `Hello John, this is Mary` if the locale is English,
