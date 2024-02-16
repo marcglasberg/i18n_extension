@@ -2,13 +2,21 @@
 
 # Translate your app!
 
-> **_"Thank you for making the i18n_extension plugin - it has helped me a lot in my latest project and I will surely use it again in my next Flutter project - it is so easy to set up and use and the code boilerplate is indeed very minimal."_**
-> 
+> **_"Thank you for making the i18n_extension plugin._**
+> **_It has helped me a lot in my latest project and I will surely use it again_**
+> **_in my next Flutter project. It is so easy to set up and use and the code_**
+> **_boilerplate is indeed very minimal."_**
+>
 > **_— Tomáš Jeřábek, Consultant/Developer_**
 
-> This is a Flutter package. See [i18n_extension_core](https://pub.dev/packages/i18n_extension_core)
-> for a Dart-only
-> package.
+> This is a Flutter package. For a Dart-only package, see [i18n_extension_core](https://pub.dev/packages/i18n_extension_core)
+ 
+> This package was mentioned by Google during
+> the [Dart 2.7 announcement](https://medium.com/dartlang/dart-2-7-a3710ec54e97)
+
+> Read
+> the [Medium article](https://medium.com/flutter-community/i18n-extension-flutter-b966f4c65df9)
+
 
 &nbsp;<br>
 
@@ -25,13 +33,13 @@ Text('How are you?'.i18n)
 ``` 
 
 If the current locale is `'pt'` (the language code for Portuguese) or `pt_BR` (language code for
-Brazilian Portuguese), then the text shown in the screen will be `"Como vai?"`, the Portuguese
+Brazilian Portuguese), then the text shown in the screen will be `'Como vai?'`, the Portuguese
 translation to the above text. And so on for any other locales you want to support:
 
 ```dart
-// Shows "How are you?" when current locale is en_US.
-// Shows "¿Cómo estás?" when current locale is es.
-// Shows "Comment ça va?" when current locale is fr.
+// Shows 'How are you?' when current locale is en_US.
+// Shows '¿Cómo estás?' when current locale is es.
+// Shows 'Comment ça va?' when current locale is fr.
 Text('How are you?'.i18n)
 ```
 
@@ -44,26 +52,26 @@ turn into translated strings in the current locale:
 ```dart
 // Const values  
 const greetings = UniqueKey();
-greetings.i18n // Turns into "How are you?" in en, "Como vai?" in pt  
+greetings.i18n // Turns into 'How are you?' in en, 'Como vai?' in pt  
 
 // Final variables  
 final faq = 'faq';
-faq.i18n // "FAQ" in en, "Perguntas frequentes" in pt
+faq.i18n // 'FAQ' in en, 'Perguntas frequentes' in pt
 
 // Enums  
 enum MyColors { red, blue }
-MyColors.red.i18n // "Red" in en, "Vermelho" in pt
-MyColors.blue.i18n // "Blue" in en, "Azul" in pt
+MyColors.red.i18n // 'Red' in en, 'Vermelho' in pt
+MyColors.blue.i18n // 'Blue' in en, 'Azul' in pt
 
 // Numbers, booleans, Dates  
-12.i18n // "Twelve" in en, "Doze" in pt
-true.i18n // "Yes" in en, "Sim" in pt
-false.i18n // "No" in en, "Não"
-DateTime(2021, 1, 1).i18n // "New Year" in en, "Ano Novo" in pt
+12.i18n // 'Twelve' in en, 'Doze' in pt
+true.i18n // 'Yes' in en, 'Sim' in pt
+false.i18n // 'No' in en, 'Não'
+DateTime(2021, 1, 1).i18n // 'New Year' in en, 'Ano Novo' in pt
 
 // Your own object types  
 class User { ... }
-User('John').i18n // "Mr. John" in en, "Sr. John" in pt
+User('John').i18n // 'Mr. John' in en, 'Sr. John' in pt
 ```
 
 You can also provide different translations depending on modifiers, such as `plural` quantities:
@@ -348,7 +356,7 @@ You can also do:
 greetings.i18n
 ```
 
-To that end, you can use the `Translations.byId()` factory:
+To that end, you can use the `Translations.byId<T>()` factory:
 
 ```dart
 import 'package:flutter/foundation.dart';
@@ -360,8 +368,8 @@ extension Localization on UniqueKey {
     
   static final _t = Translations.byId<UniqueKey>('en_us', {
     appbarTitle: {
-      'en_us': "i18n Demo',
-      'pt_br': "Demonstração i18n',
+      'en_us': 'i18n Demo',
+      'pt_br': 'Demonstração i18n',
     },
     greetings: {
       'en_us': 'Helo there',
@@ -419,7 +427,7 @@ final termsOfUse = UniqueKey();
 
 extension Localization on Object {
     
-  static final _t = Translations.byId<UniqueKey>('en_us', {
+  static final _t = Translations.byId<Object>('en_us', {
     privacyPolicy: { 'en_us': 'Very Looong text', 'pt_br': 'Very Looong text' },
     termsOfUse: { 'en_us': 'Very Looong text', 'pt_br': 'Very Looong text' },
     'My Settings': { 'en_us': 'My Settings', 'pt_br': 'Meus ajustes' },    
@@ -480,7 +488,7 @@ For example:
 ```dart
 Translations.missingTranslationCallback =
   (key, locale) =>
-    throw TranslationsException("There are no translations in '$locale' for '$key'.");
+    throw TranslationsException('There are no translations in $locale for key $key.');
 ```
 
 ## Defining translations by locale instead of by key
@@ -514,7 +522,7 @@ You can also add maps using the `+` operator:
 static var _t = Translations.byLocale('en_us') +
     {
       'en_us': {
-        'Hi.': 'Hi.",
+        'Hi.': 'Hi.',
         'Goodbye.': 'Goodbye.',
       },
     } +
@@ -622,7 +630,7 @@ the `twoThreeFour` modifier.
 
 Note: It will use the most specific plural modifier. For example, `.two` is more specific
 than `.many`. If no applicable modifier can be found, it will default to the unversioned string. For
-example, this: `"a".zero("b").four("c:")` will default to `"a"`
+example, this: `'a'.zero('b').four('c')` will default to `"a"`
 for 1, 2, 3, or more than 5 elements.
 
 > Note: The `.plural()` method actually accepts any `Object?`, not only an integer number. In case
@@ -971,7 +979,7 @@ reads `.json` und outputs Dart maps would do the job:
 automatically or would you have to restart the app?**
 
 **A:** _It should pick changes to the locale automatically. Also, you can change the locale manually
-at any time by doing `I18n.of(context).locale = Locale('pt', 'BR");`._
+at any time by doing `I18n.of(context).locale = Locale('pt', 'BR');`._
 
 <br>
 
@@ -997,7 +1005,7 @@ want to do translations to a locale different from the current one._
 
 **Q: By using identifier keys like `howAreYou`, I know that there's a localization key
 named `howAreYou` because otherwise my code wouldn't compile. There is no way to statically verify
-that `"How are you?".i18n` will do what I want it to do.**
+that `'How are you?'.i18n` will do what I want it to do.**
 
 **A:** _i18n_extension lets you decide if you want to use identifier keys like `howAreYou` or not.
 Not having to use those was one thing I was trying to achieve. I hate having to come up with these
@@ -1089,7 +1097,7 @@ that correlates these two pieces of information and outputs a more readable repo
 **Q: The package says it's "Non-boilerplate", but doesn't `.i18n.dart` contain boilerplate?**
 
 **A:** _The only necessary boilerplate for `.i18n.dart` files
-is `static var _t = Translations.byText("...") +`
+is `static var _t = Translations.byText('...') +`
 and `String get i18n => localize(this, _t);`. The rest are the translations themselves. So, yeah,
 it's not completely without boilerplate, but saying "Less-boilerplate" is not that catchy._
 

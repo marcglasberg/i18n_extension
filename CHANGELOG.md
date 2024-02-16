@@ -1,4 +1,4 @@
-## 11.0.5
+## 11.0.8
 
 * BREAKING CHANGE: Replace the previous `Translations()` constructor with `Translations.byText()`.
   Like before, it supports `String` as translation keys, organized per key.
@@ -105,7 +105,7 @@
 
 ## 4.0.0
 
-* Now allows both string-keys (like `"Hello there".i18n` as shown in the `example1` dir) and
+* Now allows both string-keys (like `'Hello there'.i18n` as shown in the `example1` dir) and
   identifier-keys (
   like `greetings.i18n` as shown in the `example2` dir).
 * Breaking change: If some translation did not exist in some language, it would show the translation
@@ -120,7 +120,7 @@
 * Breaking change: During app initialization, the system locale may be `null` for a few moments.
   During this time, in prior version _2.0.0_ it would use the `Translations` default locale. Now, in
   version _3.0.0_, it will use the global locale defined in `I18n.defaultLocale`, which by default
-  is `Locale("en", "US")`. You can change this default in your app's main method.
+  is `Locale('en', 'US')`. You can change this default in your app's main method.
 * New `Translations.from()` constructor, which responds better to hot reload.
 * Fixed the PO importer to ignore empty keys.
 * The docs now explain better how to add plurals with translations by locale.
@@ -185,7 +185,7 @@
 
 * I18n.observeLocale() can be used to observe locale changes.
 
-* Breaking change: Accepts Locale("en", "US"), but not Locale("en_US") anymore, which was wrong.
+* Breaking change: Accepts Locale('en", 'US'), but not Locale('en_US') anymore, which was wrong.
   See "A quick recap of Dart locales" in the docs, for more details.
 
 ## 1.2.0
