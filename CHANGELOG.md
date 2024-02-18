@@ -1,4 +1,4 @@
-## 11.0.8
+## 11.0.9
 
 * BREAKING CHANGE: Replace the previous `Translations()` constructor with `Translations.byText()`.
   Like before, it supports `String` as translation keys, organized per key.
