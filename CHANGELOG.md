@@ -1,4 +1,4 @@
-## 11.0.12
+## 11.0.13
 
 * BREAKING CHANGE: Replace the previous `Translations()` constructor with `Translations.byText()`.
   Like before, it supports `String` as translation keys, organized per key.
@@ -6,6 +6,11 @@
 
 * The previous `Translations.byLocale()` works just as before. Like before, it supports `String` as
   translation keys, organized per locale.
+
+
+* Translation subtype `TranslationsByLocale` still exist, but it's not visible anymore.
+  If you were writing `TranslationsByLocale t = new TranslationsByLocale(...` you should now write
+  `var t = Translations.byLocale(...`, or `Translations t = Translations.byLocale(...`
 
 
 * Now you can use ANY object type as translation keys. Before, it was only possible to use strings
