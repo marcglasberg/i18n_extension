@@ -258,6 +258,10 @@ class _I18nState extends State<I18n> {
     }
 
     (context as Element).visitChildren(rebuild);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.reassembleApplication();
+    });
   }
 
   void _processSystemLocale() {
