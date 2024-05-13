@@ -1,3 +1,7 @@
+## 12.0.0
+
+* Compatible with Flutter 3.22.0 and Dart 3.4.0
+
 ## 11.0.13
 
 * BREAKING CHANGE: Replace the previous `Translations()` constructor with `Translations.byText()`.
