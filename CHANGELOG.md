@@ -1,4 +1,4 @@
-## 12.0.0
+## 12.0.1
 
 * Compatible with Flutter 3.22.0 and Dart 3.4.0
 
