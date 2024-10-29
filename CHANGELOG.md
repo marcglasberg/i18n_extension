@@ -1,3 +1,7 @@
+## 13.0.0
+
+* Sponsored by [MyText.ai](https://mytext.ai) 
+
 ## 12.0.1
 
 * Compatible with Flutter 3.22.0 and Dart 3.4.0
@@ -220,4 +224,3 @@
 ## 0.0.1
 
 * Initial commit on Oct 19, 2019.
-
