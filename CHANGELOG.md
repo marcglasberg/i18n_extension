@@ -1,6 +1,8 @@
-## 13.0.0
+## 13.0.2
 
-* Sponsored by [MyText.ai](https://mytext.ai) 
+* Sponsored by [MyText.ai](https://mytext.ai)
+
+[![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
 ## 12.0.1
 
