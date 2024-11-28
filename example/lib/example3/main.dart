@@ -15,6 +15,7 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
+        debugShowCheckedModeBanner: false,
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -25,7 +26,10 @@ class MyApp extends StatelessWidget {
           const Locale('pt', "BR"),
         ],
         home: Scaffold(
-          appBar: AppBar(title: const Text("Multiple i18n Demo")),
+          appBar: AppBar(
+            title: const Text("Multiple i18n Demo"),
+            backgroundColor: Colors.blue,
+          ),
           body: MyScreen(),
         ),
       );
@@ -94,8 +98,9 @@ class Widget2 extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 17),
             ),
             onPressed: () {
-              var newLocale =
-                  (I18n.localeStr == "pt_br") ? const Locale("en", "US") : const Locale("pt", "BR");
+              var newLocale = (I18n.localeStr == "pt_br")
+                  ? const Locale("en", "US")
+                  : const Locale("pt", "BR");
 
               // This changes the language and rebuilds the FIRST I18n widget.
               I18n.of(context).locale = newLocale;

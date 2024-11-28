@@ -11,7 +11,7 @@ class MyWidget extends StatelessWidget {
       key: UniqueKey(),
       alignment: Alignment.center,
       padding: const EdgeInsets.all(8.0),
-      height: 200,
+      height: 245,
       color: Colors.grey[300],
       child: Text(
         greetings.i18n,
