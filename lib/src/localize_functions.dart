@@ -115,7 +115,7 @@ String localizePlural(
 /// Use the [localizeVersion] method to localize a "translatable string" to the given [locale].
 /// You must provide the [key] (which is usually the string you want to translate),
 /// a [modifier], and the [translations] object which holds the translations.
-///
+///                 
 /// You may use an object of any type as the [modifier], but it will do a `toString()`
 /// in it and use resulting String. So, make sure your object has a suitable
 /// string representation.

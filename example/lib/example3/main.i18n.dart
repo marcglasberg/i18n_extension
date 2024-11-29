@@ -4,20 +4,16 @@ import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
   //
-
-  /// Note you could also define the translation as const value,
-  /// by using [ConstTranslations] instead of [Translations].
+  /// Note you may also define this as a static const,
+  /// if you use the [Translations.from] constructor:
   ///
   /// ```
-  /// static const _t2 = ConstTranslations(
-  ///   "en_us",
-  ///   {
+  /// static const _t = Translations.from(
+  ///   "en_us", {
   ///     "i18n Demo": {
   ///       "en_us": "i18n Demo",
   ///       "pt_br": "Demonstração i18n",
-  ///     }
-  ///   },
-  /// );
+  ///     }});
   /// ```
   ///
   static final _t = Translations.byText("en_us") +

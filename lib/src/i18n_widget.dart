@@ -1,39 +1,74 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 
-/// Wrap your widget tree with the `I18n` widget.
-/// This will translate your strings to the **current system locale**:
+/// You must have a single [I18n] widget in your widget tree, above
+/// your [MaterialApp] or [CupertinoApp] widgets:
 ///
 /// ```dart
-/// import 'package:i18n_extension/i18n_widget.dart';
+/// import 'package:i18n_extension/i18n_extension.dart';
 ///
-/// @override
 /// Widget build(BuildContext context) {
 ///   return I18n(
-///       child: Scaffold( ... )
+///       child: MaterialApp(...)
 ///   );
 /// }
 /// ```
 ///
-/// You can override it with any locale, like this:
+/// If you want, you may also provide an [initialLocale].
+/// Otherwise, the system locale will be used:
 ///
 /// ```dart
-/// return I18n(
-///     initialLocale: Locale("pt", "BR"),
-///     child: Scaffold( ... )
+/// Widget build(BuildContext context) {
+///   return I18n(
+///       initialLocale: locale('pt', 'BR'),
+///       child: ...
+///   );
+/// }
 /// ```
 ///
 class I18n extends StatefulWidget {
   //
-  /// During app initialization, the system locale may be `null` for a few
-  /// moments, so this default locale will be used instead. You can change
-  /// this to reflect your preferred locale.
-  static Locale defaultLocale = const Locale("en", "US");
+  static final _i18nKey = GlobalKey<_I18nState>();
+
+  final Widget child;
+  final Locale? initialLocale;
+
+  /// You must have a single [I18n] widget in your widget tree, above
+  /// your [MaterialApp] or [CupertinoApp] widgets:
+  ///
+  /// ```dart
+  /// import 'package:i18n_extension/i18n_extension.dart';
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return I18n(
+  ///       child: MaterialApp(...)
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// If you want, you may also provide an [initialLocale].
+  /// Otherwise, the system locale will be used:
+  ///
+  /// ```dart
+  /// Widget build(BuildContext context) {
+  ///   return I18n(
+  ///       initialLocale: locale('pt', 'BR'),
+  ///       child: ...
+  ///   );
+  /// }
+  /// ```
+  ///
+  I18n({
+    required this.child,
+    this.initialLocale,
+  }) : super(key: _i18nKey);
 
   /// Returns the forced-locale, if it is not null.
   /// Otherwise, returns the system-locale.
@@ -45,18 +80,30 @@ class I18n extends StatefulWidget {
   static String get localeStr => normalizeLocale(locale);
 
   /// The locale read from the system.
-  static Locale _systemLocale = defaultLocale;
-
   static Locale get systemLocale => _systemLocale;
 
   /// Locale to override the system locale.
-  static Locale? _forcedLocale;
-
   static Locale? get forcedLocale => _forcedLocale;
 
   /// The language of the current locale, as a lowercase string.
   /// For example: "en" or "pt".
   static String get language => getLanguageFromLocale(locale);
+
+  /// When the app starts, the [systemLocale] is read from the system as soon as possible.
+  /// The system locale might be unavailable for a brief period. Usually, this is not an
+  /// issue and won't be noticeable, but in rare cases, this locale will be used until
+  /// the actual system locale is determined. You can change this to your preferred
+  /// locale if needed. Otherwise, leave it as is.
+  static Locale preInitializationLocale = const Locale("en", "US");
+
+  /// Even before we can use `View.of()` it's possible we have access to the device
+  /// locale via the `PlatformDispatcher`. If that's `undefined` (`und`) return the
+  /// `preInitializationLocale` instead.
+  static Locale _getSystemOrPreInitializationLocale() {
+    Locale systemLocale = PlatformDispatcher.instance.locale;
+    if (systemLocale.languageCode == 'und') return preInitializationLocale;
+    return systemLocale;
+  }
 
   /// Return the lowercase language-code of the given locale.
   static String getLanguageFromLocale(Locale locale) {
@@ -93,21 +140,6 @@ class I18n extends StatefulWidget {
     required Locale newLocale,
   }) observeLocale = ({required Locale oldLocale, required Locale newLocale}) {};
 
-  final Widget child;
-  final Locale? initialLocale;
-
-  /// The [I18n] widget should wrap the [child] which contains the tree of
-  /// widgets you want to translate. If you want, you may provide an
-  /// [initialLocale]. You may also provide a [key], or, for advanced uses,
-  /// an [id] which you can use with the [forceRebuild] function.
-  ///
-  I18n({
-    Key? key,
-    String? id,
-    required this.child,
-    this.initialLocale,
-  }) : super(key: key ?? ((id != null && id.isNotEmpty) ? GlobalObjectKey<_I18nState>(id) : null));
-
   /// Getter:
   /// print(I18n.of(context).locale);
   ///
@@ -115,7 +147,8 @@ class I18n extends StatefulWidget {
   /// I18n.of(context).locale = Locale("en", "US");
   ///
   static _I18nState of(BuildContext context) {
-    _InheritedI18n? inherited = context.dependOnInheritedWidgetOfExactType<_InheritedI18n>();
+    _InheritedI18n? inherited =
+        context.dependOnInheritedWidgetOfExactType<_InheritedI18n>();
 
     if (inherited == null)
       throw TranslationsException("Can't find the `I18n` widget up in the tree. "
@@ -124,32 +157,7 @@ class I18n extends StatefulWidget {
     return inherited.data;
   }
 
-  /// If you have multiple I18n widgets you can call this method to force
-  /// specific I18n widgets to rebuild. First, give it an id (and not a key),
-  /// for example: `I18n(id:"myWidget", child: ...)`.
-  ///
-  /// Then, whenever you need to rebuild it: `I18n.forceRebuild("myWidget")`.
-  /// Note this is a hack. It is not recommended that you have multiple
-  /// I18n widgets in your widget tree.
-  ///
-  /// Note: The id must be a literal, const String, because [GlobalObjectKey]
-  /// creates the key from the the id identity.
-  ///
-  static void forceRebuild(String id) {
-    var key = GlobalObjectKey<_I18nState>(id);
-    var state = key.currentState;
-
-    if (state == null)
-      throw TranslationsException("Can't find a `I18n` widget "
-          "with id=`$id` up in the tree.");
-
-    state._rebuildAllChildren();
-
-    // ignore: invalid_use_of_protected_member
-    state.setState(() {});
-  }
-
-  /// To change the current locale:
+  /// To change the current locale, during tests:
   ///
   ///     I18n.define(Locale("pt", "BR"));
   ///
@@ -157,10 +165,9 @@ class I18n extends StatefulWidget {
   ///
   ///     I18n.define(null);
   ///
-  /// Note: This will change the current locale only for the i18n_extension,
-  /// and not for Flutter as a whole.
-  ///
-  /// IMPORTANT: This should be used in tests ONLY. The real app, you should
+  /// IMPORTANT: This will change the current locale only for the i18n_extension,
+  /// and not for Flutter as a whole. In other words, the widgets will not rebuild.
+  /// This static method should be used in tests ONLY. The real app, you should
   /// instead do: `I18n.of(context).locale = Locale("en", "US");`
   ///
   @visibleForTesting
@@ -169,7 +176,8 @@ class I18n extends StatefulWidget {
     _forcedLocale = locale;
     Locale newLocale = I18n.locale;
     _checkLanguageCode(newLocale);
-    if (oldLocale != newLocale) I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+    if (oldLocale != newLocale)
+      I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
   }
 
   static void _checkLanguageCode(Locale locale) {
@@ -177,6 +185,12 @@ class I18n extends StatefulWidget {
       throw TranslationsException("Language code '${locale.languageCode}' is invalid: "
           "Contains an underscore character.");
   }
+
+  /// The locale read from the system.
+  static Locale _systemLocale = _getSystemOrPreInitializationLocale();
+
+  /// Locale to override the system locale.
+  static Locale? _forcedLocale;
 
   @override
   _I18nState createState() => _I18nState();
@@ -201,7 +215,7 @@ class _I18nState extends State<I18n> {
   ///     // Example: "en".
   ///     String language = I18n.language;
   ///
-  Locale get locale => _locale ?? I18n.defaultLocale;
+  Locale get locale => _locale ?? I18n._getSystemOrPreInitializationLocale();
 
   /// To change the current locale:
   ///
@@ -236,7 +250,8 @@ class _I18nState extends State<I18n> {
 
     I18n._checkLanguageCode(newLocale);
 
-    if (oldLocale != newLocale) I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+    if (oldLocale != newLocale)
+      I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
   }
 
   @override
@@ -261,7 +276,17 @@ class _I18nState extends State<I18n> {
   }
 
   void _processSystemLocale() {
-    Locale newSystemLocale = Localizations.maybeLocaleOf(context) ?? I18n.defaultLocale;
+    //
+    Locale locale = PlatformDispatcher.instance.locale;
+    Locale? fromLocalizations = Localizations.maybeLocaleOf(context);
+    Locale? fromView = View.of(context).platformDispatcher.locale;
+
+    Locale newSystemLocale = fromLocalizations ?? fromView;
+
+    // TODO: MARCELO
+    print('\n------------------------------------------------------------');
+    print('fromLocalizations = ${fromLocalizations}');
+    print('fromView = ${fromView}');
 
     if (newSystemLocale != I18n._systemLocale) {
       //
@@ -271,7 +296,8 @@ class _I18nState extends State<I18n> {
 
       I18n._checkLanguageCode(newLocale);
 
-      if (oldLocale != newLocale) I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+      if (oldLocale != newLocale)
+        I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
 
       if (I18n._forcedLocale == null)
         WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));

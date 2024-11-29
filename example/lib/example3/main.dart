@@ -4,17 +4,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
-import 'my_widget.dart';
+import 'main.i18n.dart';
+import 'my_screen.dart';
 
-/// This example demonstrates having two `I18n` widgets.
-/// It is NOT recommended to have two `I18n` widgets, at all.
-/// However, if for some reason it is inevitable, I've provided
-/// the I18n.forceRebuild() method to help you deal with it.
+/// This example demonstrates basic translations using a `I18n` widget.
+///
+/// There are 3 widget files that need translations:
+/// * main.dart
+/// * my_screen.dart
+/// * my_widget.dart
+///
+/// And there is one translations-file for each one:
+/// * main.i18n.dart
+/// * my_screen.i18n.dart
+/// * my_widget.i18n.dart
+///
+/// Note: We could have put all translations into a single translations-file
+/// that would be used by all widget files. It's up to you how to organize
+/// things.
+///
+/// Note: The translations-files in this example use strings as keys.
+/// For example:
+///
+///     "You clicked the button %d times:".plural(counter),
+///
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) {
+    return I18n(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
@@ -25,92 +45,37 @@ class MyApp extends StatelessWidget {
           const Locale('en', "US"),
           const Locale('pt', "BR"),
         ],
-        home: Scaffold(
-          appBar: AppBar(
-            title: const Text("Multiple i18n Demo"),
-            backgroundColor: Colors.blue,
-          ),
-          body: MyScreen(),
+        home: Container(
+          // Usually you should not provide an initialLocale,
+          // and just let it use the system locale.
+          // initialLocale: Locale("pt", "BR"),
+          //
+          child: MyHomePage(),
         ),
-      );
-}
-
-class MyScreen extends StatefulWidget {
-  @override
-  _MyScreenState createState() => _MyScreenState();
-}
-
-class _MyScreenState extends State<MyScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          //
-          // This is the FIRST instance of the I18n widget:
-          I18n(
-            id: "first",
-            initialLocale: const Locale("en", "US"),
-            child: Widget1(),
+        theme: ThemeData(
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.blue,
+            ),
           ),
-          const SizedBox(height: 20.0),
-          //
-          // This is the SECOND instance of the I18n widget.
-          // Note `Widget2` will change the locale as usual,
-          // And then force the rebuild of the FIRST I18n widget.
-          I18n(
-            id: "second",
-            initialLocale: const Locale("en", "US"),
-            child: Widget2(),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class Widget1 extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MyWidget();
-  }
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class Widget2 extends StatelessWidget {
+class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey[300],
-      child: Column(
-        children: [
-          MyWidget(),
-          MaterialButton(
-            color: Colors.blue,
-            child: const Text(
-              "CLICK ME",
-              style: TextStyle(color: Colors.white, fontSize: 17),
-            ),
-            onPressed: () {
-              var newLocale = (I18n.localeStr == "pt_br")
-                  ? const Locale("en", "US")
-                  : const Locale("pt", "BR");
-
-              // This changes the language and rebuilds the FIRST I18n widget.
-              I18n.of(context).locale = newLocale;
-
-              // This forces the rebuild of the SECOND I18n widget.
-              I18n.forceRebuild("first");
-            },
-          )
-        ],
-      ),
+    return Scaffold(
+      appBar: AppBar(title: Text("i18n Demo".i18n), backgroundColor: Colors.blue),
+      body: MyScreen(),
     );
   }
 }
