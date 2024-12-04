@@ -5,7 +5,7 @@ import 'package:i18n_extension/i18n_extension.dart';
 void main() {
   //
   test("Translations.byId", () {
-    I18n.define(const Locale("en", "US"));
+    I18n.define(const Locale('es', 'US'));
 
     expect(12.i18n, "Twelve");
     expect(true.i18n, "True");
@@ -21,7 +21,7 @@ void main() {
 
     // ---
 
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
 
     expect(12.i18n, "Doze");
     expect(true.i18n, "Verdadeiro");
@@ -45,18 +45,18 @@ final faq = UniqueKey();
 
 extension Localization on Object? {
   //
-  static final _t = Translations.byId("en_us", {
-    12: {"en_us": "Twelve", "pt_br": "Doze"},
-    true: {"en_us": "True", "pt_br": "Verdadeiro"},
-    "Hi": {"en_us": "Hi", "pt_br": "Oi"},
-    MyColors.red: {"en_us": "Red", "pt_br": "Vermelho"},
-    MyColors.green: {"en_us": "Green", "pt_br": "Verde"},
-    legalTerms: {"en_us": "Legal Terms", "pt_br": "Termos Legais"},
-    privacyPolicy: {"en_us": "Privacy Policy", "pt_br": "Política de Privacidade"},
-    faq: {"en_us": "FAQ", "pt_br": "Perguntas Frequentes"},
-    DateTime(2021, 1, 1): {"en_us": "New Year", "pt_br": "Ano Novo"},
-    SomeObj("abc"): {"en_us": "SomeObj abc", "pt_br": "SomeObj abc"},
-    SomeObj("def"): {"en_us": "SomeObj def", "pt_br": "SomeObj def"},
+  static final _t = Translations.byId("en-US", {
+    12: {"en-US": "Twelve", "pt-BR": "Doze"},
+    true: {"en-US": "True", "pt-BR": "Verdadeiro"},
+    "Hi": {"en-US": "Hi", "pt-BR": "Oi"},
+    MyColors.red: {"en-US": "Red", "pt-BR": "Vermelho"},
+    MyColors.green: {"en-US": "Green", "pt-BR": "Verde"},
+    legalTerms: {"en-US": "Legal Terms", "pt-BR": "Termos Legais"},
+    privacyPolicy: {"en-US": "Privacy Policy", "pt-BR": "Política de Privacidade"},
+    faq: {"en-US": "FAQ", "pt-BR": "Perguntas Frequentes"},
+    DateTime(2021, 1, 1): {"en-US": "New Year", "pt-BR": "Ano Novo"},
+    SomeObj("abc"): {"en-US": "SomeObj abc", "pt-BR": "SomeObj abc"},
+    SomeObj("def"): {"en-US": "SomeObj def", "pt-BR": "SomeObj def"},
   });
 
   String get i18n => localize(this, _t);

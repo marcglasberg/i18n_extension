@@ -6,11 +6,11 @@ void main() {
   //
   test("String interpolations.", () {
     //
-    I18n.define(const Locale("en", "US"));
+    I18n.define(const Locale('es', 'US'));
     expect("Hello %s, this is %s.".i18n, "Hello %s, this is %s.");
     expect("Hello %s, this is %s.".i18n.fill(["John", "Mary"]), "Hello John, this is Mary.");
 
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
     expect("Hello %s, this is %s.".i18n, "Olá %s, aqui é %s.");
     expect("Hello %s, this is %s.".i18n.fill(["John", "Mary"]), "Olá John, aqui é Mary.");
   });
@@ -18,10 +18,10 @@ void main() {
 
 extension Localization on String {
   //
-  static final _t = Translations.byText("en_us") +
+  static final _t = Translations.byText("en-US") +
       {
-        "en_us": "Hello %s, this is %s.",
-        "pt_br": "Olá %s, aqui é %s.",
+        "en-US": "Hello %s, this is %s.",
+        "pt-BR": "Olá %s, aqui é %s.",
       };
 
   String get i18n => localize(this, _t);

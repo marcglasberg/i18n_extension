@@ -14,39 +14,39 @@ extension Localization on String {
   /// keys here in the translations file, and then use the [Translations.from]
   /// constructor:
   ///
-  static final _t = ConstTranslations("en_us", {
+  static final _t = ConstTranslations("en-US", {
     appbarTitle: {
-      "en_us": "i18n Demo",
-      "pt_br": "Demonstração i18n",
+      "en-US": "i18n Demo",
+      "pt-BR": "Demonstração i18n",
     },
     greetings: {
-      "en_us": "This example demonstrates how to use identifiers as keys.\n\n"
+      "en-US": "This example demonstrates how to use identifiers as keys.\n\n"
           "For example, you can write:\n"
           "helloThere.i18n\n"
           "instead of\n"
           "\"Hello There\".i18n",
-      "pt_br": "Este exemplo demonstra como usar identificadores como chaves.\n\n"
+      "pt-BR": "Este exemplo demonstra como usar identificadores como chaves.\n\n"
           "Por exemplo, você pode escrever:\n"
           "saudacao.i18n\n"
           "em vez de\n"
           "\"Olá como vai\".i18n",
     },
     increment: {
-      "en_us": "Increment",
-      "pt_br": "Incrementar",
+      "en-US": "Increment",
+      "pt-BR": "Incrementar",
     },
     changeLanguage: {
-      "en_us": "Change Language",
-      "pt_br": "Mude Idioma",
+      "en-US": "Change Language",
+      "pt-BR": "Mude Idioma",
     },
     youClickedThisNumberOfTimes: {
-      "en_us": "You clicked the button %d times:"
+      "en-US": "You clicked the button %d times:"
           .zero("You haven't clicked the button:")
           .one("You clicked it once:")
           .two("You clicked a couple times:")
           .many("You clicked %d times:")
           .times(12, "You clicked a dozen times:"),
-      "pt_br": "Você clicou o botão %d vezes:"
+      "pt-BR": "Você clicou o botão %d vezes:"
           .zero("Você não clicou no botão:")
           .one("Você clicou uma única vez:")
           .two("Você clicou um par de vezes:")

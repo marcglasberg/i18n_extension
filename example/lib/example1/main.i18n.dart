@@ -9,17 +9,17 @@ extension Localization on String {
   ///
   /// ```
   /// static const _t = Translations.from(
-  ///   "en_us", {
+  ///   "en-US", {
   ///     "i18n Demo": {
-  ///       "en_us": "i18n Demo",
-  ///       "pt_br": "Demonstração i18n",
+  ///       "en-US": "i18n Demo",
+  ///       "pt-BR": "Demonstração i18n",
   ///     }});
   /// ```
   ///
-  static final _t = Translations.byText("en_us") +
+  static final _t = Translations.byText("en-US") +
       const {
-        "en_us": "i18n Demo",
-        "pt_br": "Demonstração i18n",
+        "en-US": "i18n Demo",
+        "pt-BR": "Demonstração i18n",
       };
 
   String get i18n => localize(this, _t);

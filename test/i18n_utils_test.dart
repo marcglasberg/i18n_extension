@@ -21,14 +21,14 @@ void main() {
     expect(count, 0);
 
     /// This won't call the [observeLocale] function because the
-    /// [I18n.defaultLocale] is already Locale("en", "US").
-    I18n.define(const Locale("en", "US"));
+    /// [I18n.defaultLocale] is already Locale('es', 'US').
+    I18n.define(const Locale('es', 'US'));
     expect(_oldLocale, isNull);
     expect(_newLocale, isNull);
     expect(count, 0);
 
     /// Change the locale and call the observer.
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
     expect(_oldLocale.toString(), "en_US");
     expect(_newLocale.toString(), "pt_BR");
     expect(count, 1);
@@ -40,43 +40,43 @@ void main() {
     expect(count, 2);
 
     /// This won't call the [observeLocale] function because the
-    /// [I18n.defaultLocale] is already Locale("en", "US").
+    /// [I18n.defaultLocale] is already Locale('es', 'US').
     I18n.define(null);
     expect(count, 2);
 
     /// Change the locale and call the observer.
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
     expect(count, 3);
 
     /// This won't call the [observeLocale] function because the
     /// locale is already "pt_BR".
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
     expect(count, 3);
   });
 
   test("Get the normalize Locale.", () {
-    expect(I18n.normalizeLocale(const Locale("en", "US")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("EN_US")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("en_US")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("EN_us")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("En_Us")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("_EN_US_")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("EN_US_")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("_EN_US")), "en_us");
-    expect(I18n.normalizeLocale(const Locale(" EN_US ")), "en_us");
-    expect(I18n.normalizeLocale(const Locale(" EN_US")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("EN_US ")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("EN_US _ ")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("_ EN_US _ ")), "en_us");
-    expect(I18n.normalizeLocale(const Locale("_ eN_uS _ ")), "en_us");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale('es', 'US')), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("EN_US")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("en_US")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("EN_us")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("En_Us")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("_EN_US_")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("EN_US_")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("_EN_US")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale(" EN_US ")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale(" EN_US")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("EN_US ")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("EN_US _ ")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("_ EN_US _ ")), "en-US");
+    expect(I18n.localeStringAsLowercaseAndUnderscore(const Locale("_ eN_uS _ ")), "en-US");
   });
 
   test("Get the language from the Locale.", () {
-    expect(I18n.getLanguageFromLocale(const Locale("en", "US")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale("EN", "US")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale("en", "US")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale("EN", "us")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale("En", "Us")), "en");
+    expect(I18n.getLanguageFromLocale(const Locale('es', 'US')), "en");
+    expect(I18n.getLanguageFromLocale(const Locale('es', 'US')), "en");
+    expect(I18n.getLanguageFromLocale(const Locale('es', 'US')), "en");
+    expect(I18n.getLanguageFromLocale(const Locale('es', 'US')), "en");
+    expect(I18n.getLanguageFromLocale(const Locale('es', 'US')), "en");
     expect(I18n.getLanguageFromLocale(const Locale("EN", "US_")), "en");
     expect(I18n.getLanguageFromLocale(const Locale(" EN", "US ")), "en");
     expect(I18n.getLanguageFromLocale(const Locale(" EN", "US")), "en");
@@ -101,9 +101,9 @@ void main() {
   test(
       "Is Locale standardized? No it's not. "
       "That's why I normalize it as lowercase.", () {
-    expect(const Locale("pt", "br").toString(), "pt_br");
-    expect(const Locale("pt", "BR").toString(), "pt_BR");
-    expect(const Locale("pt", "BR"), const Locale("pt", "BR"));
-    expect(const Locale("pt", "br"), isNot(const Locale("pt", "BR")));
+    expect(const Locale('pt', 'BR').toString(), "pt-BR");
+    expect(const Locale('pt', 'BR').toString(), "pt_BR");
+    expect(const Locale('pt', 'BR'), const Locale('pt', 'BR'));
+    expect(const Locale('pt', 'BR'), isNot(const Locale('pt', 'BR')));
   });
 }

@@ -39,15 +39,15 @@ void main() {
       "but may be necessary for some advanced use cases.", () {
     //
     /// TODO: Uncomment if necessary:
-//    I18n.define(Locale("pt", "BR"));
+//    I18n.define(Locale('pt', 'BR'));
 //
-//    // 1) This works because the key "Hello" is provided in "en_us".
+//    // 1) This works because the key "Hello" is provided in "en-US".
 //    expect("Hello".i18n, "Olá");
 //
-//    // 2) This works because the key "Good evening" is provided both in "en_us" and as a default "".
+//    // 2) This works because the key "Good evening" is provided both in "en-US" and as a default "".
 //    expect("Good evening".i18n, "Boa noite");
 //
-//    // 3) This works because the key "Goodbye" is provided in "en_us",
+//    // 3) This works because the key "Goodbye" is provided in "en-US",
 //    // and the key "xyz" is provided as a default "".
 //    expect("Goodbye".i18n, "Adeus");
 //    expect("xyz".i18n, "Adeus");
@@ -60,33 +60,33 @@ void main() {
     //
     /// TODO: Uncomment if necessary:
     //    // This should work ok (and not do anything).
-    //    var x = Translations.byText("en_us") + {};
+    //    var x = Translations.byText("en-US") + {};
     //
     //    // This works ok too, because the "" locale means "any" the default.
-    //    var y = Translations.byText("en_us") + {"": "some text"};
+    //    var y = Translations.byText("en-US") + {"": "some text"};
   });
 }
 
 extension Localization on String {
   //
-  static final _t = Translations.byText("en_us") +
+  static final _t = Translations.byText("en-US") +
       {
-        "en_us": "Hello",
-        "pt_br": "Olá",
+        "en-US": "Hello",
+        "pt-BR": "Olá",
       } +
       {
         "": "Good evening",
-        "en_us": "Good evening",
-        "pt_br": "Boa noite",
+        "en-US": "Good evening",
+        "pt-BR": "Boa noite",
       } +
       {
         "": "xyz",
-        "en_us": "Goodbye",
-        "pt_br": "Adeus",
+        "en-US": "Goodbye",
+        "pt-BR": "Adeus",
       } +
       {
         "": "Good morning",
-        "pt_br": "Bom dia",
+        "pt-BR": "Bom dia",
       };
 
   String get i18n => localize(this, _t);

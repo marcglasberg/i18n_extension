@@ -10,7 +10,7 @@ class MyWidget extends StatelessWidget {
     return Container(
       key: UniqueKey(),
       alignment: Alignment.center,
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(16.0),
       height: 100,
       color: Colors.grey[300],
       child: Text(

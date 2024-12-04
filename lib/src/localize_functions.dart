@@ -1,48 +1,42 @@
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:i18n_extension_core/src/core_localize_functions.dart' as core;
 
-/// Use the [localize] method to localize a "translatable string" to the given [locale].
-/// You must provide the [key] (which is usually the string you want to translate)
-/// and the [translations] object which holds the translations.
+/// The [localize] function localizes a "translatable string" to the given [languageTag].
+/// You must provide the [key], which is usually the string you want to translate, and
+/// also the [translations] object which holds the translations.
 ///
-/// If [locale] is not provided (it's `null`), the method will use the default locale
-/// in [I18n.localeStr].
+/// The [languageTag] is a string like "en-US", "pt-BR", etc. If it's not provided
+/// (i.e., it's null), it will use the default language tag found in [I18n.languageTag].
 ///
 /// ---
 ///
 /// Fallback order:
 ///
-/// - If the translation to the exact locale is found, this will be returned.
-/// - Otherwise, it tries to return a translation for the general language of
-///   the locale.
-/// - Otherwise, it tries to return a translation for any locale with that
-///   language.
-/// - Otherwise, it tries to return the key itself (which is the translation
-///   for the default locale).
+/// - If the translation to the exact language tag is found, this will be returned.
+/// - Otherwise, it tries to return a translation for the general language of the tag.
+/// - Otherwise, it tries to return a translation for any locale with that language.
+/// - Otherwise, it returns the key itself (which is usually the translation for the
+///   default locale).
 ///
 /// Example 1:
-/// If "pt_br" is asked, and "pt_br" is available, return for "pt_br".
+/// If "pt-BR" is asked, and "pt-BR" is available, return the translation for "pt-BR".
 ///
 /// Example 2:
-/// If "pt_br" is asked, "pt_br" is not available, and "pt" is available,
-/// return for "pt".
+/// If "pt-BR" is asked, and "pt-BR" is not available, but "pt" is available,
+/// return the translation for "pt".
 ///
 /// Example 3:
-/// If "pt_mo" is asked, "pt_mo" and "pt" are not available, but "pt_br" is,
-/// return for "pt_br".
-///
-///
-/// This class is visible only from the [i18_exception_core] package.
-/// The [i18_exception] package uses a different function with the same name.
+/// If "pt-MO" is asked, and "pt-MO" and "pt" are not available, but "pt-BR" is
+/// available, return the translation for "pt-BR".
 ///
 String localize(
   Object? key,
   Translations translations, {
-  String? locale,
+  String? languageTag,
 }) =>
-    core.localize(key, translations, locale: locale ?? I18n.localeStr);
+    core.localize(key, translations, locale: languageTag ?? I18n.languageTag);
 
-/// Does an `sprintf` on the [text] with the [params].
+/// The [localizeFill] function applies a `sprintf` on the [text] with the [params].
 /// This is implemented with the `sprintf` package: https://pub.dev/packages/sprintf
 ///
 /// Possible format values:
@@ -75,8 +69,8 @@ String localizeFill(Object? text, List<Object> params) => core.localizeFill(text
 /// Returns the translated version for the plural [modifier].
 /// After getting the version, substring `%d` will be replaced with the modifier.
 ///
-/// Note: This will try to get the most specific plural modifier. For example,
-/// `.two` is more specific than `.many`.
+/// Note: This will try to get the most specific plural modifier. For example, `.two`
+/// is more specific than `.many`.
 ///
 /// If no applicable modifier can be found, it will default to the unversioned
 /// string. For example, this: `"a".zero("b").four("c:")` will default to `"a"`
@@ -108,47 +102,45 @@ String localizePlural(
   Object? modifier,
   Object? key,
   Translations translations, {
-  String? locale,
+  String? languageTag,
 }) =>
-    core.localizePlural(modifier, key, translations, locale: locale ?? I18n.localeStr);
+    core.localizePlural(modifier, key, translations,
+        locale: languageTag ?? I18n.languageTag);
 
-/// Use the [localizeVersion] method to localize a "translatable string" to the given [locale].
-/// You must provide the [key] (which is usually the string you want to translate),
-/// a [modifier], and the [translations] object which holds the translations.
-///                 
+/// The [localizeVersion] function localizes a "translatable string" to the given
+/// [languageTag]. You must provide the [key] (which is usually the string you want to
+/// translate), a [modifier], and the [translations] object which holds the translations.
+///
 /// You may use an object of any type as the [modifier], but it will do a `toString()`
 /// in it and use resulting String. So, make sure your object has a suitable
 /// string representation.
 ///
-/// If [locale] is not provided (it's `null`), the method will use the default locale
-/// in [DefaultLocale.locale] (which may be set with [DefaultLocale.set].
-///
-/// If both [locale] and [DefaultLocale.locale] are not provided, it defaults to 'en_US'.
+/// If [languageTag] is not provided (it's `null`), it will use the default language tag
+/// found in [I18n.languageTag].
 ///
 String localizeVersion(
   Object modifier,
   Object? key,
   Translations translations, {
-  String? locale,
+  String? languageTag,
 }) =>
-    core.localizeVersion(modifier, key, translations, locale: locale ?? I18n.localeStr);
+    core.localizeVersion(modifier, key, translations,
+        locale: languageTag ?? I18n.languageTag);
 
 /// Use the [localizeAllVersions] method to return a [Map] of all translated strings,
-/// where modifiers are the keys. In special, the unversioned text is indexed with a `null` key.
+/// where modifiers are the keys. In special, the unversioned text is indexed with
+/// a `null` key.
 ///
-/// If [locale] is not provided (it's `null`), the method will use the default locale
-/// in [DefaultLocale.locale] (which may be set with [DefaultLocale.set].
-///
-/// If both [locale] and [DefaultLocale.locale] are not provided, it defaults to 'en_US'.
+/// If [languageTag] is not provided (it's `null`), the method will use the default
+/// language tag found in [I18n.languageTag]
 ///
 Map<String?, String> localizeAllVersions(
   Object? key,
   Translations translations, {
-  String? locale,
+  String? languageTag,
 }) =>
-    core.localizeAllVersions(key, translations, locale: locale ?? I18n.localeStr);
+    core.localizeAllVersions(key, translations, locale: languageTag ?? I18n.languageTag);
 
-/// Function [recordMissingKey] simply records the given key as a missing
-/// translation with unknown locale. It returns the same [key] provided,
-/// unaffected.
+/// Function [recordMissingKey] simply records the given key as a missing translation
+/// with unknown locale. It returns the same [key] provided, unaffected.
 String recordMissingKey(Object? key) => core.recordMissingKey(key);

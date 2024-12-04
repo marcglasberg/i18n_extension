@@ -4,28 +4,36 @@ import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
   //
-  static final _t = Translations.byText("en_us") +
+  static final _t = Translations.byText("en-US") +
       {
-        "en_us": "Increment",
-        "pt_br": "Incrementar",
+        "en-US": "Increment",
+        "pt-BR": "Incrementar",
+        "es-ES": "Incrementar",
       } +
       {
-        "en_us": "Change Language",
-        "pt_br": "Mude Idioma",
+        "en-US": "Change Language",
+        "pt-BR": "Mude Idioma",
+        "es-ES": "Cambiar idioma",
       } +
       {
-        "en_us": "You clicked the button %d times:"
+        "en-US": "You clicked the button %d times:"
             .zero("You haven't clicked the button:")
             .one("You clicked it once:")
             .two("You clicked a couple times:")
             .many("You clicked %d times:")
             .times(12, "You clicked a dozen times:"),
-        "pt_br": "Você clicou o botão %d vezes:"
+        "pt-BR": "Você clicou o botão %d vezes:"
             .zero("Você não clicou no botão:")
             .one("Você clicou uma única vez:")
             .two("Você clicou um par de vezes:")
             .many("Você clicou %d vezes:")
             .times(12, "Você clicou uma dúzia de vezes:"),
+        "es-ES": "Hiciste clic en el botón %d veces:"
+            .zero("No hiciste clic en el botón:")
+            .one("Hiciste clic una vez:")
+            .two("Hiciste clic un par de veces:")
+            .many("Hiciste clic %d veces:")
+            .times(12, "Hiciste clic una docena de veces:"),
       };
 
   String get i18n => localize(this, _t);

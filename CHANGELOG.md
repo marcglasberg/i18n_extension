@@ -1,8 +1,10 @@
-## 13.0.2
-
-* Sponsored by [MyText.ai](https://mytext.ai)
+Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
+
+## 14.0.0
+
+* DOCUMENT!!!
 
 ## 12.0.1
 

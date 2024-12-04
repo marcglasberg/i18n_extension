@@ -4,23 +4,23 @@ import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
   //
-  static final _t = Translations.byText("en_us") +
+  static final _t = Translations.byText("en-US") +
       {
-        "en_us": "Increment",
-        "pt_br": "Incrementar",
+        "en-US": "Increment",
+        "pt-BR": "Incrementar",
       } +
       {
-        "en_us": "Change Language",
-        "pt_br": "Mude Idioma",
+        "en-US": "Change Language",
+        "pt-BR": "Mude Idioma",
       } +
       {
-        "en_us": "You clicked the button %d times:"
+        "en-US": "You clicked the button %d times:"
             .zero("You haven't clicked the button:")
             .one("You clicked it once:")
             .two("You clicked a couple times:")
             .many("You clicked %d times:")
             .times(12, "You clicked a dozen times:"),
-        "pt_br": "Você clicou o botão %d vezes:"
+        "pt-BR": "Você clicou o botão %d vezes:"
             .zero("Você não clicou no botão:")
             .one("Você clicou uma única vez:")
             .two("Você clicou um par de vezes:")

@@ -42,21 +42,21 @@ class _MyScreenState extends State<MyScreen> {
           ),
           MaterialButton(
             color: Colors.blue,
+            onPressed: _onIncrement,
             child: Text(
               "Increment".i18n,
               style: const TextStyle(color: Colors.white, fontSize: 17),
             ),
-            onPressed: _increment,
           ),
           const Spacer(),
           //
           MaterialButton(
             color: Colors.blue,
+            onPressed: _onChangeLanguage,
             child: Text(
               "Change Language".i18n,
               style: const TextStyle(color: Colors.white, fontSize: 17),
             ),
-            onPressed: _onPressed,
           ),
           //
           Text(
@@ -66,31 +66,22 @@ class _MyScreenState extends State<MyScreen> {
           ),
           //
           space16,
-          space16,
-          //
-          MaterialButton(
-            color: Colors.blue,
-            child: Text(
-              "Open Language Settings".i18n,
-              style: const TextStyle(color: Colors.white, fontSize: 17),
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LanguageSettingsPage(),
-                ),
-              );
-            },
-          ),
           const Spacer(flex: 2),
         ],
       ),
     );
   }
 
-  void _onPressed() => I18n.of(context).locale =
-      (I18n.localeStr == "pt_br") ? null : const Locale("pt", "BR");
+  /// English, them Spanish, then Portuguese, then English again.
+  void _onChangeLanguage() {
+    var newLocale = (I18n.languageTag == "en-US")
+        ? const Locale('es', 'ES')
+        : (I18n.languageTag == "es-ES")
+            ? const Locale('pt', 'BR')
+            : const Locale('en', 'US');
 
-  void _increment() => setState(() => counter++);
+    I18n.of(context).locale = newLocale;
+  }
+
+  void _onIncrement() => setState(() => counter++);
 }

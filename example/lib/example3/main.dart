@@ -1,5 +1,6 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
+import 'package:example/example3/language_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
@@ -28,39 +29,62 @@ import 'my_screen.dart';
 ///
 ///     "You clicked the button %d times:".plural(counter),
 ///
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return I18n(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: [
-          const Locale('en', "US"),
-          const Locale('pt', "BR"),
-        ],
-        home: Container(
-          // Usually you should not provide an initialLocale,
-          // and just let it use the system locale.
-          // initialLocale: Locale("pt", "BR"),
-          //
-          child: MyHomePage(),
-        ),
-        theme: ThemeData(
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.blue,
-            ),
+      //
+      // Usually you don't provide an initialLocale, and let it use the system locale.
+      // but you can if you want to:
+      // initialLocale: const locale: Locale('es', 'ES'),
+      //
+      // If you want, you can ask it to save locale changes to the device's storage:
+      // saveLocale: true,
+      //
+      child: MyMaterialApp(),
+    );
+  }
+}
+
+class MyMaterialApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      /// The initial locale for this app's [Localizations] widget is based on this
+      /// value. If the 'locale' is null then the system's locale value is used.
+      /// The value of [Localizations.locale] will equal this locale if it matches one
+      /// of the [supportedLocales]. Otherwise it will be the first [supportedLocales].
+      // locale: I18n.of(context).locale,
+      locale: I18n.locale,
+      //
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'),
+        const Locale('pt', 'BR'),
+        const Locale('es', 'ES'),
+      ],
+      home: Container(
+        //
+        child: MyHomePage(),
+      ),
+      theme: ThemeData(
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.blue,
           ),
         ),
       ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -74,7 +98,21 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("i18n Demo".i18n), backgroundColor: Colors.blue),
+      appBar: AppBar(
+        title: Text("i18n Demo".i18n),
+        backgroundColor: Colors.blue,
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LanguageSettingsPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: MyScreen(),
     );
   }

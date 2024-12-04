@@ -10,10 +10,10 @@ void main() {
       "Otherwise, it tries to return a translation for any locale with that language. "
       "Otherwise, it tries to return the key itself (which is the translation for the default locale).",
       () {
-    // Translations exist for "en_us": ----------------
+    // Translations exist for "en-US": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(const Locale("en", "US"));
+    I18n.define(const Locale('es', 'US'));
     expect("Mobile phone".i18n_1, "Mobile phone");
 
     // There's NO exact translation, and NO general translation.
@@ -29,10 +29,10 @@ void main() {
     I18n.define(const Locale("en", "us_"));
     expect("Mobile phone".i18n_1, "Mobile phone");
 
-    // Translations exist for "pt_br" and "pt_pt": ----------------
+    // Translations exist for "pt-BR" and "pt_pt": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
     expect("Mobile phone".i18n_1, "Celular");
 
     // There's an EXACT translation for this exact locale.
@@ -56,10 +56,10 @@ void main() {
     I18n.define(const Locale("xx", "yy"));
     expect("Mobile phone".i18n_1, "Mobile phone");
 
-    // Translations exist for "pt_br" and "pt": ----------------
+    // Translations exist for "pt-BR" and "pt": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
     expect("Address".i18n_1, "Endereço");
 
     // There's NO exact translation,
@@ -97,17 +97,17 @@ void main() {
     expect("Mobile phone".i18n_2, "Mobile phone");
 
     // There's NO exact translation, so uses general "en".
-    I18n.define(const Locale("en", "US"));
+    I18n.define(const Locale('es', 'US'));
     expect("Mobile phone".i18n_2, "Mobile phone");
 
     // Ignores country with "_".
     I18n.define(const Locale("en", "_us"));
     expect("Mobile phone".i18n_2, "Mobile phone");
 
-    // Translations exist for "pt_br" and "pt_pt": ----------------
+    // Translations exist for "pt-BR" and "pt_pt": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
     expect("Mobile phone".i18n_2, "Celular");
 
     // There's an EXACT translation for this exact locale.
@@ -135,10 +135,10 @@ void main() {
     I18n.define(const Locale("pt", "_br"));
     expect("Mobile phone".i18n_2, "Celular");
 
-    // Translations exist for "pt_br" and "pt": ----------------
+    // Translations exist for "pt-BR" and "pt": ----------------
 
     // There's an EXACT translation for this exact locale.
-    I18n.define(const Locale("pt", "BR"));
+    I18n.define(const Locale('pt', 'BR'));
     expect("Address".i18n_2, "Endereço");
 
     // There's NO exact translation,
@@ -165,7 +165,7 @@ void main() {
     expect(Translations.byText(" en ").defaultLocaleStr, "en");
     expect(Translations.byText(" en_ ").defaultLocaleStr, "en");
     expect(Translations.byText(" en___ ").defaultLocaleStr, "en");
-    expect(Translations.byText(" en_us_ ").defaultLocaleStr, "en_us");
+    expect(Translations.byText(" en_us_ ").defaultLocaleStr, "en-US");
 
     expect(Translations.byText("en_").defaultLanguageStr, "en");
     expect(Translations.byText("en ").defaultLanguageStr, "en");
@@ -175,48 +175,54 @@ void main() {
     expect(Translations.byText(" en_us_ ").defaultLanguageStr, "en");
 
     I18n.define(const Locale("en"));
-    expect(I18n.localeStr, "en");
+    expect(I18n.languageTag, "en");
 
     I18n.define(const Locale("en", "_"));
-    expect(I18n.localeStr, "en");
+    expect(I18n.languageTag, "en");
 
-    I18n.define(const Locale("en", "us"));
-    expect(I18n.localeStr, "en_us");
+    I18n.define(const Locale("en", "-"));
+    expect(I18n.languageTag, "en");
 
-    I18n.define(const Locale("en", "US"));
-    expect(I18n.localeStr, "en_us");
+    I18n.define(const Locale('es', 'US'));
+    expect(I18n.languageTag, "en-US");
+
+    I18n.define(const Locale('es', 'US'));
+    expect(I18n.languageTag, "en-US");
 
     I18n.define(const Locale(" en", "us "));
-    expect(I18n.localeStr, "en_us");
+    expect(I18n.languageTag, "en-US");
 
     I18n.define(const Locale("  en", "us _ "));
-    expect(I18n.localeStr, "en_us");
+    expect(I18n.languageTag, "en-US");
+
+    I18n.define(const Locale("  en", "us - "));
+    expect(I18n.languageTag, "en-US");
   });
 }
 
 extension Localization on String {
   //
-  static var t1 = Translations.byText("en_us") +
+  static var t1 = Translations.byText("en-US") +
       {
-        "en_us": "Mobile phone",
-        "pt_br": "Celular",
-        "pt_pt": "Telemóvel",
+        "en-US": "Mobile phone",
+        "pt-BR": "Celular",
+        "pt-PT": "Telemóvel",
       } +
       {
-        "en_us": "Address",
-        "pt_br": "Endereço",
+        "en-US": "Address",
+        "pt-BR": "Endereço",
         "pt": "Morada",
       };
 
   static var t2 = Translations.byText("en") +
       {
         "en": "Mobile phone",
-        "pt_br": "Celular",
+        "pt-BR": "Celular",
         "pt_pt": "Telemóvel",
       } +
       {
         "en": "Address",
-        "pt_br": "Endereço",
+        "pt-BR": "Endereço",
         "pt": "Morada",
       };
 

@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         home: I18n(
           // Usually you should not provide an initialLocale,
           // and just let it use the system locale.
-          // initialLocale: Locale("pt", "BR"),
+          // initialLocale: Locale('pt', 'BR'),
           //
           child: MyHomePage(),
         ),
