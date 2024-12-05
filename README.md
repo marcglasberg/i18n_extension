@@ -101,9 +101,12 @@ print('There is a person'.gender(Gender.they)); // Prints 'There is a person'
 Also, interpolating strings is easy, with the `fill` method:
 
 ```dart
-// Prints 'Hello John, this is Mary' in English.
-// Prints 'Olá John, aqui é Mary' in Portuguese.
-print('Hello %s, this is %s'.i18n.fill(['John', 'Mary']));
+// Prints 'Hello John and Mary' in English.
+// Prints 'Olá John e Mary' in Portuguese.
+print('Hello %s and %s'.i18n.fill('John', 'Mary'));
+
+// Also works like this
+print('Hello %s and %s'.i18n.fill(['John', 'Mary']));
 ```
 
 ## See it working
@@ -626,14 +629,118 @@ print(localize('Hi.', translations, locale: 'pt-BR');
 print(localize('Goodbye.', translations, locale: 'pt-BR');
 ```
 
-## Interpolation
+## Interpolation with {id} and maps
+
+Your translations file may declare an `args` method to do interpolations:
+
+```dart
+static var _t = Translations.byText('en-US') +
+  {
+    'en-US': 'Hello {student} and {teacher}',
+    'pt-BR': 'Olá {student} e {teacher}',
+  };
+
+String get i18n => localize(this, _t);
+
+String args(Object params) => localizeArgs(this, params);
+```
+
+Then you may use it like this:
+
+```dart
+'Hello {student} and {teacher}'.i18n.args({'student': 'John', 'teacher': 'Mary'});
+
+// Or like this
+'Hello {student} and {teacher}'.i18n.args('John', 'Mary');
+
+// Or like this
+'Hello {student} and {teacher}'.i18n.args(['John', 'Mary']);
+```
+
+The above code will print `Hello John and Mary` if the locale is English,
+or `Olá John e Mary` if it's Portuguese.
+
+## Interpolation with {} and lists                         
+
+```dart
+static var _t = Translations.byText('en-US') +
+  {
+    'en-US': 'Hello {} and {}',
+    'pt-BR': 'Olá {}, aqui é {}',
+  };
+
+String get i18n => localize(this, _t);
+
+String args(Object params) => localizeArgs(this, params);
+```
+
+Then you may use it like this:
+
+```dart
+'Hello {} and {}'.i18n.args('John', 'Mary');
+
+// Or like this
+'Hello {} and {}'.i18n.args(['John', 'Mary']);
+```
+
+The above code will replace the `{}` in order, 
+and print `Hello John and Mary` if the locale is English,
+or `Olá John e Mary` if it's Portuguese.
+
+The problem of using this interpolation method is that it doesn't allow for the
+translated string to change the order of the parameters. 
+
+## Interpolation with {1}, {2} etc., and lists                         
+
+```dart
+static var _t = Translations.byText('en-US') +
+  {
+    'en-US': 'Hello {1} and {2}',
+    'pt-BR': 'Olá {1}, aqui é {2}',
+  };
+
+String get i18n => localize(this, _t);
+
+String args(Object params) => localizeArgs(this, params);
+```
+
+Then you may use it like this:
+
+```dart
+'Hello {1} and {2}'.i18n.args('John', 'Mary');
+
+// Or like this
+'Hello {1} and {2}'.i18n.args(['John', 'Mary']);
+
+// Or like this
+'Hello {1} and {2}'.i18n.args({1: 'John', 2: 'Mary'});
+
+// Or like this
+'Hello {1} and {2}'.i18n.args({'1': 'John', '2': 'Mary'});
+```
+
+The above code will print `Hello John and Mary` if the locale is English,
+or `Olá John e Mary` if it's Portuguese.
+
+This interpolation method allows for the
+translated string to change the order of the parameters. For example:
+
+```dart
+// Returns `Hello Mary and John`
+'Hello {2} and {1}'.i18n.args({'1': 'John', '2': 'Mary'});
+
+// Returns `Hello Mary and John`
+'Hello {1} and {2}'.i18n.args({'2': 'John', '1': 'Mary'});
+```
+
+## Interpolation with sprintf
 
 Your translations file may declare a `fill` method to do interpolations:
 
 ```dart
 static var _t = Translations.byText('en-US') +
   {
-    'en-US': 'Hello %s, this is %s',
+    'en-US': 'Hello %s and %s',
     'pt-BR': 'Olá %s, aqui é %s',
   };
 
@@ -645,16 +752,21 @@ String fill(List<Object> params) => localizeFill(this, params);
 Then you may use it like this:
 
 ```dart
-print('Hello %s, this is %s'.i18n.fill(['John', 'Mary']));
+'Hello %s and %s'.i18n.fill('John', 'Mary');
 ```
 
-The above code will print `Hello John, this is Mary` if the locale is English,
-or `Olá John, aqui é Mary` if it's Portuguese.
+Or like this:
 
-It uses the <a href="https://pub.dev/packages/sprintf">sprintf</a> package internally. I
-don't know how closely it follows the C sprintf specification,
-but <a href="https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm">
-here it is</a>.
+```dart
+'Hello %s and %s'.i18n.fill(['John', 'Mary']);
+```
+
+The above code will print `Hello John and Mary` if the locale is English,
+or `Olá John e Mary` if it's Portuguese.
+
+It uses the <a href="https://pub.dev/packages/sprintf">sprintf</a> package internally.
+Here is
+the [sprintf specification](https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm).
 
 ## Translation modifiers
 
