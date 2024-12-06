@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+import 'package:i18n_extension_core/i18n_extension_core.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -281,9 +282,22 @@ class I18n extends StatefulWidget {
     return locale.languageCode.toLowerCase().trim();
   }
 
+  static void _checkLanguageCode(Locale locale) {
+    if (locale.languageCode.contains("_"))
+      throw TranslationsException("Language code '${locale.languageCode}' is invalid: "
+          "Contains an underscore character.");
+  }
+
   /// Return the string representation of the locale, normalized like so:
   /// 1. trims spaces; 2. lowercases; 3. underscore as separators.
-  /// For example, "en-US" becomes "en-US".
+  ///
+  /// For example: `localeStringAsLowercaseAndUnderscore(Locale('en', 'US'))`
+  /// returns "en_us".
+  ///
+  /// Avoid using this method, as the returned string does not follow
+  /// the IETF BCP47 Locale Identifier: (https://www.ietf.org/rfc/bcp/bcp47.html
+  /// Instead, use the [LocaleFromString.format] extension, which returns a standard language tag
+  ///
   static String localeStringAsLowercaseAndUnderscore(Locale locale) {
     String str = locale.toString().toLowerCase();
     RegExp pattern = RegExp('^[_ ]+|[_ ]+\$');
@@ -344,23 +358,22 @@ class I18n extends StatefulWidget {
   @visibleForTesting
   static void define(Locale? locale) {
     Locale oldLocale = I18n.locale;
+
+    // Tries fixing the Locale, a little bit.
+    if (locale != null) locale = locale.toLanguageTag().toLocale();
+
     _forcedLocale = locale;
     Locale newLocale = I18n.locale;
-    _checkLanguageCode(newLocale);
+
     if (oldLocale != newLocale)
       I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
   }
 
-  static void _checkLanguageCode(Locale locale) {
-    if (locale.languageCode.contains("_"))
-      throw TranslationsException("Language code '${locale.languageCode}' is invalid: "
-          "Contains an underscore character.");
-  }
-
-  /// The locale read from the system.
+  /// The system-locale read from the device.
   static Locale _systemLocale = _getSystemOrPreInitializationLocale();
 
-  /// Locale to override the system locale.
+  /// Locale to override the system-locale.
+  /// If this is non-null, it means the locale is being forced.
   static Locale? _forcedLocale;
 
   @override

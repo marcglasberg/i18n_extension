@@ -160,19 +160,18 @@ void main() {
   });
 
   test("Ignores spaces or underscore.", () {
-    expect(Translations.byText("en_").defaultLocaleStr, "en");
-    expect(Translations.byText("en ").defaultLocaleStr, "en");
-    expect(Translations.byText(" en ").defaultLocaleStr, "en");
-    expect(Translations.byText(" en_ ").defaultLocaleStr, "en");
-    expect(Translations.byText(" en___ ").defaultLocaleStr, "en");
-    expect(Translations.byText(" en_us_ ").defaultLocaleStr, "en-US");
+    //
+    expect(Translations.byText("en").defaultLocaleStr, "en");
+    expect(Translations.byText("en-US").defaultLocaleStr, "en-US");
 
-    expect(Translations.byText("en_").defaultLanguageStr, "en");
-    expect(Translations.byText("en ").defaultLanguageStr, "en");
-    expect(Translations.byText(" en ").defaultLanguageStr, "en");
-    expect(Translations.byText(" en_ ").defaultLanguageStr, "en");
-    expect(Translations.byText(" en___ ").defaultLanguageStr, "en");
-    expect(Translations.byText(" en_us_ ").defaultLanguageStr, "en");
+    expect(
+        () => Translations.byText("en_us").defaultLocaleStr,
+        throwsA(isA<TranslationsException>().having((e) => e.msg, 'msg',
+            'Locale "en_us" is not a valid BCP47 language tag. Try "en-US".')));
+    expect(
+        () => Translations.byText("en_").defaultLocaleStr,
+        throwsA(isA<TranslationsException>().having((e) => e.msg, 'msg',
+            'Locale "en_" is not a valid BCP47 language tag. Try "en".')));
 
     I18n.define(const Locale("en"));
     expect(I18n.languageTag, "en");
@@ -183,11 +182,11 @@ void main() {
     I18n.define(const Locale("en", "-"));
     expect(I18n.languageTag, "en");
 
-    I18n.define(const Locale('es', 'US'));
+    I18n.define(const Locale('en', 'US'));
     expect(I18n.languageTag, "en-US");
 
     I18n.define(const Locale('es', 'US'));
-    expect(I18n.languageTag, "en-US");
+    expect(I18n.languageTag, "es-US");
 
     I18n.define(const Locale(" en", "us "));
     expect(I18n.languageTag, "en-US");

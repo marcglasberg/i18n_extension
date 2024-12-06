@@ -50,6 +50,10 @@ void main() {
     var locale = const Locale('en', 'US');
     expect(locale.toLanguageTag(), 'en-US');
 
+    // Default constructor
+    locale = const Locale('en', 'us');
+    expect(locale.toLanguageTag(), 'en-us');
+
     // ---
 
     // Constructor with scriptCode
