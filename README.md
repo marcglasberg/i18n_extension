@@ -660,7 +660,7 @@ Then you may use it like this:
 The above code will print `Hello John and Mary` if the locale is English,
 or `Olá John e Mary` if it's Portuguese.
 
-## Interpolation with {} and lists                         
+## Interpolation with {} and lists
 
 ```dart
 static var _t = Translations.byText('en-US') +
@@ -683,14 +683,14 @@ Then you may use it like this:
 'Hello {} and {}'.i18n.args(['John', 'Mary']);
 ```
 
-The above code will replace the `{}` in order, 
+The above code will replace the `{}` in order,
 and print `Hello John and Mary` if the locale is English,
 or `Olá John e Mary` if it's Portuguese.
 
 The problem of using this interpolation method is that it doesn't allow for the
-translated string to change the order of the parameters. 
+translated string to change the order of the parameters.
 
-## Interpolation with {1}, {2} etc., and lists                         
+## Interpolation with {1}, {2} etc., and lists
 
 ```dart
 static var _t = Translations.byText('en-US') +
@@ -1052,7 +1052,7 @@ print(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'C
 Finally, there is a problem regarding `Locale.toString()` use of underscores when
 printing the language code.
 
-Both the Unicode Locale Identifier (ULI) and the BCP47 Locale Identifier use
+Both the Unicode Locale Identifier (ULI) and the IETF BCP47 language tags use
 hyphens instead of underscores. For example, the ULI/BCP47 for American English
 is `en-US`, and not `en_US`. The reason why `Locale` uses underscores in its `toString()`
 method is because libraries like ICU (International Components for Unicode) and Java
@@ -1084,7 +1084,9 @@ var locale = 'en-US'.toLocale();
 ```
 
 Ideally, the string should be a
-valid [Unicode BCP47 Locale Identifier](http://www.unicode.org/reports/tr35/)
+valid [IETF BCP47 Locale Identifier](https://www.ietf.org/rfc/bcp/bcp47.html)
+(which is compatible with
+the [Unicode Locale Identifier (ULI) syntax](http://www.unicode.org/reports/tr35/)).
 such as 'en', 'en-US', 'pt-BR', 'es-419', 'hi-Deva-IN' or 'zh-Hans-CN'.
 
 However, the `toLocale()` extension will automatically fix case issues,

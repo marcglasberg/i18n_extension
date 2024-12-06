@@ -16,7 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// 3. Make sure the [I18n] widget is NOT declared in the same widget as the
 /// [MaterialApp] (or [CupertinoApp]) widget. It must be in a parent widget.
-/// 
+///
 /// 3. Add `locale: I18n.locale` to your [MaterialApp] (or [CupertinoApp]) widget.
 ///
 /// ## Example
@@ -195,16 +195,19 @@ class I18n extends StatefulWidget {
 
   /// The [locale], as a lowercase string with underscore as separators, like "en_us".
   ///
-  /// See also: [languageTag], which is more standard and returns "en-US" instead of "en_us".
+  /// See also: [languageTag], which is more standard and returns tags like "en-US"
+  /// instead of "en_us".
   ///
   @Deprecated('Use `languageTag` instead, which is more standard '
-      'and returns string like en-US instead of en_us.')
+      'and returns language tags like en-US instead of en_us.')
   static String get localeStr => localeStringAsLowercaseAndUnderscore(locale);
 
-  /// Returns a syntactically valid Unicode BCP47 Locale Identifier.
+  /// Returns the current [locale] as a syntactically valid IETF BCP47 language tag
+  /// (compatible with the Unicode Locale Identifier (ULI) syntax).
   ///
   /// Some examples of such identifiers: "en", "en-US", "es-419", "hi-Deva-IN" and
   /// "zh-Hans-CN". See http://www.unicode.org/reports/tr35/ for technical details.
+  ///
   static String get languageTag => locale.toLanguageTag();
 
   /// The the system-locale, as set in the device settings.

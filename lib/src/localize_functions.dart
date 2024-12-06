@@ -6,28 +6,38 @@ import 'package:i18n_extension_core/src/core_localize_functions.dart' as core;
 /// also the [translations] object which holds the translations.
 ///
 /// The [languageTag] is a string like "en-US", "pt-BR", etc. If it's not provided
-/// (i.e., it's null), it will use the default language tag found in [I18n.languageTag].
+/// (i.e., it's null), it will use the language tag of the current locale.
 ///
 /// ---
 ///
 /// Fallback order:
 ///
-/// - If the translation to the exact language tag is found, this will be returned.
-/// - Otherwise, it tries to return a translation for the general language of the tag.
-/// - Otherwise, it tries to return a translation for any locale with that language.
-/// - Otherwise, it returns the key itself (which is usually the translation for the
-///   default locale).
+/// - If the translation to the exact locale is found, this will be returned.
+///   For example, for `zh-Hans-CN` it will try `zh-Hans-CN`.
+///   For example, for `pt-BR` it will try `pt-BR`.
+///
+/// - Otherwise, it searches for translations to less specific locales,
+///   until the locale is just the general language.
+///   For example, for `zh-Hans-CN` it will try `zh-Hans`, then `zh`.
+///   For example, for `pt-BR` it will try `pt`.
+///
+/// - Otherwise, it searches for translations to any locale with that
+///   language. For example, for `zh-Hans-CN` it will try `zh-Hant-CN`.
+///   For example, for `pt-BR` it will try `pt-PT` or `pt-MO`.
+///
+/// - Otherwise, it returns the key itself (which may be the translation for the default
+///   locale).
 ///
 /// Example 1:
-/// If "pt-BR" is asked, and "pt-BR" is available, return the translation for "pt-BR".
+/// If `pt-BR` is asked, and `pt-BR` is available, return for `pt-BR`.
 ///
 /// Example 2:
-/// If "pt-BR" is asked, and "pt-BR" is not available, but "pt" is available,
-/// return the translation for "pt".
+/// If `pt-BR` is asked, `pt-BR` is not available, and `pt` is available,
+/// return for `pt`.
 ///
 /// Example 3:
-/// If "pt-MO" is asked, and "pt-MO" and "pt" are not available, but "pt-BR" is
-/// available, return the translation for "pt-BR".
+/// If `pt-BR` is asked, but `pt-BR` and `pt` are not available, but `pt-PT` is,
+/// return for `pt-PT`.
 ///
 String localize(
   Object? key,
@@ -36,12 +46,147 @@ String localize(
 }) =>
     core.localize(key, translations, locale: languageTag ?? I18n.languageTag);
 
+/// # Interpolation with {id} and maps
+///
+/// Your translations file may declare an `args` method to do interpolations:
+///
+/// ```dart
+/// static var _t = Translations.byText('en-US') +
+///     {
+///       'en-US': 'Hello {student} and {teacher}',
+///       'pt-BR': 'Olá {student} e {teacher}',
+///     };
+///
+/// String get i18n => localize(this, _t);
+///
+/// String args(Object params) => localizeArgs(this, params);
+/// ```
+///
+/// Then you may use it like this:
+///
+/// ```dart
+/// print('Hello {student} and {teacher}'.i18n.args({'student': 'John', 'teacher': 'Mary'}));
+/// ```
+///
+/// Or like this:
+///
+/// ```dart
+/// print('Hello {student} and {teacher}'.i18n.args('John', 'Mary'));
+/// ```
+///
+/// Or like this:
+///
+/// ```dart
+/// print('Hello {student} and {teacher}'.i18n.args(['John', 'Mary']));
+/// ```
+///
+/// The above code will print `Hello John and Mary` if the locale is English,
+/// or `Olá John e Mary` if it's Portuguese.
+///
+/// # Interpolation with {} and lists
+///
+/// ```dart
+/// static var _t = Translations.byText('en-US') +
+/// {
+/// 'en-US': 'Hello {} and {}',
+/// 'pt-BR': 'Olá {} e {}',
+/// };
+///
+/// String get i18n => localize(this, _t);
+///
+/// String args(Object params) => localizeArgs(this, params);
+/// ```
+///
+/// Then you may use it like this:
+///
+/// ```dart
+/// print('Hello {} and {}'.i18n.args('John', 'Mary'));
+/// ```
+///
+/// Or like this:
+///
+/// ```dart
+/// print('Hello {} and {}'.i18n.args(['John', 'Mary']));
+/// ```
+///
+/// The above code will replace the `{}` in order,
+/// and print `Hello John and Mary` if the locale is English,
+/// or `Olá John e Mary` if it's Portuguese.
+///
+/// The problem of using this interpolation method is that it doesn't allow for the
+/// translated string to change the order of the parameters.
+///
+/// # Interpolation with {1}, {2} etc., and lists
+///
+/// ```dart
+/// static var _t = Translations.byText('en-US') +
+/// {
+/// 'en-US': 'Hello {1} and {2}',
+/// 'pt-BR': 'Olá {1} e {2}',
+/// };
+///
+/// String get i18n => localize(this, _t);
+///
+/// String args(Object params) => localizeArgs(this, params);
+/// ```
+///
+/// Then you may use it like this:
+///
+/// ```dart
+/// print('Hello {1} and {2}'.i18n.args('John', 'Mary'));
+/// ```
+///
+/// Or like this:
+///
+/// ```dart
+/// print('Hello {1} and {2}'.i18n.args(['John', 'Mary']));
+/// ```
+///
+/// Or like this:
+///
+/// ```dart
+/// print('Hello {1} and {2}'.i18n.args({1: 'John', 2: 'Mary'}));
+/// ```
+///
+/// The above code will print `Hello John and Mary` if the locale is English,
+/// or `Olá John e Mary` if it's Portuguese.
+///
+/// This interpolation method allows for the
+/// translated string to change the order of the parameters.
+String localizeArgs(Object? text, Object p1,
+        [Object? p2,
+        Object? p3,
+        Object? p4,
+        Object? p5,
+        Object? p6,
+        Object? p7,
+        Object? p8,
+        Object? p9,
+        Object? p10,
+        Object? p11,
+        Object? p12,
+        Object? p13,
+        Object? p14,
+        Object? p15]) =>
+    core.localizeArgs(
+        text, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+
 /// The [localizeFill] function applies a `sprintf` on the [text] with the [params].
 /// This is implemented with the `sprintf` package: https://pub.dev/packages/sprintf
+///
+/// Example:
+///
+/// ```dart
+/// print('Hello %s and %s'.i18n.fill('John', 'Mary');
+///
+/// // Also works
+/// print('Hello %s and %s'.i18n.fill(['John', 'Mary']);
+/// ```
 ///
 /// Possible format values:
 ///
 /// * `%s` - String
+/// * `%1$s` and `%2$s` - 1st String and 2nd String
 /// * `%b` - Binary number
 /// * `%c` - Character according to the ASCII value of `c`
 /// * `%d` - Signed decimal number (negative, zero or positive)
@@ -64,9 +209,25 @@ String localize(
 /// * `[0-9]` -  Specifies the minimum width held of to the variable value
 /// * `.[0-9]` - Specifies the number of decimal digits or maximum string length. Example: `%.2f`:
 ///
-String localizeFill(Object? text, List<Object> params) => core.localizeFill(text, params);
+String localizeFill(Object? text, Object p1,
+        [Object? p2,
+        Object? p3,
+        Object? p4,
+        Object? p5,
+        Object? p6,
+        Object? p7,
+        Object? p8,
+        Object? p9,
+        Object? p10,
+        Object? p11,
+        Object? p12,
+        Object? p13,
+        Object? p14,
+        Object? p15]) =>
+    core.localizeFill(
+        text, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
 
-/// Returns the translated version for the plural [modifier].
+/// The [localizePlural] function returns the translated version for the plural [modifier].
 /// After getting the version, substring `%d` will be replaced with the modifier.
 ///
 /// Note: This will try to get the most specific plural modifier. For example, `.two`

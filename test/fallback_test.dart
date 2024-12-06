@@ -29,7 +29,7 @@ void main() {
     I18n.define(const Locale("en", "us_"));
     expect("Mobile phone".i18n_1, "Mobile phone");
 
-    // Translations exist for "pt-BR" and "pt_pt": ----------------
+    // Translations exist for "pt-BR" and "pt-PT": ----------------
 
     // There's an EXACT translation for this exact locale.
     I18n.define(const Locale('pt', 'BR'));
@@ -104,7 +104,7 @@ void main() {
     I18n.define(const Locale("en", "_us"));
     expect("Mobile phone".i18n_2, "Mobile phone");
 
-    // Translations exist for "pt-BR" and "pt_pt": ----------------
+    // Translations exist for "pt-BR" and "pt-PT": ----------------
 
     // There's an EXACT translation for this exact locale.
     I18n.define(const Locale('pt', 'BR'));
@@ -218,7 +218,7 @@ extension Localization on String {
       {
         "en": "Mobile phone",
         "pt-BR": "Celular",
-        "pt_pt": "Telemóvel",
+        "pt-PT": "Telemóvel",
       } +
       {
         "en": "Address",
