@@ -4,66 +4,66 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('toLocale()', () {
+  group('asLocale', () {
     test('handles simple language code', () {
-      final locale = 'en'.toLocale();
+      final locale = 'en'.asLocale;
       expect(locale.languageCode, 'en');
       expect(locale.scriptCode, isNull);
       expect(locale.countryCode, isNull);
     });
 
     test('handles language-region', () {
-      final locale = 'en-US'.toLocale();
+      final locale = 'en-US'.asLocale;
       expect(locale.languageCode, 'en');
       expect(locale.scriptCode, isNull);
       expect(locale.countryCode, 'US');
     });
 
     test('handles language-script-region', () {
-      final locale = 'en-Latn-US'.toLocale();
+      final locale = 'en-Latn-US'.asLocale;
       expect(locale.languageCode, 'en');
       expect(locale.scriptCode, 'Latn');
       expect(locale.countryCode, 'US');
     });
 
     test('handles lowercase language and uppercase country', () {
-      final locale = 'pt-br'.toLocale(); // normalized to pt-BR
+      final locale = 'pt-br'.asLocale; // normalized to pt-BR
       expect(locale.languageCode, 'pt');
       expect(locale.countryCode, 'BR');
       expect(locale.scriptCode, isNull);
     });
 
     test('converts underscores to hyphens', () {
-      var locale = 'en_US'.toLocale(); // normalized to en-US
+      var locale = 'en_US'.asLocale; // normalized to en-US
       expect(locale.languageCode, 'en');
       expect(locale.countryCode, 'US');
 
-      locale = 'en_us'.toLocale(); // normalized to en-US
+      locale = 'en_us'.asLocale; // normalized to en-US
       expect(locale.languageCode, 'en');
       expect(locale.countryCode, 'US');
     });
 
     test('handles script without region', () {
-      var locale = 'en-Latn'.toLocale();
+      var locale = 'en-Latn'.asLocale;
       expect(locale.languageCode, 'en');
       expect(locale.scriptCode, 'Latn');
       expect(locale.countryCode, isNull);
 
-      locale = 'en_latn'.toLocale();
+      locale = 'en_latn'.asLocale;
       expect(locale.languageCode, 'en');
       expect(locale.scriptCode, 'Latn');
       expect(locale.countryCode, isNull);
     });
 
     test('handles invalid empty string', () {
-      expect(''.toLocale(), const Locale('und'));
+      expect(''.asLocale, const Locale('und'));
     });
 
     test('cannot fix some invalid language tags, then simply returns an invalid Locale',
         () {
-      expect('xyz123'.toLocale(), const Locale('xyz123'));
-      expect('abc-'.toLocale(), const Locale('abc'));
-      expect('-abc'.toLocale(), const Locale('abc'));
+      expect('xyz123'.asLocale, const Locale('xyz123'));
+      expect('abc-'.asLocale, const Locale('abc'));
+      expect('-abc'.asLocale, const Locale('abc'));
     });
   });
 

@@ -7,22 +7,8 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'my.i18n.dart';
 import 'my_screen.dart';
 
-/// This example demonstrates basic translations using a `I18n` widget.
-///
-/// There are 3 widget files that need translations:
-/// * main.dart
-/// * my_screen.dart
-/// * my_widget.dart
-///
-/// But this time we demonstrate how to use a single translations-file for all
-/// of them:
-/// * my.i18n.dart
-///
-/// Note: The translations-files in this example use identifiers as keys.
-/// For example:
-///
-///     youClickedThisNumberOfTimes.plural(counter),
-///
+/// This example demonstrates how to use identifiers as translation keys, defined as
+/// constants, using a the [ConstTranslations] constructor:
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -39,9 +25,9 @@ class MyApp extends StatelessWidget {
           const Locale('pt', "BR"),
         ],
         home: I18n(
-          // Usually you should not provide an initialLocale,
-          // and just let it use the system locale.
-          // initialLocale: Locale('pt', 'BR'),
+          //
+          // Keep it commented out to use the current system locale.
+          // initialLocale: 'es-ES'.asLocale,
           //
           child: MyHomePage(),
         ),

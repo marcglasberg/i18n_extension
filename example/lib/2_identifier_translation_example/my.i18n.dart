@@ -2,34 +2,34 @@
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:i18n_extension/i18n_extension.dart';
 
-const appbarTitle = "appbarTitle";
-const greetings = "greetings";
-const increment = "increment";
-const changeLanguage = "changeLanguage";
-const youClickedThisNumberOfTimes = "youClickedThisNumberOfTimes";
+final appbarTitle = Object();
+final greetings = Object();
+final increment = Object();
+final changeLanguage = Object();
+final youClickedThisNumberOfTimes = Object();
 
-extension Localization on String {
+extension MyLocalization on Object {
   //
-  /// If you want to use identifiers as translation keys, you can define the
-  /// keys here in the translations file, and then use the [Translations.from]
-  /// constructor:
+
+  /// If you want to use identifiers as translation keys, you can define the keys
+  /// using any unique object, and then use the [Translations.byId] constructor:
   ///
-  static final _t = ConstTranslations("en-US", {
+  static final _t = Translations.byId("en-US", {
     appbarTitle: {
       "en-US": "i18n Demo",
       "pt-BR": "Demonstração i18n",
     },
     greetings: {
       "en-US": "This example demonstrates how to use identifiers as keys.\n\n"
-          "For example, you can write:\n"
-          "helloThere.i18n\n"
-          "instead of\n"
-          "\"Hello There\".i18n",
+          "For example, you can declare:\n"
+          "final greetings = UniqueKey();\n"
+          "and then write:\n"
+          "Text(greetings.i18n);\n",
       "pt-BR": "Este exemplo demonstra como usar identificadores como chaves.\n\n"
-          "Por exemplo, você pode escrever:\n"
-          "saudacao.i18n\n"
-          "em vez de\n"
-          "\"Olá como vai\".i18n",
+          "Por exemplo, você pode declarar:\n"
+          "final greetings = UniqueKey();\n"
+          "e daí escrever:\n"
+          "Text(greetings.i18n);\n",
     },
     increment: {
       "en-US": "Increment",

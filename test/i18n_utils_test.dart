@@ -74,18 +74,18 @@ void main() {
   });
 
   test("Get the language from the Locale.", () {
-    expect(I18n.getLanguageFromLocale(const Locale('en', 'US')), "en");
-    expect(I18n.getLanguageFromLocale(const Locale('en', 'US')), "en");
-    expect(I18n.getLanguageFromLocale(const Locale('en', 'US')), "en");
-    expect(I18n.getLanguageFromLocale(const Locale('en', 'US')), "en");
-    expect(I18n.getLanguageFromLocale(const Locale('en', 'US')), "en");
-    expect(I18n.getLanguageFromLocale(const Locale("EN", "US_")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale(" EN", "US ")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale(" EN", "US")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale("EN", "_US ")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale("EN ", " US _ ")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale("  EN ", "_US _ ")), "en");
-    expect(I18n.getLanguageFromLocale(const Locale(" eN ", " uS _ ")), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale('en', 'US')), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale('en', 'US')), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale('en', 'US')), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale('en', 'US')), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale('en', 'US')), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale("EN", "US_")), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale(" EN", "US ")), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale(" EN", "US")), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale("EN", "_US ")), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale("EN ", " US _ ")), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale("  EN ", "_US _ ")), "en");
+    expect(I18n.getLanguageOnlyFromLocale(const Locale(" eN ", " uS _ ")), "en");
   });
 
   test("I18n.define may sometimes fix a malformed locale", () {

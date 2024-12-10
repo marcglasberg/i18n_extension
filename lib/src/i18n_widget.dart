@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension_core/i18n_extension_core.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -200,7 +199,8 @@ class I18n extends StatefulWidget {
   /// instead of "en_us".
   ///
   @Deprecated('Use `languageTag` instead, which is more standard '
-      'and returns language tags like en-US instead of en_us.')
+      'and returns language tags like en-US instead of en_us. '
+      'If you still need en_us you can use I18n.locale.format(separator: "_").toLowerCase()')
   static String get localeStr => localeStringAsLowercaseAndUnderscore(locale);
 
   /// Returns the current [locale] as a syntactically valid IETF BCP47 language tag
@@ -209,7 +209,7 @@ class I18n extends StatefulWidget {
   /// Some examples of such identifiers: "en", "en-US", "es-419", "hi-Deva-IN" and
   /// "zh-Hans-CN". See http://www.unicode.org/reports/tr35/ for technical details.
   ///
-  static String get languageTag => locale.toLanguageTag();
+  static String get languageTag => locale.format();
 
   /// The the system-locale, as set in the device settings.
   /// The only way to change this is opening the device settings and changing the
@@ -256,9 +256,10 @@ class I18n extends StatefulWidget {
   /// no locale is being forced.
   static bool get isUsingSystemLocale => _forcedLocale == null;
 
-  /// The language of the current locale, as a lowercase string.
-  /// For example: "en" or "pt".
-  static String get language => getLanguageFromLocale(locale);
+  /// The language code of the current locale, as a lowercase string.
+  /// Note this is just the language itself, without region/country, script etc.
+  /// For example, if the language tag is `en-US`, then it returns 'en'.
+  static String get languageOnly => getLanguageOnlyFromLocale(locale);
 
   /// When the app starts, the [systemLocale] is read from the system as soon as possible.
   /// The system locale might be unavailable for a brief period. Usually, this is not an
@@ -276,8 +277,10 @@ class I18n extends StatefulWidget {
     return systemLocale;
   }
 
-  /// Return the lowercase language-code of the given locale.
-  static String getLanguageFromLocale(Locale locale) {
+  /// Return the lowercase language-code of the given [locale].
+  /// Note this is just the language itself, without region/country, script etc.
+  /// For example, if the locale is Locale('en', 'US'), then it returns 'en'.
+  static String getLanguageOnlyFromLocale(Locale locale) {
     _checkLanguageCode(locale);
     return locale.languageCode.toLowerCase().trim();
   }
@@ -289,20 +292,20 @@ class I18n extends StatefulWidget {
   }
 
   /// Return the string representation of the locale, normalized like so:
-  /// 1. trims spaces; 2. lowercases; 3. underscore as separators.
+  /// 1. Remove spaces
+  /// 2. All lowercase
+  /// 3. Underscore as separator
   ///
   /// For example: `localeStringAsLowercaseAndUnderscore(Locale('en', 'US'))`
   /// returns "en_us".
   ///
   /// Avoid using this method, as the returned string does not follow
   /// the IETF BCP47 Locale Identifier: (https://www.ietf.org/rfc/bcp/bcp47.html
-  /// Instead, use the [LocaleFromString.format] extension, which returns a standard language tag
+  /// Instead, use the [I18nLocaleExtension.format] extension,
+  /// which returns a standard language tag.
   ///
-  static String localeStringAsLowercaseAndUnderscore(Locale locale) {
-    String str = locale.toString().toLowerCase();
-    RegExp pattern = RegExp('^[_ ]+|[_ ]+\$');
-    return str.replaceAll(pattern, '');
-  }
+  static String localeStringAsLowercaseAndUnderscore(Locale locale) =>
+      locale.format(separator: "_").toLowerCase();
 
   /// Given a locale, return the decimal separator used in that locale.
   /// For example, for en-US it's ".", but for pt-BR it's ","
@@ -360,7 +363,7 @@ class I18n extends StatefulWidget {
     Locale oldLocale = I18n.locale;
 
     // Tries fixing the Locale, a little bit.
-    if (locale != null) locale = locale.toLanguageTag().toLocale();
+    if (locale != null) locale = locale.toLanguageTag().asLocale;
 
     _forcedLocale = locale;
     Locale newLocale = I18n.locale;
@@ -386,20 +389,18 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
 
   Locale _viewLocale = PlatformDispatcher.instance.locale;
 
-  /// To read the current locale:
+  /// Ways to read the current locale:
   ///
+  ///     Locale locale = context.locale;
+  ///     OR
   ///     Locale locale = I18n.of(context).locale;
-  ///     Locale locale = I18n.locale; // Also works.
+  ///     OR
+  ///     Locale locale = I18n.locale; // Statically also works.
   ///
-  /// Or, to get the locale as a lowercase string:
+  /// Or, to get the locale as a BCP47 language tag:
   ///
-  ///     // Example: "en-US".
-  ///     String localeStr = I18n.localeStr;
-  ///
-  /// Or, to get the language of the locale, lowercase:
-  ///
-  ///     // Example: "en".
-  ///     String language = I18n.language;
+  ///     // Examples: "en", "en-US", "es-419", "hi-Deva-IN", "zh-Hans-CN".
+  ///     String languageTag = I18n.languageTag;
   ///
   Locale get locale {
     return _locale ?? I18n._getSystemOrPreInitializationLocale();
@@ -407,10 +408,14 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
 
   /// To change the current locale:
   ///
+  ///     context.locale = Locale('es', 'ES');
+  ///     OR
   ///     I18n.of(context).locale = Locale('es', 'ES');
   ///
   /// To return the current locale to the system locale default:
   ///
+  ///     context.locale = null;
+  ///     OR
   ///     I18n.of(context).locale = null;
   ///
   /// Note: This will change the current locale only for the i18n_extension,
@@ -423,6 +428,17 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
       _locale = locale;
       _forceAndObserveLocale();
     });
+  }
+
+  /// To return the current locale to the default system locale,
+  /// which is set in the device settings:
+  ///
+  ///     context.resetLocale();
+  ///     OR
+  ///     I18n.of(context).resetLocale();
+  ///
+  void resetLocale() {
+    locale = null;
   }
 
   void _maybeSaveLocale(Locale? locale) {

@@ -34,7 +34,7 @@ class _MyScreenState extends State<MyScreen> {
             height: 50,
             alignment: Alignment.center,
             child: Text(
-              youClickedThisNumberOfTimes.plural(counter),
+              OtherScope.youClickedThisNumberOfTimes.plural(counter),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 17),
             ),
@@ -42,7 +42,7 @@ class _MyScreenState extends State<MyScreen> {
           MaterialButton(
             color: Colors.blue,
             child: Text(
-              increment.i18n,
+              OtherScope.increment.i18n,
               style: const TextStyle(color: Colors.white, fontSize: 17),
             ),
             onPressed: _increment,
@@ -51,13 +51,13 @@ class _MyScreenState extends State<MyScreen> {
           MaterialButton(
             color: Colors.blue,
             child: Text(
-              changeLanguage.i18n,
+              OtherScope.changeLanguage.i18n,
               style: const TextStyle(color: Colors.white, fontSize: 17),
             ),
             onPressed: _onPressed,
           ),
           Text(
-            "Locale: ${I18n.locale}",
+            "Locale: ${I18n.languageTag}",
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
@@ -68,7 +68,7 @@ class _MyScreenState extends State<MyScreen> {
   }
 
   void _onPressed() =>
-      I18n.of(context).locale = (I18n.languageTag == "pt-BR") ? null : const Locale('pt', 'BR');
+      I18n.of(context).locale = (I18n.languageTag == 'pt-BR') ? null : 'pt-BR'.asLocale;
 
   void _increment() => setState(() => counter++);
 }

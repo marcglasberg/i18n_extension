@@ -22,7 +22,7 @@ extension Localization on String {
     return replaceAll("%d", value.toString());
   }
 
-  String fill(Object? text, Object p1,
+  String fill(Object p1,
           [Object? p2,
           Object? p3,
           Object? p4,
@@ -40,7 +40,7 @@ extension Localization on String {
       localizeFill(
           this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
 
-  String args(Object? text, Object p1,
+  String args(Object p1,
           [Object? p2,
           Object? p3,
           Object? p4,

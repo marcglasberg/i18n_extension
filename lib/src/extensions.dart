@@ -1,23 +1,76 @@
-import 'dart:ui';
-
+import 'package:flutter/widgets.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:i18n_extension_core/i18n_extension_core.dart';
 
-extension LocaleFromStringExtension on String {
+extension I18nBuildContextExtension on BuildContext {
   //
 
-  /// Use [toLocale] to convert a [String] containing a valid BCP47 language tag
-  /// to a [Locale] object.
+  /// To change the current locale:
   ///
-  /// If the string is not a valid BCP47 language, [toLocale] will try to fix it.
+  ///     context.locale = Locale('es', 'ES');
+  ///     OR
+  ///     I18n.of(context).locale = Locale('es', 'ES');
+  ///
+  /// To return the current locale to the system locale default:
+  ///
+  ///     context.locale = null;
+  ///     OR
+  ///     I18n.of(context).locale = null;
+  ///
+  /// Note: This will change the current locale only for the i18n_extension,
+  /// and not for Flutter as a whole.
+  ///
+  set locale(Locale? locale) {
+    I18n.of(this).locale = locale;
+  }
+
+  /// Ways to read the current locale:
+  ///
+  ///     Locale locale = context.locale;
+  ///     OR
+  ///     Locale locale = I18n.of(context).locale;
+  ///     OR
+  ///     Locale locale = I18n.locale; // Statically also works.
+  ///
+  /// Or, to get the locale as a BCP47 language tag:
+  ///
+  ///     // Example: "en-US".
+  ///     String languageTag = I18n.languageTag;
+  ///
+  Locale get locale => I18n.of(this).locale;
+
+  /// To return the current locale to the default system locale,
+  /// which is set in the device settings:
+  ///
+  ///     context.resetLocale();
+  ///     OR
+  ///     I18n.of(context).resetLocale();
+  ///
+  void resetLocale() {
+    I18n.of(this).resetLocale();
+  }
+}
+
+extension I18nStringExtension on String {
+  //
+
+  /// Use [asLocale] to convert a [String] containing a valid BCP47 language tag
+  /// to a [Locale] object. For example:
+  ///
+  /// ```dart
+  /// Locale locale = 'pt-BR'.asLocale;
+  /// ```dart
+  ///
+  /// If the string is not a valid BCP47 language, [asLocale] will try to fix it.
   /// However, it will only fix the most common errors, by removing spaces,
   /// converting underscores to hyphens, and normalizing the case.
   /// If it can't fix it, it will return an invalid [Locale], or maybe `Locale('und')`,
   /// meaning the locale is undefined.
   ///
-  /// See also: [StringFromLocaleExtension.format].
+  /// See also: [I18nLocaleExtension.format].
   ///
-  Locale toLocale() {
-    //                                                 ¶
+  Locale get asLocale {
+    //
     String? locale = DefaultLocale.normalizeLocale(this);
 
     if (locale == null) return const Locale('und');
@@ -58,7 +111,7 @@ extension LocaleFromStringExtension on String {
   }
 }
 
-extension StringFromLocaleExtension on Locale {
+extension I18nLocaleExtension on Locale {
   //
 
   /// Use [format] to return the string representation of the Locale as a valid
@@ -86,7 +139,7 @@ extension StringFromLocaleExtension on Locale {
   /// hyphen, but does not fix case. For example, `Locale('en', 'us').toLanguageTag()`
   /// returns `en-us`, and `Locale('en', 'US').toLanguageTag()` returns `en-US`.
   ///
-  /// See also: [LocaleFromStringExtension.toLocale].
+  /// See also: [I18nStringExtension.asLocale].
   ///
   String format({String? separator}) {
     String? languageTag = DefaultLocale.normalizeLocale(toLanguageTag());

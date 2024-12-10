@@ -1,10 +1,9 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
-import 'package:example/example3/language_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
-import 'my_screen.i18n.dart';
+import 'my.i18n.dart';
 import 'my_widget.dart';
 
 class MyScreen extends StatefulWidget {
@@ -35,53 +34,41 @@ class _MyScreenState extends State<MyScreen> {
             height: 50,
             alignment: Alignment.center,
             child: Text(
-              "You clicked the button %d times:".plural(counter),
+              youClickedThisNumberOfTimes.plural(counter),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 17),
             ),
           ),
           MaterialButton(
             color: Colors.blue,
-            onPressed: _onIncrement,
             child: Text(
-              "Increment".i18n,
+              increment.i18n,
               style: const TextStyle(color: Colors.white, fontSize: 17),
             ),
+            onPressed: _increment,
           ),
           const Spacer(),
-          //
           MaterialButton(
             color: Colors.blue,
-            onPressed: _onChangeLanguage,
             child: Text(
-              "Change Language".i18n,
+              changeLanguage.i18n,
               style: const TextStyle(color: Colors.white, fontSize: 17),
             ),
+            onPressed: _onPressed,
           ),
-          //
           Text(
-            "Locale: ${I18n.locale}",
+            "Locale: ${I18n.languageTag}",
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
-          //
-          space16,
           const Spacer(flex: 2),
         ],
       ),
     );
   }
 
-  /// English, them Spanish, then Portuguese, then English again.
-  void _onChangeLanguage() {
-    var newLocale = (I18n.languageTag == "en-US")
-        ? const Locale('es', 'ES')
-        : (I18n.languageTag == "es-ES")
-            ? const Locale('pt', 'BR')
-            : const Locale('en', 'US');
+  void _onPressed() =>
+      I18n.of(context).locale = (I18n.languageTag == 'pt-BR') ? null : 'pt-BR'.asLocale;
 
-    I18n.of(context).locale = newLocale;
-  }
-
-  void _onIncrement() => setState(() => counter++);
+  void _increment() => setState(() => counter++);
 }

@@ -4,29 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
-import 'main.i18n.dart';
+import 'my.i18n.dart';
 import 'my_screen.dart';
 
-/// This example demonstrates basic translations using a `I18n` widget.
+/// This example demonstrates using identifiers as translation keys.
 ///
 /// There are 3 widget files that need translations:
 /// * main.dart
 /// * my_screen.dart
 /// * my_widget.dart
 ///
-/// And there is one translations-file for each one:
-/// * main.i18n.dart
-/// * my_screen.i18n.dart
-/// * my_widget.i18n.dart
+/// We'll be using a single translations-file for all of them:
+/// * my.i18n.dart
 ///
-/// Note: We could have put all translations into a single translations-file
-/// that would be used by all widget files. It's up to you how to organize
-/// things.
+/// The translations-files in this example use the following identifiers
+/// as translation keys:
 ///
-/// Note: The translations-files in this example use strings as keys.
-/// For example:
-///
-///     "You clicked the button %d times:".plural(counter),
+/// [appbarTitle], [greetings1], and [changeLanguage].
 ///
 void main() => runApp(MyApp());
 
@@ -44,9 +38,9 @@ class MyApp extends StatelessWidget {
           const Locale('pt', "BR"),
         ],
         home: I18n(
-          // Usually you should not provide an initialLocale,
-          // and just let it use the system locale.
-          // initialLocale: Locale('pt', 'BR'),
+          //
+          // Keep it commented out to use the current system locale.
+          // initialLocale: 'es-ES'.asLocale,
           //
           child: MyHomePage(),
         ),
@@ -62,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("i18n Demo".i18n), backgroundColor: Colors.blue),
+      appBar: AppBar(title: Text(appbarTitle.i18n), backgroundColor: Colors.blue),
       body: MyScreen(),
     );
   }

@@ -112,10 +112,10 @@ print('Hello %s and %s'.i18n.fill(['John', 'Mary']));
 ## See it working
 
 Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/example1/main.dart">
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/translation_example/main.dart">
 example</a>.
 
-![](./example/lib/example1/i18nScreen.jpg)
+![](./example/lib/translation_example/i18nScreen.jpg)
 
 ## Good for simple or complex apps
 
@@ -205,9 +205,9 @@ There are 4 easy steps to set up the `i18n_extension` package:
             GlobalCupertinoLocalizations.delegate,
          ],
          supportedLocales: [
-            'en-US'.toLocale(),
-            'es-ES'.toLocale(),
-            'pt-BR'.toLocale(),
+            'en-US'.asLocale,
+            'es-ES'.asLocale,
+            'pt-BR'.asLocale,
          ],
          home: ...
        ),
@@ -234,9 +234,9 @@ There are 4 easy steps to set up the `i18n_extension` package:
             GlobalCupertinoLocalizations.delegate,
          ],
          supportedLocales: [
-            'en-US'.toLocale(),
-            'es-ES'.toLocale(),
-            'pt-BR'.toLocale(),
+            'en-US'.asLocale,
+            'es-ES'.asLocale,
+            'pt-BR'.asLocale,
          ],
          home: ...
        ),
@@ -258,7 +258,7 @@ which is used by Flutter to provide translations to native Flutter widgets.
 The `I18n` widget will automatically keep in sync with the `Localizations` widget,
 so that when you change the locale in `I18n`, it will also change in the `Localizations`.
 This means that `Localizations.of(context).locale` is always equal
-to `I18n.of(context).locale` and to `I18n.locale`.
+to `I18n.of(context).locale`, and to `context.locale`, and to `I18n.locale`.
 
 ## Initial locale
 
@@ -269,7 +269,7 @@ You can override it with your own locale, like this:
 
 ```dart
 I18n(
-  initialLocale: 'pt-BR'.toLocale(),
+  initialLocale: 'pt-BR'.asLocale,
   child: ...
 ```
 
@@ -407,7 +407,7 @@ rules:
 5. If this is absent, it will use the key itself as the translation.
 
 Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/example1/main.dart">
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/translation_example/main.dart">
 example using strings as translation keys</a>.
 
 ## Or you can, instead, use identifiers as translation keys
@@ -917,37 +917,66 @@ print(localize('Hi', translations, locale: 'not valid');
 To change the current locale, do this:
 
 ```dart
-I18n.of(context).locale = Locale('pt', 'BR');
+context.locale = Locale('pt', 'BR');
+
+// Or
+context.locale = 'pt-BR'.asLocale;
+
+// Or
+I18n.of(context).locale = 'pt-BR'.asLocale;
 ```
 
-To return the current locale to the **system default**, do this:
+To return the current locale to the default **system locale**, do this:
 
 ```dart
+context.locale = null;
+
+// Or
+context.resetLocale();
+
+// Or
 I18n.of(context).locale = null;
+
+// Or
+I18n.of(context).resetLocale();
 ```
 
-*Note: The above will change the current locale only for the `i18n_extension`, and not for
-Flutter as a whole.*
+*Note: Any of the above will change the current locale for your widgets using 
+the `i18n_extension`, and also for native Flutter widgets.*
 
 ## Reading the current locale
 
-To read the current locale, do this:
+You can get the current locale by using the `context`:
 
 ```dart
-// Both ways work:
+Locale locale = context.locale;
 Locale locale = I18n.of(context).locale;
+```
+       
+However, you can also get the locale **statically**, 
+allowing you to use it in non-widget code:
+
+```dart
+// Get a `Locale` object, like Locale('en', 'US') 
 Locale locale = I18n.locale;
 
-// Or get the locale as a lowercase string. Example: 'en-US'.
-String localeStr = I18n.localeStr;
+// Or get a BCP47 language tag string, like 'en-US'
+String languageTag = I18n.languageTag;
+String languageTag = I18n.locale.format();
 
-// Or get the language of the locale, lowercase. Example: 'en'.
+// Or get a locale string with a specific separator, like 'en|US'
+String languageTag = I18n.locale.format(separator: '|');
+
+// Or get only the lowercase language code part of the locale, like 'en'.
 String language = I18n.language;
-```        
+```
+
+Note: Using `I18n.localeStr` is deprecated. It returns a lowercase string with 
+underscores, like `en_us`.
 
 ## Observing locale changes
 
-There is a global static callback you can use to observe locale changes:
+You can use a global static callback to observe locale changes:
 
 ```dart
 I18n.observeLocale = 
@@ -1038,9 +1067,9 @@ print(locale.countryCode); // Prints `null`.
 print(locale.scriptCode); // Prints `null`.
 ```
 
-Also, unfortunately, the language and country codes are not enough to specify all
-possible locales. For example, in Chinese there are two "scripts": Simplified and
-Traditional, which are specified by the script code `Hans` and `Hant`, respectively.
+Also, unfortunately, the language and country codes alone are not enough to specify all
+possible locales. For example, in Chinese there are two "scripts", Simplified and
+Traditional, which are specified by the script codes `Hans` and `Hant`, respectively.
 Since the default `Locale` constructor does not accept a script code, you must use
 the `Locale.fromSubtags` constructor, like this:
 
@@ -1052,20 +1081,22 @@ print(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'C
 Finally, there is a problem regarding `Locale.toString()` use of underscores when
 printing the language code.
 
-Both the Unicode Locale Identifier (ULI) and the IETF BCP47 language tags use
-hyphens instead of underscores. For example, the ULI/BCP47 for American English
-is `en-US`, and not `en_US`. The reason why `Locale` uses underscores in its `toString()`
+Both the Unicode Locale Identifier (ULI) and the IETF BCP47 language tags accept
+hyphens (`-`) as separators, but only ULI accepts underscores (`_`). 
+
+That's why `en-US` works for both ULI and BCP47, while `en_US` does not. 
+The likely reason why Flutter's `Locale` uses underscores in its `toString()`
 method is because libraries like ICU (International Components for Unicode) and Java
 historically use underscores to separate the language and region codes in locale
 identifiers.
 
-This convention likely stems from the early days of programming, where underscores
+This convention stems from the early days of programming, where underscores
 were commonly used as a delimiter in code and file names because they were simple,
 unambiguous, and compatible across systems that might not handle special characters
 like hyphens well.
 
 However, most language translation services, like [MyTextAI](https://mytext.ai),
-use the ULI/BCP47 convention: hyphens instead of underscores.
+prefer the BCP47 convention: hyphens instead of underscores.
 
 The `i18n_extension` package expected underscores in the translation definitions,
 up to version `2.0.6`. However, starting from version `3.0.0` it expects hyphens.
@@ -1073,14 +1104,27 @@ This means that if you are using `i18n_extension` version `3.0.0` or later, you 
 hyphens in your locale. To help with the transition, `i18n_extension` version `3.0.0`
 will throw descriptive errors if it finds underscores in your translation definitions.
 
-## Using `Locale.toLocale()` extension
+This is an example of a valid locale definition:
+
+```dart
+Translations.byText('en-US') +
+   {
+      'en-US': 'Hello, how are you?',
+      'pt-BR': 'Olá, como vai você?',
+      'es': '¿Hola! Cómo estás?',
+      'fr': 'Salut, comment ca va?',
+      'de': 'Hallo, wie geht es dir?',
+   };
+```
+
+## Using `Locale.asLocale` extension
 
 If you don't want to deal with the quirks of `Locale` objects,
-you can create them from string language tags with `toLocale()` extension
+you can create them from string language tags with `asLocale` extension
 provided by the `i18n_extension` package. For example:
 
 ```dart
-var locale = 'en-US'.toLocale();
+var locale = 'en-US'.asLocale;
 ```
 
 Ideally, the string should be a
@@ -1089,23 +1133,23 @@ valid [IETF BCP47 Locale Identifier](https://www.ietf.org/rfc/bcp/bcp47.html)
 the [Unicode Locale Identifier (ULI) syntax](http://www.unicode.org/reports/tr35/)).
 such as 'en', 'en-US', 'pt-BR', 'es-419', 'hi-Deva-IN' or 'zh-Hans-CN'.
 
-However, the `toLocale()` extension will automatically fix case issues,
+However, the `asLocale` extension will automatically fix lowercase/uppercase issues,
 and will accept all these separators: `-` `_` ` ` `|` `.` `,` `;`,
 and convert them to hyphens.
 
-For example, the following two lines are equivalent:
+For example, the following lines are all equivalent:
 
 ```dart
 var locale = Locale('en', 'US'); 
-var locale = 'en-US'.toLocale(); 
-var locale = 'en_US'.toLocale(); 
-var locale = 'en-us'.toLocale(); 
-var locale = 'EN-US'.toLocale(); 
-var locale = 'en US'.toLocale(); 
-var locale = 'en|US'.toLocale(); 
-var locale = 'en.uS'.toLocale(); 
-var locale = 'eN,US'.toLocale(); 
-var locale = 'en;US'.toLocale(); 
+var locale = 'en-US'.asLocale; 
+var locale = 'en_US'.asLocale; 
+var locale = 'en-us'.asLocale; 
+var locale = 'EN-US'.asLocale; 
+var locale = 'en US'.asLocale; 
+var locale = 'en|US'.asLocale; 
+var locale = 'en.uS'.asLocale; 
+var locale = 'eN,US'.asLocale; 
+var locale = 'en;US'.asLocale; 
 ```
 
 ## Using `Locale.format()` extension
@@ -1117,26 +1161,26 @@ returns the language code and the country code separated by a hyphen.
 For example, `Locale('en', 'US').toLanguageTag()` returns `en-US`.
 
 The `i18n_extension` package provides a `format()` extension that also returns the
-language code and the country code separated by a hyphen, but also fixes any  
+language code and the country code separated by a hyphen, but fixes any  
 case issues with the locale representation.
-For example, For example, `Locale('en', 'us').format()` correctly returns `en-US`,
+For example, `Locale('en', 'us').format()` correctly returns `en-US`,
 even though `Locale('en', 'us').toLanguageTag()` returns `en-us`.
 
 Note the `format` extension also allows you to specify a different separator.
-For example, `Locale('en', 'US').format(separator: '|')` returns `en|US`.
+For example, `Locale('en', 'us').format(separator: '|')` returns `en|US`.
 
-To sum up, the recommendation is to use the provided extensions `toLocale()` to
-create `Locale` objects from string language tags, and `format()` to
-convert `Locale` objects back to string language tags, if needed.
+To sum up, the recommendation is to use the provided `asLocale` extension 
+to create `Locale` objects from string language tags; and the `format()` extension
+to convert `Locale` objects back to string language tags, if needed.
 
 # Dart-only package
 
 This `i18n_extension` Flutter package depends on the Dart-only
 package [i18n_extension_core](https://pub.dev/packages/i18n_extension_core).
 
-If you are creating code for a Dart server (backend) like [Celest](https://celest.dev), or
-developing some Dart-only package yourself that does not depend on Flutter, then you can
-use the `i18n_extension_core` package directly:
+If you are creating code for a Dart server (backend), 
+or developing some Dart-only package yourself that does not depend on Flutter, 
+then you can use the `i18n_extension_core` package directly:
 
 ```dart
 import 'package:i18n_extension_core/i18n_extension_core.dart';

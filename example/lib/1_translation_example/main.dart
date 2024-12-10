@@ -1,6 +1,6 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
-import 'package:example/example3/language_settings_page.dart';
+import 'package:example/1_translation_example/language_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
@@ -39,9 +39,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return I18n(
       //
-      // Usually you don't provide an initialLocale, and let it use the system locale.
-      // but you can if you want to:
-      // initialLocale: const locale: Locale('es', 'ES'),
+      // Keep it commented out to use the current system locale.
+      // initialLocale: 'es-ES'.asLocale,      
       //
       // If you want, you can ask it to save locale changes to the device's storage:
       // saveLocale: true,
