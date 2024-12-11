@@ -33,7 +33,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
   type `T` of your identifier. Your `T` can be anything, including `String`, `int`,
   `double`, `DateTime`, or even your own custom object types, as long as they implement
   `==` and `hashCode`. If you use `Object` or `Object?`/`dynamic` then anything can be
-  translated. Don't forget that your extensions, like `.i18n`, will need to be on your
+  translated. Don’t forget that your extensions, like `.i18n`, will need to be on your
   type. For example, if you use `int` as your key type, then you will need to declare
   `extension Localization on int { ... }`.
 
@@ -55,7 +55,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
   own Dart-only package that does not depend on Flutter.
 
   > **For Flutter applications nothing changes.**
-  > You don't need to import the core package directly.
+  > You don’t need to import the core package directly.
   > You should continue to use this i18n_extension package, which already exports
   > the core code plus the `I18n` widget that you use to wrap your widget tree.
 
@@ -74,7 +74,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 * Flutter 3.10 e Dart 3.0.0
 
 * Removed the importer library developed by Johann Bauer, so that users of i18n_extension
-  don't need to import the analyzer and other unnecessary dependencies. See
+  don’t need to import the analyzer and other unnecessary dependencies. See
   version [10.0.2] above.
 
 ## 8.0.0
@@ -202,7 +202,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 ## 1.3.4
 
-* Don't record unnecessary missing translations with the Translation.byLocale constructor.
+* Don’t record unnecessary missing translations with the Translation.byLocale constructor.
 
 ## 1.3.3
 

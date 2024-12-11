@@ -636,7 +636,7 @@ void main() {
   });
 
   test(
-      "Don't record unnecessary missing translations "
+      "Don’t record unnecessary missing translations "
       "with the Translation.byLocale constructor.", () {
     //
     // ---------------
@@ -663,7 +663,7 @@ void main() {
 
     // ---------------
 
-    // 2) But you don't NEED to to provide the translations "by locale" in the default locale.
+    // 2) But you don’t NEED to to provide the translations "by locale" in the default locale.
 
     Translations.missingKeys.clear();
     Translations.missingTranslations.clear();

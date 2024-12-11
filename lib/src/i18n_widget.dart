@@ -89,7 +89,7 @@ class I18n extends StatefulWidget {
   final Widget child;
 
   /// If you want to force a specific locale, you can set it here.
-  /// If you don't set it, the current system-locale will be used.
+  /// If you don’t set it, the current system-locale will be used.
   final Locale? initialLocale;
 
   /// If [saveLocale] is true, the locale will be saved and recovered between

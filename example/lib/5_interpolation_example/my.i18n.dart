@@ -11,6 +11,7 @@ final greetings4 = Object();
 final greetings5 = Object();
 final greetings6 = Object();
 final greetings7 = Object();
+final greetings8 = Object();
 
 extension MyLocalization on Object {
   //
@@ -49,16 +50,21 @@ extension MyLocalization on Object {
       'pt-BR': 'Olá, {name} e {other}',
     },
     greetings5: {
+      'en-US': 'Hello {name}, let’s meet up with {} and {other} to explore {1} and {2}.',
+      'es-ES': 'Hola {name}, reunámonos con {} y {other} para explorar {1} y {2}.',
+      'pt-BR': 'Olá {name}, vamos nos encontrar com {} e {other} para explorar {1} e {2}.',
+    },
+    greetings6: {
       'en-US': 'Hi, %s and %s',
       'es-ES': 'Hola, %s y %s',
       'pt-BR': 'Olá, %s e %s',
     },
-    greetings6: {
+    greetings7: {
       'en-US': 'Hi, %1\$s and %2\$s',
       'es-ES': 'Hola, %1\$s y %2\$s',
       'pt-BR': 'Olá, %1\$s e %2\$s',
     },
-    greetings7: {
+    greetings8: {
       'en-US': 'Hi, %2\$s and %1\$s',
       'es-ES': 'Hola, %2\$s y %1\$s',
       'pt-BR': 'Olá, %2\$s e %1\$s',

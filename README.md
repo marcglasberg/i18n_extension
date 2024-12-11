@@ -23,69 +23,89 @@ the [Medium article](https://medium.com/flutter-community/i18n-extension-flutter
 
 &nbsp;<br>
 
-Start with a widget containing some text:
+## Option 1: Strings are translation keys
+
+Start with a simple widget displaying some text:
 
 ```dart
-Text('How are you?')
+Text('How are you?');
 ```
 
-Translate it by simply adding `.i18n` to the string:
+To make it translatable, just add `.i18n` to the string:
 
 ```dart
-Text('How are you?'.i18n)
+Text('How are you?'.i18n);
 ``` 
 
-If the current locale is `'pt'` (the language code for Portuguese)
-or `pt-BR` (language code for Brazilian Portuguese),
-then the text shown in the screen will be `'Como vai?'`,
-the Portuguese translation to the above text.
-And so on for any other locales you want to support:
+The text will automatically show the correct translation based on the current locale.
+For example, if your app supports `en-US`, `pt-BR`, and `es` (American English, Brazilian
+Portuguese, and Spanish):
+
+- If the current locale is `en-US` it shows `'How are you?'`
+- If the current locale is `pt-BR` it shows `'Como vai?'`
+- If the current locale is `es` it shows `'¿Cómo estás?'`
+- And so on for any other locales you want to support
+
+Note the original English string doubles as **"translation key"** to
+find the appropriate translation. One advantage of this approach is that you don’t need
+to come up with unique identifiers for each string.
+
+Another, is that you can see actual text in your code,
+which is generally simpler and easier to understand than seeing identifiers.
+
+## Option 2: Identifiers are translation keys
+
+While the `i18n_extension` package is unique in supporting strings as translation
+keys, it also supports the more traditional approach of using **identifiers** as
+translation keys. Just create an object, and append `.i18n` to it. For example:
 
 ```dart
-// Shows 'How are you?' when current locale is en-US.
-// Shows '¿Cómo estás?' when current locale is es.
-// Shows 'Comment ça va?' when current locale is fr.
-Text('How are you?'.i18n)
+const greetings = Object();
+
+// Shows 'How are you?' in en-US
+// Shows 'Como vai?' in pt-BR 
+// Shows '¿Cómo estás?' in es 
+Text(greetings.i18n);  
 ```
 
-As shown above, the original English text is itself the **"translation key"** that's used
-to look up the translation.
-
-But you can actually use objects of any type as translation keys. By adding `.i18n` they
-will turn into translated strings in the current locale:
+Or, if you want to namespace your identifiers:
 
 ```dart
-// Const values  
-const greetings = UniqueKey();
-greetings.i18n // Turns into 'How are you?' in en, 'Como vai?' in pt  
+class MyScope {
+  static const greetings = Object();
+} 
 
-// Final variables  
-final faq = 'faq';
-faq.i18n // 'FAQ' in en, 'Perguntas frequentes' in pt
-
-// Enums  
-enum MyColors { red, blue }
-MyColors.red.i18n // 'Red' in en, 'Vermelho' in pt
-MyColors.blue.i18n // 'Blue' in en, 'Azul' in pt
-
-// Numbers, booleans, Dates  
-12.i18n // 'Twelve' in en, 'Doze' in pt
-true.i18n // 'Yes' in en, 'Sim' in pt
-false.i18n // 'No' in en, 'Não'
-DateTime(2021, 1, 1).i18n // 'New Year' in en, 'Ano Novo' in pt
-
-// Your own object types  
-class User { ... }
-User('John').i18n // 'Mr. John' in en, 'Sr. John' in pt
+Text(MyScope.greetings.i18n);
 ```
 
-You can also provide different translations depending on modifiers, such as `plural`
-quantities:
+Note you can always mix and match strings and identifiers as translation keys.
+For example, you might use short texts as string keys
+and provide long texts by using identifier keys:
 
 ```dart
-print('There is 1 item'.plural(0)); // Prints 'There are no items'
-print('There is 1 item'.plural(1)); // Prints 'There is 1 item'
-print('There is 1 item'.plural(2)); // Prints 'There are 2 items'
+Widget build(BuildContext context) {
+  return ElevatedButton(
+    onPressed: () {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {          
+          // Using identifier as key here!
+          return AlertDialog(content: Text(termsOfUse.i18n));           
+        });
+    },
+    // Using string as key here!
+    child: Text('Terms of Use'.i18n), 
+  );
+}
+```
+
+The package also allows you to provide different translations depending on modifiers, such
+as `plural` quantities:
+
+```dart
+'There is 1 item'.plural(0); // There are no items
+'There is 1 item'.plural(1); // There is 1 item
+'There is 1 item'.plural(2); // There are 2 items
 ```
 
 And you can invent your own modifiers according to any conditions. For example, some
@@ -93,68 +113,58 @@ languages have different translations for different genders. So you could create
 versions for `Gender` modifiers:
 
 ```dart
-print('There is a person'.gender(Gender.male)); // Prints 'There is a man'
-print('There is a person'.gender(Gender.female)); // Prints 'There is a woman'
-print('There is a person'.gender(Gender.they)); // Prints 'There is a person'
+'There is a person'.gender(Gender.male); // There is a man
+'There is a person'.gender(Gender.female); // There is a woman
+'There is a person'.gender(Gender.they); // There is a person
 ```
 
-Also, interpolating strings is easy, with the `fill` method:
+You can interpolate by replacing placeholders with values, using the `args` function:
 
 ```dart
-// Prints 'Hello John and Mary' in English.
-// Prints 'Olá John e Mary' in Portuguese.
-print('Hello %s and %s'.i18n.fill('John', 'Mary'));
+// Hello John and Mary
+'Hello {} and {}'.args('John', 'Mary');
 
-// Also works like this
-print('Hello %s and %s'.i18n.fill(['John', 'Mary']));
+// Also works with iterables
+'Hello {} and {}'.args(['John', 'Mary']);
+
+// Named placeholders
+'Hello {name} and {other}'.args({'name': 'John', 'other': 'Mary'});
+
+// Numbered placeholders
+'Hello {1} and {2}'.args({1: 'John', 2: 'Mary'});
+
+// And you can mix placeholder types
+'Hello {name}, let’s meet up with {} and {other} to explore {1} and {2}.'.args('Charlie', {'name': 'Alice', 'other': 'Bob'}, {1: 'Paris', 2: 'London'});
+```
+
+Those who prefer to interpolate with *
+*[sprintf](https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm)** can
+use the `fill` function:
+
+```dart
+// Hello John and Mary
+'Hello %s and %s'.fill('John', 'Mary');
 ```
 
 ## See it working
 
 Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/translation_example/main.dart">
-example</a>.
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/1_translation_example/main.dart">
+translation example</a>.
 
-![](./example/lib/translation_example/i18nScreen.jpg)
-
-## Good for simple or complex apps
-
-I'm always interested in creating packages to reduce boilerplate.
-For example, [async_redux](https://pub.dev/packages/async_redux/) is about Redux without
-boilerplate, [align_positioned](https://pub.dev/packages/align_positioned) is about
-creating layouts using fewer widgets, and [themed](https://pub.dev/packages/themed) is
-about simplifying the usage of colors and fonts.
-Likewise, the current package is about reducing boilerplate for translations.
-It does everything the plain old `Localizations.of(context)` does, but much easier.
-
-It's meant for both the one-person app developer and the big company team. It
-has you covered in all stages of your translation efforts:
-
-1. When you create your widgets, it makes it easy for you to define which strings (or
-   other objects serving as translation keys) should be translated by simply
-   adding `.i18n` to them. These are called _"translatable strings"_
-   or _"translatable identifiers"_.
-
-2. When you want to start your translation efforts, it can automatically list for you all
-   strings that need translation. If you miss any of them, or if you later add more
-   strings or modify some of them, it will let you know what changed and how to fix it.
-
-3. You can then provide your translations manually in a very easy-to-use format.
-
-4. Or you can easily integrate it with professional translation services, importing it
-   from or exporting it to any format you want.
+![](./example/lib/1_translation_example/i18nScreen.jpg)
 
 ## Setup
 
-There are 4 easy steps to set up the `i18n_extension` package:
+Follow these 4 easy steps to set up the `i18n_extension` package in your app:
 
 1. Wrap your widget tree with a single `I18n` widget, above your `MaterialApp`
-   (or `CupertinoApp`) widget.
+   (or `CupertinoApp`) widget. Remember you should not have more than one single `I18n`
+   widget in your widget tree.
 
-   Because the `I18n` widget is **above** the `MaterialApp`, it will be able
-   to provide translations to all routes and dialogs.
+   Note: Since the `I18n` widget is **above** the `MaterialApp`, it will be able
+   to provide translations to all your routes and dialogs.
 
-   Also, remember that you cannot have more than one `I18n` widget in your widget tree.
 
 2. Make sure the `I18n` widget is NOT declared in the same widget as the
    `MaterialApp`. It must be in a parent widget. For example, this is wrong:
@@ -166,81 +176,88 @@ There are 4 easy steps to set up the `i18n_extension` package:
           home: MyScreen(),           
     ```
 
+
 3. Add `locale: I18n.locale` to your `MaterialApp` widget:
 
    ```
-   Widget build(BuildContext context) {
-      return MaterialApp(
-         locale: I18n.locale,
-         ...      
+   MaterialApp(
+      locale: I18n.locale,
+      ...      
    ```
 
+
 4. Make sure to provide `localizationsDelegates` and `supportedLocales` to
-   the `MaterialApp`:
+   the `MaterialApp`.
 
-   ```dart    
-   import 'package:i18n_extension/i18n_extension.dart';
-   import 'package:flutter_localizations/flutter_localizations.dart';
-           
-   void main() {
-     WidgetsFlutterBinding.ensureInitialized();
-     runApp(MyApp());
-   }
-   
-   class MyApp extends StatelessWidget {
-     Widget build(BuildContext context) {
-       return I18n(
-         child: MyMaterialApp(),
-       );
-     }
-   }
-   
-   class MyMaterialApp extends StatelessWidget {
-     Widget build(BuildContext context) {
-       return MaterialApp(
-         locale: I18n.locale,
-         localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-         ],
-         supportedLocales: [
-            'en-US'.asLocale,
-            'es-ES'.asLocale,
-            'pt-BR'.asLocale,
-         ],
-         home: ...
-       ),
-   ```  
+&nbsp;<br>
 
-   Another alternative is declaring the `I18n` widget in the `main` function:
+This is how your `main.dart` file could look like:
 
-   ```dart    
-   import 'package:i18n_extension/i18n_extension.dart';
-   import 'package:flutter_localizations/flutter_localizations.dart';
-           
-   void main() {
-     WidgetsFlutterBinding.ensureInitialized();
-     runApp(I18n(child: MyMaterialApp()));
-   }
-   
-   class MyMaterialApp extends StatelessWidget {
-     Widget build(BuildContext context) {
-       return MaterialApp(
-         locale: I18n.locale,
-         localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-         ],
-         supportedLocales: [
-            'en-US'.asLocale,
-            'es-ES'.asLocale,
-            'pt-BR'.asLocale,
-         ],
-         home: ...
-       ),
-   ```  
+```dart    
+import 'package:i18n_extension/i18n_extension.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+       
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return I18n(
+      child: MyMaterialApp(),
+    );
+  }
+}
+
+class MyMaterialApp extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      locale: I18n.locale,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        'en-US'.asLocale,
+        'es-ES'.asLocale,
+        'pt-BR'.asLocale,
+      ],
+      home: ...
+    ),
+```  
+
+Another alternative is declaring the `I18n` widget in the `main` function:
+
+```dart    
+import 'package:i18n_extension/i18n_extension.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+       
+void main() {
+ WidgetsFlutterBinding.ensureInitialized();
+ runApp(I18n(child: MyMaterialApp()));
+}
+
+class MyMaterialApp extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      locale: I18n.locale,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        'en-US'.asLocale,
+        'es-ES'.asLocale,
+        'pt-BR'.asLocale,
+      ],
+      home: ...
+    ),
+```  
+
+&nbsp;<br>
 
 **Note:** To be able to import `flutter_localizations.dart` you must add it as
 a dependency in your `pubspec.yaml`:
@@ -252,6 +269,8 @@ dependencies:
 
   i18n_extension: ...
 ```
+
+&nbsp;<br>
 
 **Note:** The `MaterialApp` widget contains, internally, a `Localizations` widget,
 which is used by Flutter to provide translations to native Flutter widgets.
@@ -273,9 +292,9 @@ I18n(
   child: ...
 ```
 
-Note this doesn't change the system locale, but simply "forces" your app to use
-the locale you provided. Whether you set the `initialLocale` or not, you can always
-later change the locale dynamically, as will be explained below.
+Setting the initial locale like this doesn't change the system locale, but simply "forces"
+your app to use this initial locale you provided, when the app starts. 
+You can always later change the locale dynamically, as will be explained below.
 
 In most applications, you should not set the initial locale, and instead let the
 system locale be the default. This way, your app will automatically be in the
@@ -296,8 +315,8 @@ return I18n(
   ...
 ```
 
-This will automatically save the locale to the device's storage (shared preferences),
-and restore it when the app restarts.
+This will automatically save changes to the locale in the device's storage 
+(shared preferences), and restore it when the app restarts.
 
 # Translating a widget
 
@@ -465,7 +484,7 @@ Just use `Translations.byId<T>()` and provide the type `T` of your identifier. Y
 can be anything, including `String`, `int`, `double`, `DateTime`, or even your own custom
 object types, as long as they implement `==` and `hashCode`.
 
-Don't forget that your extensions need to be on your type.
+Don’t forget that your extensions need to be on your type.
 For example, if you use `int` as your key type, you need to
 declare `extension Localization on int { ... }`.
 
@@ -941,7 +960,7 @@ I18n.of(context).locale = null;
 I18n.of(context).resetLocale();
 ```
 
-*Note: Any of the above will change the current locale for your widgets using 
+*Note: Any of the above will change the current locale for your widgets using
 the `i18n_extension`, and also for native Flutter widgets.*
 
 ## Reading the current locale
@@ -952,8 +971,8 @@ You can get the current locale by using the `context`:
 Locale locale = context.locale;
 Locale locale = I18n.of(context).locale;
 ```
-       
-However, you can also get the locale **statically**, 
+
+However, you can also get the locale **statically**,
 allowing you to use it in non-widget code:
 
 ```dart
@@ -971,7 +990,7 @@ String languageTag = I18n.locale.format(separator: '|');
 String language = I18n.language;
 ```
 
-Note: Using `I18n.localeStr` is deprecated. It returns a lowercase string with 
+Note: Using `I18n.localeStr` is deprecated. It returns a lowercase string with
 underscores, like `en_us`.
 
 ## Observing locale changes
@@ -1082,9 +1101,9 @@ Finally, there is a problem regarding `Locale.toString()` use of underscores whe
 printing the language code.
 
 Both the Unicode Locale Identifier (ULI) and the IETF BCP47 language tags accept
-hyphens (`-`) as separators, but only ULI accepts underscores (`_`). 
+hyphens (`-`) as separators, but only ULI accepts underscores (`_`).
 
-That's why `en-US` works for both ULI and BCP47, while `en_US` does not. 
+That's why `en-US` works for both ULI and BCP47, while `en_US` does not.
 The likely reason why Flutter's `Locale` uses underscores in its `toString()`
 method is because libraries like ICU (International Components for Unicode) and Java
 historically use underscores to separate the language and region codes in locale
@@ -1119,7 +1138,7 @@ Translations.byText('en-US') +
 
 ## Using `Locale.asLocale` extension
 
-If you don't want to deal with the quirks of `Locale` objects,
+If you don’t want to deal with the quirks of `Locale` objects,
 you can create them from string language tags with `asLocale` extension
 provided by the `i18n_extension` package. For example:
 
@@ -1169,7 +1188,7 @@ even though `Locale('en', 'us').toLanguageTag()` returns `en-us`.
 Note the `format` extension also allows you to specify a different separator.
 For example, `Locale('en', 'us').format(separator: '|')` returns `en|US`.
 
-To sum up, the recommendation is to use the provided `asLocale` extension 
+To sum up, the recommendation is to use the provided `asLocale` extension
 to create `Locale` objects from string language tags; and the `format()` extension
 to convert `Locale` objects back to string language tags, if needed.
 
@@ -1178,8 +1197,8 @@ to convert `Locale` objects back to string language tags, if needed.
 This `i18n_extension` Flutter package depends on the Dart-only
 package [i18n_extension_core](https://pub.dev/packages/i18n_extension_core).
 
-If you are creating code for a Dart server (backend), 
-or developing some Dart-only package yourself that does not depend on Flutter, 
+If you are creating code for a Dart server (backend),
+or developing some Dart-only package yourself that does not depend on Flutter,
 then you can use the `i18n_extension_core` package directly:
 
 ```dart
@@ -1297,7 +1316,7 @@ see <a href="https://github.com/marcglasberg/i18n_extension/issues/63#issuecomme
 here</a>.
 
 **Note**: When using .po files, make sure not to include the country code, because the
-locales are generated from the filenames which don't contain the country code and if you'd
+locales are generated from the filenames which don’t contain the country code and if you'd
 include the country codes, you'll get errors like this:
 `There are no translations in 'en-US' for 'Hello there'`.
 
@@ -1364,13 +1383,13 @@ add `.i18n` to any strings they want to mark as being a "translatable string". L
 someone will have to remove this default file and add another one with the translations.
 You basically just change the import later. The point of importing 'default.i18n.dart'
 before you create the translations for that widget is that it will record them as missing
-translations, so that you don't forget to add those translations later._
+translations, so that you don’t forget to add those translations later._
 
 <br>
 
 **Q: Can I do translations outside of widgets?**
 
-**A:** _Yes, since you don't need access to `context`. It actually reads the current
+**A:** _Yes, since you don’t need access to `context`. It actually reads the current
 locale from `I18n.locale`, which is static, and all the rest is done with pure Dart code.
 So you can translate anything you want, from any code you want. You can also define a
 locale on the fly if you want to do translations to a locale different from the current
@@ -1385,7 +1404,7 @@ statically verify that `'How are you?'.i18n` will do what I want it to do.**
 **A:** _i18n_extension lets you decide if you want to use identifier keys like `howAreYou`
 or not. Not having to use those was one thing I was trying to achieve. I hate having to
 come up with these keys. I found that the developer should just type the text they want
-and be done with it. In other words, in i18n_extension you don't need to type a key; you
+and be done with it. In other words, in i18n_extension you don’t need to type a key; you
 may type the text itself (in your default language). So there is no need to statically
 verify anything. Your code will always compile when you type a String, and that exact
 string will be used for your default language. It will never break._
@@ -1416,7 +1435,7 @@ translations._
 
 <br>
 
-**Q: There are a lot of valid usages for String that don't deal with user-facing messages.
+**Q: There are a lot of valid usages for String that don’t deal with user-facing messages.
 I like to use auto-complete to see what methods are available (by typing `someString.`),
 and seeing loads of unrelated extension methods in there could be annoying.**
 
@@ -1428,7 +1447,7 @@ your auto-complete inside your widget classes, where it makes sense._
 
 **Q: Do I actually need one `.i18n.dart` (a translations file) per widget?**
 
-**A:** _No you don't. It's suggested that you create a translation file per widget if you
+**A:** _No you don’t. It's suggested that you create a translation file per widget if you
 are doing translations by hand, but that's not a requirement. The reason I think separate
 files is a good idea is that sometimes internationalization is not only translations. You
 may need to format dates in specific ways, or make complex functions to create specific
@@ -1439,7 +1458,7 @@ adding other translation objects together using the `*` operator.
 You can create this Translation objects anywhere you want, in a single file per widget,
 in a single file for many widgets, or in a single file for the whole app. Also, if you are
 not doing translations by hand but importing strings from translation files, then you
-don't even need a separate file. You can just add
+don’t even need a separate file. You can just add
 `extension Localization on String { String get i18n => localize(this, Translations.byText('en-US') + load('file.json')); } `
 to your own widget file._
 
