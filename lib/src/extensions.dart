@@ -1,6 +1,165 @@
 import 'package:flutter/widgets.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension_core/i18n_extension_core.dart';
+import 'package:i18n_extension_core/i18n_extension_core.dart' as core;
+
+extension I18nMain on String {
+  //
+
+  /// The [fill] function applies a `sprintf` on this string with the given
+  /// params, [p1], [p2], [p3], ..., [p15].
+  ///
+  /// This is implemented with the `sprintf` package: https://pub.dev/packages/sprintf
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// print('Hello %s and %s'.i18n.fill('John', 'Mary');
+  ///
+  /// // Also works
+  /// print('Hello %s and %s'.i18n.fill(['John', 'Mary']);
+  /// ```
+  ///
+  /// Possible format values:
+  ///
+  /// * `%s` - String
+  /// * `%1$s` and `%2$s` - 1st String and 2nd String
+  /// * `%b` - Binary number
+  /// * `%c` - Character according to the ASCII value of `c`
+  /// * `%d` - Signed decimal number (negative, zero or positive)
+  /// * `%u` - Unsigned decimal number (equal to or greater than zero)
+  /// * `%f` - Floating-point number
+  /// * `%e` - Scientific notation using a lowercase, like `1.2e+2`
+  /// * `%E` - Scientific notation using a uppercase, like `1.2E+2`
+  /// * `%g` - shorter of %e and %f
+  /// * `%G` - shorter of %E and %f
+  /// * `%o` - Octal number
+  /// * `%X` - Hexadecimal number, uppercase letters
+  /// * `%x` - Hexadecimal number, lowercase letters
+  ///
+  /// Additional format values may be placed between the % and the letter.
+  /// If multiple of these are used, they must be in the same order as below.
+  ///
+  /// * `+` - Forces both + and - in front of numbers. By default, only negative numbers are marked
+  /// * `'` - Specifies the padding char. Space is the default. Used together with the width specifier: %'x20s uses "x" as padding
+  /// * `-` - Left-justifies the value
+  /// * `[0-9]` -  Specifies the minimum width held of to the variable value
+  /// * `.[0-9]` - Specifies the number of decimal digits or maximum string length. Example: `%.2f`:
+  ///
+  String fill(Object p1,
+          [Object? p2,
+          Object? p3,
+          Object? p4,
+          Object? p5,
+          Object? p6,
+          Object? p7,
+          Object? p8,
+          Object? p9,
+          Object? p10,
+          Object? p11,
+          Object? p12,
+          Object? p13,
+          Object? p14,
+          Object? p15]) =>
+      localizeFill(
+          this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+
+  /// The [args] function applies interpolations on this string with the given
+  /// params, [p1], [p2], [p3], ..., [p15].
+  ///
+  ///
+  /// # 1. Interpolation with named placeholders
+  ///
+  /// Your translations file may contain interpolations:
+  ///
+  /// ```dart
+  /// static var _t = Translations.byText('en-US') +
+  ///     {
+  ///       'en-US': 'Hello {student} and {teacher}',
+  ///       'pt-BR': 'Olá {student} e {teacher}',
+  ///     };
+  ///
+  /// String get i18n => localize(this, _t);
+  /// ```
+  ///
+  /// Then use the [args] function:
+  ///
+  /// ```dart
+  /// print('Hello {student} and {teacher}'.i18n
+  ///   .args({'student': 'John', 'teacher': 'Mary'}));
+  /// ```
+  ///
+  /// The above code will print `Hello John and Mary` if the locale is English,
+  /// or `Olá John e Mary` if it's Portuguese. This interpolation method allows for the
+  /// translated string to change the order of the parameters.
+  ///
+  /// # 2. Interpolation with numbered placeholders
+  ///
+  /// ```dart
+  /// static var _t = Translations.byText('en-US') +
+  ///     {
+  ///       'en-US': 'Hello {1} and {2}',
+  ///       'pt-BR': 'Olá {1} e {2}',
+  ///     };
+  ///
+  /// String get i18n => localize(this, _t);
+  /// ```
+  ///
+  /// Then use the [args] function:
+  ///
+  /// ```dart
+  /// print('Hello {1} and {2}'.i18n
+  ///   .args({1: 'John', 2: 'Mary'}));
+  /// ```
+  ///
+  /// The above code will print `Hello John and Mary` if the locale is English,
+  /// or `Olá John e Mary` if it's Portuguese. This interpolation method allows for the
+  /// translated string to change the order of the parameters.
+  ///
+  ///
+  /// # 3. Interpolation with unnamed placeholders
+  ///
+  /// ```dart
+  /// static var _t = Translations.byText('en-US') +
+  ///     {
+  ///       'en-US': 'Hello {} and {}',
+  ///       'pt-BR': 'Olá {} e {}',
+  ///     };
+  ///
+  /// String get i18n => localize(this, _t);
+  /// ```
+  ///
+  /// Then use the [args] function:
+  ///
+  /// ```dart
+  /// print('Hello {} and {}'.i18n.args('John', 'Mary'));
+  /// print('Hello {} and {}'.i18n.args(['John', 'Mary'])); // Also works
+  /// ```
+  ///
+  /// The above code will replace the `{}` in order,
+  /// and print `Hello John and Mary` if the locale is English,
+  /// or `Olá John e Mary` if it's Portuguese.
+  ///
+  /// The problem with this interpolation method is that it doesn’t allow for the
+  /// translated string to change the order of the parameters.
+  ///
+  String args(Object p1,
+          [Object? p2,
+          Object? p3,
+          Object? p4,
+          Object? p5,
+          Object? p6,
+          Object? p7,
+          Object? p8,
+          Object? p9,
+          Object? p10,
+          Object? p11,
+          Object? p12,
+          Object? p13,
+          Object? p14,
+          Object? p15]) =>
+      localizeArgs(
+          this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+}
 
 extension I18nBuildContextExtension on BuildContext {
   //
@@ -17,8 +176,12 @@ extension I18nBuildContextExtension on BuildContext {
   ///     OR
   ///     I18n.of(context).locale = null;
   ///
-  /// Note: This will change the current locale only for the i18n_extension,
-  /// and not for Flutter as a whole.
+  /// Please note, a Locale object can also be constructed with
+  /// the [I18nStringExtension.asLocale] extension:
+  ///
+  /// ```dart
+  /// context.locale = 'es-ES'.asLocale;
+  /// ```
   ///
   set locale(Locale? locale) {
     I18n.of(this).locale = locale;
@@ -39,7 +202,7 @@ extension I18nBuildContextExtension on BuildContext {
   ///
   Locale get locale => I18n.of(this).locale;
 
-  /// To return the current locale to the default system locale,
+  /// To reset the current locale back to the default system locale,
   /// which is set in the device settings:
   ///
   ///     context.resetLocale();
@@ -64,14 +227,14 @@ extension I18nStringExtension on String {
   /// If the string is not a valid BCP47 language, [asLocale] will try to fix it.
   /// However, it will only fix the most common errors, by removing spaces,
   /// converting underscores to hyphens, and normalizing the case.
-  /// If it can't fix it, it will return an invalid [Locale], or maybe `Locale('und')`,
+  /// If it can’t fix it, it will return an invalid [Locale], or maybe `Locale('und')`,
   /// meaning the locale is undefined.
   ///
   /// See also: [I18nLocaleExtension.format].
   ///
   Locale get asLocale {
     //
-    String? locale = DefaultLocale.normalizeLocale(this);
+    String? locale = core.DefaultLocale.normalizeLocale(this);
 
     if (locale == null) return const Locale('und');
 
@@ -100,7 +263,7 @@ extension I18nStringExtension on String {
       }
     }
 
-    // Doesn't happen in practice.
+    // Doesn’t happen in practice.
     if (languageCode.isEmpty) return const Locale('und');
 
     return Locale.fromSubtags(
@@ -142,7 +305,7 @@ extension I18nLocaleExtension on Locale {
   /// See also: [I18nStringExtension.asLocale].
   ///
   String format({String? separator}) {
-    String? languageTag = DefaultLocale.normalizeLocale(toLanguageTag());
+    String? languageTag = core.DefaultLocale.normalizeLocale(toLanguageTag());
 
     if ((languageTag != null) && (separator != null))
       languageTag = languageTag.replaceAll('-', separator);

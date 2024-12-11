@@ -20,7 +20,7 @@ void main() {
     expect(_newLocale, isNull);
     expect(count, 0);
 
-    /// This won't call the [observeLocale] function because the
+    /// This won’t call the [observeLocale] function because the
     /// [I18n.defaultLocale] is already Locale('en', 'US').
     I18n.define(const Locale('en', 'US'));
     expect(_oldLocale, isNull);
@@ -39,7 +39,7 @@ void main() {
     expect(_newLocale.toString(), "en_US");
     expect(count, 2);
 
-    /// This won't call the [observeLocale] function because the
+    /// This won’t call the [observeLocale] function because the
     /// [I18n.defaultLocale] is already Locale('en', 'US').
     I18n.define(null);
     expect(count, 2);
@@ -48,7 +48,7 @@ void main() {
     I18n.define(const Locale('pt', 'BR'));
     expect(count, 3);
 
-    /// This won't call the [observeLocale] function because the
+    /// This won’t call the [observeLocale] function because the
     /// locale is already "pt_BR".
     I18n.define(const Locale('pt', 'BR'));
     expect(count, 3);

@@ -29,7 +29,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 
 * Now you can use ANY object type as translation keys. Before, it was only possible to use
-  strings as translation keys. You can now use `Translations.byId<T>()` and provide the
+  strings as translation keys. You can now use `Translations.byId()` and provide the
   type `T` of your identifier. Your `T` can be anything, including `String`, `int`,
   `double`, `DateTime`, or even your own custom object types, as long as they implement
   `==` and `hashCode`. If you use `Object` or `Object?`/`dynamic` then anything can be
@@ -80,7 +80,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 ## 8.0.0
 
 * Breaking change: Removed dependency on analyzer and gettext_parser. The getStrings
-  doesn't work in this version.
+  doesn’t work in this version.
 
 ## 6.0.0
 

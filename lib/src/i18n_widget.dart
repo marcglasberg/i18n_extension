@@ -1,5 +1,6 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -69,18 +70,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///   child: MyMaterialApp(),
 /// ```
 ///
-/// The [saveLocale] parameter is optional. If [saveLocale] is true, the locale
-/// will be saved and recovered between app restarts. This is useful if you want
-/// to remember the user's language preference.
+/// The [autoSaveLocale] parameter is an optional boolean, and the default is false.
+/// If you set [autoSaveLocale] to true, the locale will be saved and recovered between app
+/// restarts. This is useful if you want to remember the user's language preference.
 ///
 /// ```dart
 /// return I18n(
-///   saveLocale: true,
+///   autoSaveLocale: true,
 ///   child: MyMaterialApp(),
 /// ```
 ///
 /// Note, if your app only ever uses the current system locale, or if you save the
-/// locale in another way, you can set [saveLocale] to false. The default is false.
+/// locale in another way, you can keep [autoSaveLocale] as false.
 ///
 class I18n extends StatefulWidget {
   //
@@ -92,12 +93,11 @@ class I18n extends StatefulWidget {
   /// If you don’t set it, the current system-locale will be used.
   final Locale? initialLocale;
 
-  /// If [saveLocale] is true, the locale will be saved and recovered between
+  /// If [autoSaveLocale] is true, the locale will be saved and recovered between
   /// app restarts. This is useful if you want to remember the user's language
   /// preference. If your app only ever uses the current system locale, or if you
-  /// save the locale in another way, you can set [saveLocale] to false.
-  /// The default is false.
-  final bool saveLocale;
+  /// save the locale in another way, keep [autoSaveLocale] as false.
+  final bool autoSaveLocale;
 
   /// # Setup
   ///
@@ -159,23 +159,23 @@ class I18n extends StatefulWidget {
   ///   child: MyMaterialApp(),
   /// ```
   ///
-  /// The [saveLocale] parameter is optional. If [saveLocale] is true, the locale
-  /// will be saved and recovered between app restarts. This is useful if you want
-  /// to remember the user's language preference.
+  /// The [autoSaveLocale] parameter is an optional boolean, and the default is false.
+  /// If you set [autoSaveLocale] to true, the locale will be saved and recovered between app
+  /// restarts. This is useful if you want to remember the user's language preference.
   ///
   /// ```dart
   /// return I18n(
-  ///   saveLocale: true,
+  ///   autoSaveLocale: true,
   ///   child: MyMaterialApp(),
   /// ```
   ///
   /// Note, if your app only ever uses the current system locale, or if you save the
-  /// locale in another way, you can set [saveLocale] to false. The default is false.
+  /// locale in another way, you can keep [autoSaveLocale] as false.
   ///
   I18n({
     required this.child,
     this.initialLocale,
-    this.saveLocale = false,
+    this.autoSaveLocale = false,
   }) : super(key: _i18nKey);
 
   /// Return the current locale of the app.
@@ -263,7 +263,7 @@ class I18n extends StatefulWidget {
 
   /// When the app starts, the [systemLocale] is read from the system as soon as possible.
   /// The system locale might be unavailable for a brief period. Usually, this is not an
-  /// issue and won't be noticeable, but in rare cases, this locale will be used until
+  /// issue and won’t be noticeable, but in rare cases, this locale will be used until
   /// the actual system locale is determined. You can change this to your preferred
   /// locale if needed. Otherwise, leave it as is.
   static Locale preInitializationLocale = const Locale('es', 'US');
@@ -286,9 +286,10 @@ class I18n extends StatefulWidget {
   }
 
   static void _checkLanguageCode(Locale locale) {
-    if (locale.languageCode.contains("_"))
+    if (locale.languageCode.contains("_")) {
       throw TranslationsException("Language code '${locale.languageCode}' is invalid: "
           "Contains an underscore character.");
+    }
   }
 
   /// Return the string representation of the locale, normalized like so:
@@ -338,9 +339,10 @@ class I18n extends StatefulWidget {
     _InheritedI18n? inherited =
         context.dependOnInheritedWidgetOfExactType<_InheritedI18n>();
 
-    if (inherited == null)
-      throw TranslationsException("Can't find the `I18n` widget up in the tree. "
+    if (inherited == null) {
+      throw TranslationsException("Can’t find the `I18n` widget up in the tree. "
           "Please make sure to wrap some ancestor widget with `I18n`.");
+    }
 
     return inherited.data;
   }
@@ -378,6 +380,37 @@ class I18n extends StatefulWidget {
   /// Locale to override the system-locale.
   /// If this is non-null, it means the locale is being forced.
   static Locale? _forcedLocale;
+
+  /// Saves the given [locale] to the shared preferences of the device.
+  ///
+  /// See also: [loadLocale], [deleteLocale].
+  ///
+  static Future<void> saveLocale(Locale? locale) {
+    if (locale == null)
+      return SharedPreferencesAsync().remove('locale');
+    else
+      return SharedPreferencesAsync().setString('locale', locale.format());
+  }
+
+  /// Load the locale previously saved with [saveLocale], from the shared
+  /// preferences of the device. Note this only returns the saved locale,
+  /// but it doesn’t set it.
+  ///
+  /// See also: [saveLocale], [deleteLocale].
+  ///
+  static Future<Locale?> loadLocale() async {
+    String? localeStr = await SharedPreferencesAsync().getString('locale');
+    return (localeStr == null) ? null : localeStr.asLocale;
+  }
+
+  /// Deletes the locale previously saved with [saveLocale], from the shared
+  /// preferences of the device.
+  ///
+  /// See also: [saveLocale], [loadLocale].
+  ///
+  static Future<void> deleteLocale() {
+    return SharedPreferencesAsync().remove('locale');
+  }
 
   @override
   _I18nState createState() => _I18nState();
@@ -418,11 +451,15 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
   ///     OR
   ///     I18n.of(context).locale = null;
   ///
-  /// Note: This will change the current locale only for the i18n_extension,
-  /// and not for Flutter as a whole.
+  /// Please note, a Locale object can also be constructed with
+  /// the [I18nStringExtension.asLocale] extension:
+  ///
+  /// ```dart
+  /// context.locale = 'es-ES'.asLocale;
+  /// ```
   ///
   set locale(Locale? locale) {
-    _maybeSaveLocale(locale);
+    if (autoSaveLocale) I18n.saveLocale(locale);
 
     setState(() {
       _locale = locale;
@@ -430,7 +467,7 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
     });
   }
 
-  /// To return the current locale to the default system locale,
+  /// To reset the current locale back to the default system locale,
   /// which is set in the device settings:
   ///
   ///     context.resetLocale();
@@ -441,21 +478,29 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
     locale = null;
   }
 
-  void _maybeSaveLocale(Locale? locale) {
-    if (saveLocale && _locale != locale) {
-      if (locale == null)
-        SharedPreferencesAsync().remove('locale');
-      else
-        SharedPreferencesAsync().setString('locale', locale.toString());
-    }
-  }
+  /// Loads the locale previously saved with [saveLocale], from the shared
+  /// preferences of the device, and then set it.
+  ///
+  /// IMPORTANT: This method may be safely called from initState. Note that the locale
+  /// will be set asynchronously, so it may take a few milliseconds to be set.
+  ///
+  void _loadAndSetLocale(BuildContext context) {
+    //
+    SharedPreferencesAsync().getString('locale').then((String? localeStr) {
+      if (localeStr != null) {
+        Locale locale = localeStr.asLocale;
 
-  // void _maybeLoadLocale() {
-  //   if (saveLocale) {
-  //     var localeStr = SharedPreferencesAsync().getString('locale');
-  //     Locale locale = localeStr != null ? Locale(localeStr) : null;
-  //   }
-  // }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && (locale != I18n.locale)) {
+            setState(() {
+              _locale = locale;
+              _forceAndObserveLocale();
+            });
+          }
+        });
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -463,16 +508,18 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
     _locale = widget.initialLocale;
     _forceAndObserveLocale();
 
-    // Add this widget as an observer to listen for system changes
+    if (autoSaveLocale) _loadAndSetLocale(context);
+
+    // Add this widget as an observer to listen for system changes.
     WidgetsBinding.instance.addObserver(this);
   }
 
-  /// If [saveLocale] is true, the locale will be saved and recovered between
+  /// If [autoSaveLocale] is true, the locale will be saved and recovered between
   /// app restarts. This is useful if you want to remember the user's language
   /// preference. If your app only ever uses the current system locale, or if you
-  /// save the locale in another way, you can set [saveLocale] to false.
+  /// save the locale in another way, you can set [autoSaveLocale] to false.
   /// The default is false.
-  bool get saveLocale => widget.saveLocale;
+  bool get autoSaveLocale => widget.autoSaveLocale;
 
   void _forceAndObserveLocale() {
     //

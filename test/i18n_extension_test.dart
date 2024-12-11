@@ -684,7 +684,7 @@ void main() {
 
     // ---------------
 
-    // 3) However, note this doesn't reduce boilerplate when using the regular constructor,
+    // 3) However, note this doesn’t reduce boilerplate when using the regular constructor,
     // since it uses the default locale translation as key.
 
     Translations.missingKeys.clear();

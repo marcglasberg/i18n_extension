@@ -22,12 +22,12 @@ extension MyLocalization on Object {
     greetings: {
       "en-US": "This example demonstrates how to use identifiers as keys.\n\n"
           "For example, you can declare:\n"
-          "final greetings = UniqueKey();\n"
+          "final greetings = Object();\n"
           "and then write:\n"
           "Text(greetings.i18n);\n",
       "pt-BR": "Este exemplo demonstra como usar identificadores como chaves.\n\n"
           "Por exemplo, você pode declarar:\n"
-          "final greetings = UniqueKey();\n"
+          "final greetings = Object();\n"
           "e daí escrever:\n"
           "Text(greetings.i18n);\n",
     },

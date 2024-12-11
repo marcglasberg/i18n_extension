@@ -46,9 +46,13 @@ String localize(
 }) =>
     core.localize(key, translations, locale: languageTag ?? I18n.languageTag);
 
-/// # Interpolation with {id} and maps
+/// The [localizeArgs] function applies interpolations on [text]
+/// with the given params, [p1], [p2], [p3], ..., [p15].
 ///
-/// Your translations file may declare an `args` method to do interpolations:
+///
+/// # 1. Interpolation with named placeholders
+///
+/// Your translations file may contain interpolations:
 ///
 /// ```dart
 /// static var _t = Translations.byText('en-US') +
@@ -58,101 +62,69 @@ String localize(
 ///     };
 ///
 /// String get i18n => localize(this, _t);
-///
-/// String args(Object params) => localizeArgs(this, params);
 /// ```
 ///
-/// Then you may use it like this:
+/// Then use the [args] function:
 ///
 /// ```dart
-/// print('Hello {student} and {teacher}'.i18n.args({'student': 'John', 'teacher': 'Mary'}));
-/// ```
-///
-/// Or like this:
-///
-/// ```dart
-/// print('Hello {student} and {teacher}'.i18n.args('John', 'Mary'));
-/// ```
-///
-/// Or like this:
-///
-/// ```dart
-/// print('Hello {student} and {teacher}'.i18n.args(['John', 'Mary']));
+/// print('Hello {student} and {teacher}'.i18n
+///   .args({'student': 'John', 'teacher': 'Mary'}));
 /// ```
 ///
 /// The above code will print `Hello John and Mary` if the locale is English,
-/// or `Olá John e Mary` if it's Portuguese.
+/// or `Olá John e Mary` if it's Portuguese. This interpolation method allows for the
+/// translated string to change the order of the parameters.
 ///
-/// # Interpolation with {} and lists
+/// # 2. Interpolation with numbered placeholders
 ///
 /// ```dart
 /// static var _t = Translations.byText('en-US') +
-/// {
-/// 'en-US': 'Hello {} and {}',
-/// 'pt-BR': 'Olá {} e {}',
-/// };
+///     {
+///       'en-US': 'Hello {1} and {2}',
+///       'pt-BR': 'Olá {1} e {2}',
+///     };
 ///
 /// String get i18n => localize(this, _t);
-///
-/// String args(Object params) => localizeArgs(this, params);
 /// ```
 ///
-/// Then you may use it like this:
+/// Then use the [args] function:
+///
+/// ```dart
+/// print('Hello {1} and {2}'.i18n
+///   .args({1: 'John', 2: 'Mary'}));
+/// ```
+///
+/// The above code will print `Hello John and Mary` if the locale is English,
+/// or `Olá John e Mary` if it's Portuguese. This interpolation method allows for the
+/// translated string to change the order of the parameters.
+///
+///
+/// # 3. Interpolation with unnamed placeholders
+///
+/// ```dart
+/// static var _t = Translations.byText('en-US') +
+///     {
+///       'en-US': 'Hello {} and {}',
+///       'pt-BR': 'Olá {} e {}',
+///     };
+///
+/// String get i18n => localize(this, _t);
+/// ```
+///
+/// Then use the [args] function:
 ///
 /// ```dart
 /// print('Hello {} and {}'.i18n.args('John', 'Mary'));
-/// ```
-///
-/// Or like this:
-///
-/// ```dart
-/// print('Hello {} and {}'.i18n.args(['John', 'Mary']));
+/// print('Hello {} and {}'.i18n.args(['John', 'Mary'])); // Also works
 /// ```
 ///
 /// The above code will replace the `{}` in order,
 /// and print `Hello John and Mary` if the locale is English,
 /// or `Olá John e Mary` if it's Portuguese.
 ///
-/// The problem of using this interpolation method is that it doesn't allow for the
+/// The problem with this interpolation method is that it doesn’t allow for the
 /// translated string to change the order of the parameters.
 ///
-/// # Interpolation with {1}, {2} etc., and lists
-///
-/// ```dart
-/// static var _t = Translations.byText('en-US') +
-/// {
-/// 'en-US': 'Hello {1} and {2}',
-/// 'pt-BR': 'Olá {1} e {2}',
-/// };
-///
-/// String get i18n => localize(this, _t);
-///
-/// String args(Object params) => localizeArgs(this, params);
-/// ```
-///
-/// Then you may use it like this:
-///
-/// ```dart
-/// print('Hello {1} and {2}'.i18n.args('John', 'Mary'));
-/// ```
-///
-/// Or like this:
-///
-/// ```dart
-/// print('Hello {1} and {2}'.i18n.args(['John', 'Mary']));
-/// ```
-///
-/// Or like this:
-///
-/// ```dart
-/// print('Hello {1} and {2}'.i18n.args({1: 'John', 2: 'Mary'}));
-/// ```
-///
-/// The above code will print `Hello John and Mary` if the locale is English,
-/// or `Olá John e Mary` if it's Portuguese.
-///
-/// This interpolation method allows for the
-/// translated string to change the order of the parameters.
 String localizeArgs(Object? text, Object p1,
         [Object? p2,
         Object? p3,
@@ -171,7 +143,9 @@ String localizeArgs(Object? text, Object p1,
     core.localizeArgs(
         text, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
 
-/// The [localizeFill] function applies a `sprintf` on the [text] with the [params].
+/// The [localizeFill] function applies a `sprintf` on the [text]
+/// with the given params, [p1], [p2], [p3], ..., [p15].
+///
 /// This is implemented with the `sprintf` package: https://pub.dev/packages/sprintf
 ///
 /// Example:

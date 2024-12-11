@@ -40,8 +40,8 @@ void main() {
 enum MyColors { red, green }
 
 const legalTerms = "legalTerms";
-final privacyPolicy = UniqueKey();
-final faq = UniqueKey();
+final privacyPolicy = Object();
+final faq = Object();
 
 extension Localization on Object? {
   //
@@ -75,7 +75,7 @@ extension Localization on Object? {
 enum Gender { they, female, male, x }
 
 /// IMPORTANT: You can create your own class and use its objects as identifiers, but it
-/// must implement the `==` and `hashCode` methods. Otherwise, it won't be possible to
+/// must implement the `==` and `hashCode` methods. Otherwise, it won’t be possible to
 /// find it as one of the translation keys.
 class SomeObj {
   final String value;

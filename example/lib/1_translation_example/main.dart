@@ -29,25 +29,16 @@ import 'my_screen.dart';
 ///
 ///     "You clicked the button %d times:".plural(counter),
 ///
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return I18n(
-      //
-      // Keep it commented out to use the current system locale.
-      // initialLocale: 'es-ES'.asLocale,      
-      //
-      // If you want, you can ask it to save locale changes to the device's storage:
-      // saveLocale: true,
-      //
+  
+  runApp(
+    I18n(
+      initialLocale: await I18n.loadLocale(),
+      autoSaveLocale: true,
       child: MyMaterialApp(),
-    );
-  }
+    ),
+  );
 }
 
 class MyMaterialApp extends StatelessWidget {

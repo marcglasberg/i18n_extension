@@ -41,16 +41,16 @@ The text will automatically show the correct translation based on the current lo
 For example, if your app supports `en-US`, `pt-BR`, and `es` (American English, Brazilian
 Portuguese, and Spanish):
 
-- If the current locale is `en-US` it shows `'How are you?'`
-- If the current locale is `pt-BR` it shows `'Como vai?'`
-- If the current locale is `es` it shows `'¿Cómo estás?'`
+- When the current locale is `en-US`, it shows `'How are you?'`
+- When the current locale is `pt-BR`, it shows `'Como vai?'`
+- When the current locale is `es`, it shows `'¿Cómo estás?'`
 - And so on for any other locales you want to support
 
-Note the original English string doubles as **"translation key"** to
+Note the original English string doubles as the **"translation key"** to
 find the appropriate translation. One advantage of this approach is that you don’t need
-to come up with unique identifiers for each string.
+to come up with _unique identifiers_ for each string.
 
-Another, is that you can see actual text in your code,
+Another advantage is that you can see actual text in your code,
 which is generally simpler and easier to understand than seeing identifiers.
 
 ## Option 2: Identifiers are translation keys
@@ -79,8 +79,8 @@ Text(MyScope.greetings.i18n);
 ```
 
 Note you can always mix and match strings and identifiers as translation keys.
-For example, you might use short texts as string keys
-and provide long texts by using identifier keys:
+For example, you might use string keys for short texts,
+while using identifiers for long texts, as shown here:
 
 ```dart
 Widget build(BuildContext context) {
@@ -99,8 +99,11 @@ Widget build(BuildContext context) {
 }
 ```
 
-The package also allows you to provide different translations depending on modifiers, such
-as `plural` quantities:
+## Other features
+
+Other `i18n_extension` features that will be later discussed in more detail include:
+
+Providing different translations depending on modifiers, such as `plural` quantities:
 
 ```dart
 'There is 1 item'.plural(0); // There are no items
@@ -108,9 +111,8 @@ as `plural` quantities:
 'There is 1 item'.plural(2); // There are 2 items
 ```
 
-And you can invent your own modifiers according to any conditions. For example, some
-languages have different translations for different genders. So you could create `gender`
-versions for `Gender` modifiers:
+Inventing your own modifiers according to any conditions. For example, for
+languages with genders, you can create `gender` versions for `Gender` modifiers:
 
 ```dart
 'There is a person'.gender(Gender.male); // There is a man
@@ -118,7 +120,7 @@ versions for `Gender` modifiers:
 'There is a person'.gender(Gender.they); // There is a person
 ```
 
-You can interpolate by replacing placeholders with values, using the `args` function:
+Interpolating by replacing placeholders with values, with the `args` function:
 
 ```dart
 // Hello John and Mary
@@ -137,13 +139,47 @@ You can interpolate by replacing placeholders with values, using the `args` func
 'Hello {name}, let’s meet up with {} and {other} to explore {1} and {2}.'.args('Charlie', {'name': 'Alice', 'other': 'Bob'}, {1: 'Paris', 2: 'London'});
 ```
 
-Those who prefer to interpolate with *
-*[sprintf](https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm)** can
-use the `fill` function:
+Interpolating by
+using [sprintf](https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm),
+with the `fill` function:
 
 ```dart
 // Hello John and Mary
 'Hello %s and %s'.fill('John', 'Mary');
+```
+
+Getting and setting the current locale:
+
+```dart
+context.locale; // Current locale, from context
+
+I18n.of(context).locale; // Current locale, from context 
+
+I18n.locale; // Current locale, statically 
+
+I18n.languageTag; // Current language tag, like "en-US"
+
+I18n.languageOnly; // Language without region, Like "en"
+
+I18n.systemLocale; // Current system locale, read from the device 
+
+Localizations.maybeLocaleOf(context); // The Flutter native way also works  
+```
+
+```dart
+context.locale = Locale('en', 'US'); // Set the current locale
+
+context.locale = 'es-ES'.asLocale; // Use language tag to set the current locale  
+
+context.resetLocale(); // Reset back to the system locale 
+```
+
+Auto saving the current locale:
+
+```dart
+I18n(
+  autoSaveLocale: true,
+  child: ...
 ```
 
 ## See it working
@@ -154,7 +190,7 @@ translation example</a>.
 
 ![](./example/lib/1_translation_example/i18nScreen.jpg)
 
-## Setup
+# Setup
 
 Follow these 4 easy steps to set up the `i18n_extension` package in your app:
 
@@ -235,8 +271,8 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
        
 void main() {
- WidgetsFlutterBinding.ensureInitialized();
- runApp(I18n(child: MyMaterialApp()));
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(I18n(child: MyMaterialApp()));
 }
 
 class MyMaterialApp extends StatelessWidget {
@@ -284,7 +320,7 @@ to `I18n.of(context).locale`, and to `context.locale`, and to `I18n.locale`.
 The `I18n` widget will translate your strings to the current **system locale**,
 which is the locale the user has set in the device settings, outside your app.
 
-You can override it with your own locale, like this:
+However, you can override it with your own initial locale, like this:
 
 ```dart
 I18n(
@@ -292,31 +328,58 @@ I18n(
   child: ...
 ```
 
-Setting the initial locale like this doesn't change the system locale, but simply "forces"
-your app to use this initial locale you provided, when the app starts. 
-You can always later change the locale dynamically, as will be explained below.
+Note you can always later change the locale dynamically, as will be explained below.
 
-In most applications, you should not set the initial locale, and instead let the
-system locale be the default. This way, your app will automatically be in the
+In most applications, you should **not** set the initial locale, and instead let the
+system locale be used. This way, your app will automatically be in the
 language the user has set in the device settings. Or, if that language is not
 supported by your app, it will fall back to one of the supported languages,
 automatically.
 
-## Saving the locale
+## Auto saving the locale
 
-the current locale can be changed dynamically by the user, as will be explained below.
-If you want the user choice to be saved between app restarts, you may simply set
-the `saveLocale` parameter to `true`:
+Some apps may allow the user to change the language/locale of the app, from inside the
+app. You can allow that by creating some widget that presents the list of available
+locales, and then set it with:
 
 ```dart
-return I18n(
-  saveLocale: true,
+context.locale = 'es-ES'.asLocale;
+```
+
+If you want that user choice to be saved between app restarts,
+simply set the `autoSaveLocale` parameter to `true`:
+
+```dart
+I18n(
+  autoSaveLocale: true,
   child: MyMaterialApp(),
   ...
 ```
 
-This will automatically save changes to the locale in the device's storage 
+This will automatically save changes to the locale in the device's storage
 (shared preferences), and restore it when the app restarts.
+
+Note the locale is read asynchronously, which may result in a one frame flicker
+of the default system locale, before the saved locale is restored. If you want to avoid
+this flicker, you can explicitly preload the locale yourself when the app starts:
+
+```dart    
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+ 
+  runApp(
+    I18n(
+      initialLocale: await I18n.loadLocale(),
+      autoSaveLocale: true, 
+      child: MyMaterialApp(),    
+      ...
+```
+
+> Note: While usually not needed, you can also manually load, save and delete the
+> locale from the shared preferences, at any later time,
+> by using the provided static functions:
+> `var locale = await I18n.loadLocale()`, `I18n.saveLocale(locale)`
+> and `I18n.deleteLocale()`.
 
 # Translating a widget
 
@@ -327,7 +390,7 @@ widget's file:
 import 'package:i18n_extension/default.i18n.dart';
 ```
 
-This will allow you to add `.i18n` and `.plural()` to your strings, but won't translate
+This will allow you to add `.i18n` and `.plural()` to your strings, but won’t translate
 anything.
 
 When you are ready to create your translations, you must create a dart file to hold them.
@@ -364,6 +427,10 @@ extension Localization on String {
 }
 ```
 
+The locale you pass in the `Translations` factory is called the **default locale**.
+For example, in `Translations.byText('en-US')` the default locale is `en-US`.
+The string inside your `Text` widget should be in the language of that locale.
+
 The above example shows a single translatable string, translated to American English,
 Brazilian Portuguese, general Spanish, French and German.
 
@@ -393,43 +460,11 @@ extension Localization on String {
 }
 ```
 
-## Strings themselves are the translation keys
-
-The locale you pass in the `Translations` factory is called the **default locale**.
-For example, in `Translations.byText('en-US')` the default locale is `en-US`.
-The strings inside your `Text` widget should be in the language of that locale.
-
-The strings themselves are used as **keys** when searching for translations to the other
-locales. For example, in the `Text` below, `'Hello, how are you?'` is both the translation
-to English, and the key to use when searching for its other translations:
-
-```dart
-Text('Hello, how are you?'.i18n)
-```
-
-If any translation key is missing from the translation maps, the key itself will be used,
-so the text will still appear in the screen, untranslated.
-
-If the translation key is found, it will choose the language according to the following
-rules:
-
-1. It will use the translation to the exact current locale, for example `en_us`.
-
-2. If this is absent, it will use the translation to the general language of the current
-   locale, for example `en`.
-
-3. If this is absent, it will use the translation to any other locale with the same
-   language, for example `en-UK`.
-
-4. If this is absent, it will use the value of the key in the default language.
-
-5. If this is absent, it will use the key itself as the translation.
-
 Try running
 the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/translation_example/main.dart">
 example using strings as translation keys</a>.
 
-## Or you can, instead, use identifiers as translation keys
+## Or use identifiers
 
 Instead of:
 
@@ -443,17 +478,17 @@ You can also do:
 greetings.i18n
 ```
 
-To that end, you can use the `Translations.byId<T>()` factory:
+To that end, you can use the `Translations.byId()` factory:
 
 ```dart
 import 'package:flutter/foundation.dart';
 
-final appbarTitle = UniqueKey();
-final greetings = UniqueKey();
+final appbarTitle = Object();
+final greetings = Object();
 
-extension Localization on UniqueKey {
+extension Localization on Object {
     
-  static final _t = Translations.byId<UniqueKey>('en-US', {
+  static final _t = Translations.byId('en-US', {
     appbarTitle: {
       'en-US': 'i18n Demo',
       'pt-BR': 'Demonstração i18n',
@@ -489,7 +524,35 @@ For example, if you use `int` as your key type, you need to
 declare `extension Localization on int { ... }`.
 
 If your `T` is `Object` or `Object?` or `dynamic`, then anything can be translated, and
-you need to write: `extension Localization on Objec? { ... }`
+you need to write: `extension Localization on Object? { ... }`
+
+```dart
+// Objects  
+const greetings = Object();
+greetings.i18n // Turns into 'How are you?' in en, 'Como vai?' in pt  
+
+// Final variables  
+final faq = 'faq';
+faq.i18n // 'FAQ' in en, 'Perguntas frequentes' in pt
+
+// Enums  
+enum MyColors { red, blue }
+MyColors.red.i18n // 'Red' in en, 'Vermelho' in pt
+MyColors.blue.i18n // 'Blue' in en, 'Azul' in pt
+
+// Numbers, booleans, Dates  
+12.i18n // 'Twelve' in en, 'Doze' in pt
+true.i18n // 'Yes' in en, 'Sim' in pt
+false.i18n // 'No' in en, 'Não'
+DateTime(2021, 1, 1).i18n // 'New Year' in en, 'Ano Novo' in pt
+
+// Your own object types  
+class User { ... }
+User('John').i18n // 'Mr. John' in en, 'Sr. John' in pt
+```
+
+Even though you can use any object type as a translation key, it is recommended to use
+`Object()` values, as they are simple and work fine.
 
 ## Recommended way
 
@@ -510,12 +573,12 @@ while `My Settings`, `Ok` and `Back` are used as string keys:
 ```
 import 'package:flutter/foundation.dart';
 
-final privacyPolicy = UniqueKey();
-final termsOfUse = UniqueKey();
+final privacyPolicy = Object();
+final termsOfUse = Object();
 
 extension Localization on Object {
     
-  static final _t = Translations.byId<Object>('en-US', {
+  static final _t = Translations.byId('en-US', {
     privacyPolicy: { 'en-US': 'Very Looong text', 'pt-BR': 'Very Looong text' },
     termsOfUse: { 'en-US': 'Very Looong text', 'pt-BR': 'Very Looong text' },
     'My Settings': { 'en-US': 'My Settings', 'pt-BR': 'Meus ajustes' },    
@@ -706,7 +769,7 @@ The above code will replace the `{}` in order,
 and print `Hello John and Mary` if the locale is English,
 or `Olá John e Mary` if it's Portuguese.
 
-The problem of using this interpolation method is that it doesn't allow for the
+The problem of using this interpolation method is that it doesn’t allow for the
 translated string to change the order of the parameters.
 
 ## Interpolation with {1}, {2} etc., and lists
@@ -789,64 +852,69 @@ the [sprintf specification](https://www.tutorialspoint.com/c_standard_library/c_
 
 ## Translation modifiers
 
-Sometimes you have different translations that depend on a number quantity.
-Instead of `.i18n` you can use `.plural()` and pass it a number. For example:
+Sometimes your translations depend on a **number quantity**.
+
+For example, if someone is buying books, you may want to highlight the singular versus
+plural difference book/books: `'You are buying 1 book'` (singular) versus
+`'You are buying 2 books'` (plural).
+
+To allow for plurals, instead of `.i18n` you can use `.plural()` and pass it a number. For
+example:
 
 ```dart
-int numOfItems = 3;
-return Text('You clicked the button %d times'.plural(numOfItems));
+int numOfBooks = 2;
+return Text('You are buying 1 book'.plural(numOfBooks));
 ```
-
-This will be translated, and if the translated string contains `%d` it will be replaced
-by the number.
 
 Then, your translations file should contain something like this:
 
 ```dart
 static var _t = Translations.byText('en-US') +
   {
-    'en-US': 'You clicked the button %d times'
-        .zero('You haven't clicked the button')
-        .one('You clicked it once')
-        .two('You clicked a couple times')
-        .many('You clicked %d times')
-        .times(12, 'You clicked a dozen times'),
-    'pt-BR': 'Você clicou o botão %d vezes'
-        .zero('Você não clicou no botão')
-        .one('Você clicou uma única vez')
-        .two('Você clicou um par de vezes')
-        .many('Você clicou %d vezes')
-        .times(12, 'Você clicou uma dúzia de vezes'),
+    'en-US': 'You are buying 1 book'                       
+      .two('You are buying 2 books'),        
+    'pt-BR': 'Você está comprando 1 livro'               
+      .two('Você está comprando 2 livros'),
   };
-
+  
 String plural(value) => localizePlural(value, this, _t);
 ```
 
-Or, if you want to define your translations by locale:
+The above example only has translations for 1 and 2 books.
+If you can have any number of books, the translated string can contain the appropriate
+placeholder, and it will be replaced by the exact number:
 
 ```dart
-static var _t = Translations.byLocale('en-US') +
-    {
-      'en-US': {
-        'You clicked the button %d times': 
-          'You clicked the button %d times'
-            .zero('You haven't clicked the button')
-            .one('You clicked it once')
-            .two('You clicked a couple times')
-            .many('You clicked %d times')
-            .times(12, 'You clicked a dozen times'),
-      },
-      'pt-BR': {
-        'You clicked the button %d times': 
-          'Você clicou o botão %d vezes'
-            .zero('Você não clicou no botão')
-            .one('Você clicou uma única vez')
-            .two('Você clicou um par de vezes')
-            .many('Você clicou %d vezes')
-            .times(12, 'Você clicou uma dúzia de vezes'),
-      }
-    };
+static var _t = Translations.byText('en-US') +
+  {
+    'en-US': 'You are buying 1 book'                       
+      .many('You are buying {} books'),        
+    'pt-BR': 'Você está comprando 1 livro'               
+      .many('Você está comprando {} livros'),
+  };
+  
+String plural(value) => localizePlural(value, this, _t);
 ```
+
+The placeholder can be:
+
+* An unnamed placeholder, like: `{}`
+
+  ```dart
+  return Text('You are buying {} books'.plural(42));
+  ```
+
+* A named placeholder, like: `{numOfBooks}` etc
+
+  ```dart
+  return Text('You are buying {numOfBooks} books'.plural({'numOfBooks': 42}));
+  ```
+
+* Or `%d` if you like the sprintf syntax
+
+  ```dart
+  return Text('You are buying %d books'.plural(42));
+  ```
 
 The plural modifiers you can use are `zero`, `one`, `two`, `three`, `four`, `five`, `six`,
 `ten`, `times` (for any number of elements, except 0, 1 and 2), `many` (for any number of
@@ -862,7 +930,53 @@ than `.many`. If no applicable modifier can be found, it will default to the unv
 string. For example, this: `'a'.zero('b').four('c')` will default to `"a"` for 1, 2, 3, or
 more than 5 elements.
 
-> Note: The `.plural()` method actually accepts any `Object?`, not only an integer number.
+```dart
+static var _t = Translations.byText('en-US') +
+  {
+    'en-US': 'You clicked the button {} times'
+        .zero('You haven’t clicked the button')
+        .one('You clicked it once')
+        .two('You clicked a couple times')
+        .many('You clicked {} times')
+        .times(12, 'You clicked a dozen times'),
+    'pt-BR': 'Você clicou o botão {} vezes'
+        .zero('Você não clicou no botão')
+        .one('Você clicou uma única vez')
+        .two('Você clicou um par de vezes')
+        .many('Você clicou {} vezes')
+        .times(12, 'Você clicou uma dúzia de vezes'),
+  };
+
+String plural(value) => localizePlural(value, this, _t);
+```
+
+Or, if you want to define your translations by locale:
+
+```dart
+static var _t = Translations.byLocale('en-US') +
+    {
+      'en-US': {
+        'You clicked the button {} times': 
+          'You clicked the button {} times'
+            .zero('You haven’t clicked the button')
+            .one('You clicked it once')
+            .two('You clicked a couple times')
+            .many('You clicked {} times')
+            .times(12, 'You clicked a dozen times'),
+      },
+      'pt-BR': {
+        'You clicked the button {} times': 
+          'Você clicou o botão {} vezes'
+            .zero('Você não clicou no botão')
+            .one('Você clicou uma única vez')
+            .two('Você clicou um par de vezes')
+            .many('Você clicou {} vezes')
+            .times(12, 'Você clicou uma dúzia de vezes'),
+      }
+    };
+```
+
+> Note: `.plural()` actually accepts any `Object?`, not only an integer number.
 > In case it's not an integer, it will be converted into an integer. The rules are:
 > 1. If the modifier is an `int`, its absolute value will be used (meaning a negative
      value will become positive).
@@ -921,13 +1035,13 @@ var translations = Translations.byText('en-US') +
       'pt-BR': 'Olá',
     };
 
-// Prints 'Hi'.
+// Prints 'Hi'
 print(localize('Hi', translations, locale: 'en-US');
 
-// Prints 'Olá'.
+// Prints 'Olá'
 print(localize('Hi', translations, locale: 'pt-BR');
 
-// Prints 'Hi'.
+// Prints 'Hi'
 print(localize('Hi', translations, locale: 'not valid');
 ```
 
@@ -945,7 +1059,7 @@ context.locale = 'pt-BR'.asLocale;
 I18n.of(context).locale = 'pt-BR'.asLocale;
 ```
 
-To return the current locale to the default **system locale**, do this:
+To reset the current locale back to the default **system locale**, do this:
 
 ```dart
 context.locale = null;
@@ -962,6 +1076,39 @@ I18n.of(context).resetLocale();
 
 *Note: Any of the above will change the current locale for your widgets using
 the `i18n_extension`, and also for native Flutter widgets.*
+
+## Fallback rules
+
+What happens when you don’t provide the translations for the current locale?
+For example, suppose your current locale is Spanish, but you have only provided
+translations for English and French.
+
+Don’t worry — fallback behavior is usually intuitive and aligns with common sense.
+In most cases, it will do exactly what you’d expect.
+However, if you want all the details, here’s a complete breakdown of how it works:
+
+1. **Exact Match:**  
+   If a translation for the exact locale is found, it will be returned.
+    - Example: For `zh-Hans-CN`, it will first look for `zh-Hans-CN`.
+    - Example: For `pt-BR`, it will first look for `pt-BR`.
+
+2. **Less Specific Locale:**  
+   If an exact match is not found, it will search for translations to less specific
+   locales, progressively broadening the scope until it reaches the general language.
+    - Example: For `zh-Hans-CN`, it will next try `zh-Hans`, then `zh`.
+    - Example: For `pt-BR`, it will next try `pt`.
+
+3. **Alternate Locale Variants:**  
+   If no direct or general match is found, it will look for translations in any other
+   locale with the same language.
+    - Example: For `zh-Hans-CN`, it might try `zh-Hant-CN`.
+    - Example: For `pt-BR`, it might try `pt-PT` or `pt-MO`.
+
+4. **Default Key:**  
+   If no suitable translation is found, the key itself is returned. This could represent
+   the default locale translation.
+    - Example 1: If your code is `Text('Hello there'.i18n)` and no suitable translation
+      is found, it will print `Hello there`.
 
 ## Reading the current locale
 
@@ -1029,12 +1176,12 @@ static const _t = ConstTranslations('en-US',
 ```
 
 IMPORTANT: _Make sure the locales you provide are correct (no spaces, lowercase etc).
-Since this constructor is `const`, the package can't normalize the locales for you.
+Since this constructor is `const`, the package can’t normalize the locales for you.
 If you are not sure, call `ConstTranslations.normalizeLocale(locale)` on the locale before
 using it._
 
 Unfortunately, the `ConstTranslations` class is not as flexible as the `Translations`
-class, as you can't define modifiers like `plural()` etc with it. This limits its
+class, as you can’t define modifiers like `plural()` etc with it. This limits its
 usefulness.
 
 # A quick recap of Flutter locales
@@ -1214,8 +1361,8 @@ expect('Hello'.i18n, 'Hola');
 ```
 
 The only important difference is that you must use `DefaultLocale.set()` instead
-of `I18n.of(context).locale = ...` to set the locale. And you won't have access
-and won't need to use the `i18n` widget, obviously.
+of `I18n.of(context).locale = ...` to set the locale. And you won’t have access
+and won’t need to use the `i18n` widget, obviously.
 
 # Importing and exporting
 
@@ -1340,7 +1487,7 @@ are applied. Since it is not very smart, you should not make it too hard:
 print('Hello World!'.i18n); // This would work.
 
 // But the tool would not be able to spot this 
-// since it doesn't execute the code.
+// since it doesn’t execute the code.
 var x = 'Hello World';
 print(x.i18n);
 ```
@@ -1349,7 +1496,7 @@ print(x.i18n);
 
 As previously discussed, i18n_extension will automatically list all keys into a map if you
 use some unknown locale, run the app, and manually or automatically go through all the
-screens. For example, create a Greek locale if your app doesn't have Greek translations,
+screens. For example, create a Greek locale if your app doesn’t have Greek translations,
 and it will list all keys into `Translations.missingTranslationCallback`.
 
 Then you can read from this map and create your exported file. There is
@@ -1368,11 +1515,11 @@ simple code generator that reads `.json` und outputs Dart maps would do the job:
 
 <br>
 
-**Q: How do you handle changing the locale? Does the I18n class pick up changes to the
-locale automatically or would you have to restart the app?**
+**Q: If the app is using the system locale, and the user goes into the device settings
+and changes the locale, would the app pick up the new locale automatically or would you
+have to restart the app?**
 
-**A:** _It should pick changes to the locale automatically. Also, you can change the
-locale manually at any time by doing `I18n.of(context).locale = Locale('pt', 'BR');`._
+**A:** _It picks up changes to the locale automatically._
 
 <br>
 
@@ -1381,67 +1528,41 @@ locale manually at any time by doing `I18n.of(context).locale = Locale('pt', 'BR
 **A:** _This is the default file to import from your widgets. It lets the developer
 add `.i18n` to any strings they want to mark as being a "translatable string". Later,
 someone will have to remove this default file and add another one with the translations.
-You basically just change the import later. The point of importing 'default.i18n.dart'
+You basically just change the import later. The point of importing `default.i18n.dart`
 before you create the translations for that widget is that it will record them as missing
 translations, so that you don’t forget to add those translations later._
 
 <br>
 
-**Q: Can I do translations outside of widgets?**
+**Q: Can I translate strings in regular code, outside of widgets?**
 
-**A:** _Yes, since you don’t need access to `context`. It actually reads the current
-locale from `I18n.locale`, which is static, and all the rest is done with pure Dart code.
-So you can translate anything you want, from any code you want. You can also define a
-locale on the fly if you want to do translations to a locale different from the current
-one._
+**A:** _Yes, since you don’t need access to `context`. You can even get the current
+locale from `I18n.locale`, which is static, and everything works with pure Dart code.
+This means you can translate anything you want, from any code. You can also define a
+locale on the fly if you want to do translations to a locale that is different from the
+current one._
 
 <br>
 
-**Q: By using identifier keys like `howAreYou`, I know that there's a localization key
-named `howAreYou` because otherwise my code wouldn't compile. There is no way to
-statically verify that `'How are you?'.i18n` will do what I want it to do.**
+**Q: By using identifier keys like `howAreYou`, I know there’s a localization key
+named `howAreYou`, because otherwise my code wouldn't compile. If I instead decide to use
+strings as keys, is there a way to know at compile time that `'How are you?'.i18n` is
+a valid localization key?**
 
 **A:** _i18n_extension lets you decide if you want to use identifier keys like `howAreYou`
-or not. Not having to use those was one thing I was trying to achieve. I hate having to
-come up with these keys. I found that the developer should just type the text they want
-and be done with it. In other words, in i18n_extension you don’t need to type a key; you
-may type the text itself (in your default language). So there is no need to statically
-verify anything. Your code will always compile when you type a String, and that exact
-string will be used for your default language. It will never break._
+or not. Not having to use identifiers was one of the main things I was trying to achieve,
+as I hate having to come up with them. I think the developer should be able to simply
+type the text they want and be done with it. In `i18n_extension`, if you just type the
+text itself, in your default language, that is always a valid key.
+Your code will always compile when you type a String, and that exact
+string will be used as your default language. It will never break._
 
 <br>
 
-**Q: But how can I statically verify that a string has translations? Just showing the
-translatable string as defined in the source code will not hide that some translations are
-missing?**
-
-**A:** _You can statically verify that a string should have translations because it
-has `.i18n` attached to it. What you can't do is statically verify that those translations
-were actually provided for all supported languages. But this is also the case when you use
-older methods. With the older methods you also just know it should have translations,
-because it has a translation key, but the translation itself may be missing, or worse yet,
-outdated. With i18n_extension at least you know that the translation to the default
-language exists and is not outdated._
-
-<br>
-
-**Q: What happens if a developer tries to call `i18n` on a string without translations,
-wouldn't that be harder to catch?**
+**Q: What happens if a developer tries to call `i18n` on a key without translations?**
 
 **A:** _With i18n_extension you can generate a report with all missing translations, and
-you can even add those checks to tests. In other words, you can just freely modify any
-translatable string, and before your launch you get the reports and fix all the
-translations._
-
-<br>
-
-**Q: There are a lot of valid usages for String that don’t deal with user-facing messages.
-I like to use auto-complete to see what methods are available (by typing `someString.`),
-and seeing loads of unrelated extension methods in there could be annoying.**
-
-**A:** _The translation extension is contained in your widget file. You won't have this
-extension in scope for your business classes, for example. So `.i18n` will only appear in
-your auto-complete inside your widget classes, where it makes sense._
+you can even add those checks to tests._
 
 <br>
 
@@ -1464,7 +1585,7 @@ to your own widget file._
 
 <br>
 
-**Q: Won't having multiple files with `extension Localization` lead to people importing
+**Q: Won’t having multiple files with `extension Localization` lead to people importing
 the wrong file and have translations missing?**
 
 **A:** _The package records all your missing translations, and you can also easily log or
