@@ -5,6 +5,110 @@ import 'package:i18n_extension_core/i18n_extension_core.dart' as core;
 extension I18nMain on String {
   //
 
+  /// The [args] function applies interpolations on this string with the given
+  /// params, [p1], [p2], [p3], ..., [p15].
+  ///
+  ///
+  /// # 1. Interpolation with named placeholders
+  ///
+  /// Your translations file may contain interpolations:
+  ///
+  /// ```dart
+  /// static var _t = Translations.byText('en-US') +
+  ///     {
+  ///       'en-US': 'Hello {student} and {teacher}',
+  ///       'pt-BR': 'Olá {student} e {teacher}',
+  ///     };
+  ///
+  /// String get i18n => localize(this, _t);
+  /// ```
+  ///
+  /// Then use the [args] function:
+  ///
+  /// ```dart
+  /// print('Hello {student} and {teacher}'.i18n
+  ///   .args({'student': 'John', 'teacher': 'Mary'}));
+  /// ```
+  ///
+  /// The above code will print `Hello John and Mary` if the locale is English,
+  /// or `Olá John e Mary` if it's Portuguese. This interpolation method allows for the
+  /// translated string to change the order of the parameters.
+  ///
+  /// # 2. Interpolation with numbered placeholders
+  ///
+  /// ```dart
+  /// static var _t = Translations.byText('en-US') +
+  ///     {
+  ///       'en-US': 'Hello {1} and {2}',
+  ///       'pt-BR': 'Olá {1} e {2}',
+  ///     };
+  ///
+  /// String get i18n => localize(this, _t);
+  /// ```
+  ///
+  /// Then use the [args] function:
+  ///
+  /// ```dart
+  /// print('Hello {1} and {2}'.i18n
+  ///   .args({1: 'John', 2: 'Mary'}));
+  /// ```
+  ///
+  /// The above code will print `Hello John and Mary` if the locale is English,
+  /// or `Olá John e Mary` if it's Portuguese. This interpolation method allows for the
+  /// translated string to change the order of the parameters. For example:
+  ///
+  /// ```dart
+  /// // Returns `Hello John and Mary`
+  /// 'Hello {1} and {2}'.i18n.args({'1': 'John', '2': 'Mary'});
+  ///
+  /// // Returns `Hello Mary and John`
+  /// 'Hello {2} and {1}'.i18n.args({'1': 'John', '2': 'Mary'});
+  /// ```
+  ///
+  /// # 3. Interpolation with unnamed placeholders
+  ///
+  /// ```dart
+  /// static var _t = Translations.byText('en-US') +
+  ///     {
+  ///       'en-US': 'Hello {} and {}',
+  ///       'pt-BR': 'Olá {} e {}',
+  ///     };
+  ///
+  /// String get i18n => localize(this, _t);
+  /// ```
+  ///
+  /// Then use the [args] function:
+  ///
+  /// ```dart
+  /// print('Hello {} and {}'.i18n.args('John', 'Mary'));
+  /// print('Hello {} and {}'.i18n.args(['John', 'Mary'])); // Also works
+  /// ```
+  ///
+  /// The above code will replace the `{}` in order,
+  /// and print `Hello John and Mary` if the locale is English,
+  /// or `Olá John e Mary` if it's Portuguese.
+  ///
+  /// The problem with this interpolation method is that it doesn’t allow for the
+  /// translated string to change the order of the parameters.
+  ///
+  String args(Object p1,
+          [Object? p2,
+          Object? p3,
+          Object? p4,
+          Object? p5,
+          Object? p6,
+          Object? p7,
+          Object? p8,
+          Object? p9,
+          Object? p10,
+          Object? p11,
+          Object? p12,
+          Object? p13,
+          Object? p14,
+          Object? p15]) =>
+      localizeArgs(
+          this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+
   /// The [fill] function applies a `sprintf` on this string with the given
   /// params, [p1], [p2], [p3], ..., [p15].
   ///
@@ -61,103 +165,6 @@ extension I18nMain on String {
           Object? p14,
           Object? p15]) =>
       localizeFill(
-          this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
-
-  /// The [args] function applies interpolations on this string with the given
-  /// params, [p1], [p2], [p3], ..., [p15].
-  ///
-  ///
-  /// # 1. Interpolation with named placeholders
-  ///
-  /// Your translations file may contain interpolations:
-  ///
-  /// ```dart
-  /// static var _t = Translations.byText('en-US') +
-  ///     {
-  ///       'en-US': 'Hello {student} and {teacher}',
-  ///       'pt-BR': 'Olá {student} e {teacher}',
-  ///     };
-  ///
-  /// String get i18n => localize(this, _t);
-  /// ```
-  ///
-  /// Then use the [args] function:
-  ///
-  /// ```dart
-  /// print('Hello {student} and {teacher}'.i18n
-  ///   .args({'student': 'John', 'teacher': 'Mary'}));
-  /// ```
-  ///
-  /// The above code will print `Hello John and Mary` if the locale is English,
-  /// or `Olá John e Mary` if it's Portuguese. This interpolation method allows for the
-  /// translated string to change the order of the parameters.
-  ///
-  /// # 2. Interpolation with numbered placeholders
-  ///
-  /// ```dart
-  /// static var _t = Translations.byText('en-US') +
-  ///     {
-  ///       'en-US': 'Hello {1} and {2}',
-  ///       'pt-BR': 'Olá {1} e {2}',
-  ///     };
-  ///
-  /// String get i18n => localize(this, _t);
-  /// ```
-  ///
-  /// Then use the [args] function:
-  ///
-  /// ```dart
-  /// print('Hello {1} and {2}'.i18n
-  ///   .args({1: 'John', 2: 'Mary'}));
-  /// ```
-  ///
-  /// The above code will print `Hello John and Mary` if the locale is English,
-  /// or `Olá John e Mary` if it's Portuguese. This interpolation method allows for the
-  /// translated string to change the order of the parameters.
-  ///
-  ///
-  /// # 3. Interpolation with unnamed placeholders
-  ///
-  /// ```dart
-  /// static var _t = Translations.byText('en-US') +
-  ///     {
-  ///       'en-US': 'Hello {} and {}',
-  ///       'pt-BR': 'Olá {} e {}',
-  ///     };
-  ///
-  /// String get i18n => localize(this, _t);
-  /// ```
-  ///
-  /// Then use the [args] function:
-  ///
-  /// ```dart
-  /// print('Hello {} and {}'.i18n.args('John', 'Mary'));
-  /// print('Hello {} and {}'.i18n.args(['John', 'Mary'])); // Also works
-  /// ```
-  ///
-  /// The above code will replace the `{}` in order,
-  /// and print `Hello John and Mary` if the locale is English,
-  /// or `Olá John e Mary` if it's Portuguese.
-  ///
-  /// The problem with this interpolation method is that it doesn’t allow for the
-  /// translated string to change the order of the parameters.
-  ///
-  String args(Object p1,
-          [Object? p2,
-          Object? p3,
-          Object? p4,
-          Object? p5,
-          Object? p6,
-          Object? p7,
-          Object? p8,
-          Object? p9,
-          Object? p10,
-          Object? p11,
-          Object? p12,
-          Object? p13,
-          Object? p14,
-          Object? p15]) =>
-      localizeArgs(
           this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
 }
 
@@ -217,6 +224,27 @@ extension I18nBuildContextExtension on BuildContext {
 extension I18nStringExtension on String {
   //
 
+  /// Return the string normalized as a BCP47 language tag (which is compatible with the
+  /// Unicode Locale Identifier (ULI) syntax), by adjusting the case of each component.
+  ///
+  /// This function takes a locale string and normalizes its subtags:
+  /// - Removes spaces and converts underscores to hyphens.
+  /// - The language subtag is converted to lowercase.
+  /// - The script subtag (if present) is converted to title case
+  ///   (first letter uppercase, rest lowercase).
+  /// - The region subtag (if present) is converted to uppercase.
+  /// - The separator becomes the hyphen (`-`).
+  ///
+  /// If the input string is null or empty, the string "und" (language code undefined)
+  /// is returned.
+  ///
+  /// Example:
+  /// ```dart
+  /// 'eN-lAtN-us'.asLanguageTag; // Output: en-Latn-US
+  /// ```
+  ///
+  String get asLanguageTag => core.DefaultLocale.normalizeLocale(this) ?? 'und';
+
   /// Use [asLocale] to convert a [String] containing a valid BCP47 language tag
   /// to a [Locale] object. For example:
   ///
@@ -235,7 +263,6 @@ extension I18nStringExtension on String {
   Locale get asLocale {
     //
     String? locale = core.DefaultLocale.normalizeLocale(this);
-
     if (locale == null) return const Locale('und');
 
     final parts = locale.split('-').where((e) => e.isNotEmpty).toList();
@@ -280,7 +307,7 @@ extension I18nLocaleExtension on Locale {
   /// Use [format] to return the string representation of the Locale as a valid
   /// BCP47 language tag (compatible with the Unicode Locale Identifier (ULI) syntax).
   /// If the locale is not valid, [format] may return an invalid tag, or may return
-  /// an empty "und" (undefined).
+  /// string "und" (undefined).
   ///
   /// The language code, script code, and country code will be separated by a hyphen,
   /// and any lowercase/uppercase issues will be fixed.

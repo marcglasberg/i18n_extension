@@ -36,12 +36,12 @@ void main() async {
     I18n(
       initialLocale: await I18n.loadLocale(),
       autoSaveLocale: true,
-      child: MyMaterialApp(),
+      child: AppCore(),
     ),
   );
 }
 
-class MyMaterialApp extends StatelessWidget {
+class AppCore extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

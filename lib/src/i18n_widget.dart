@@ -33,12 +33,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// class MyApp extends StatelessWidget {
 ///   Widget build(BuildContext context) {
 ///     return I18n(
-///       child: MyMaterialApp(),
+///       child: AppCore(),
 ///     );
 ///   }
 /// }
 ///
-/// class MyMaterialApp extends StatelessWidget {
+/// class AppCore extends StatelessWidget {
 ///   Widget build(BuildContext context) {
 ///     return MaterialApp(
 ///       locale: I18n.locale,
@@ -67,7 +67,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// ```dart
 /// return I18n(
 ///   initialLocale: locale('es', 'ES'),
-///   child: MyMaterialApp(),
+///   child: AppCore(),
 /// ```
 ///
 /// The [autoSaveLocale] parameter is an optional boolean, and the default is false.
@@ -77,7 +77,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// ```dart
 /// return I18n(
 ///   autoSaveLocale: true,
-///   child: MyMaterialApp(),
+///   child: AppCore(),
 /// ```
 ///
 /// Note, if your app only ever uses the current system locale, or if you save the
@@ -122,12 +122,12 @@ class I18n extends StatefulWidget {
   /// class MyApp extends StatelessWidget {
   ///   Widget build(BuildContext context) {
   ///     return I18n(
-  ///       child: MyMaterialApp(),
+  ///       child: AppCore(),
   ///     );
   ///   }
   /// }
   ///
-  /// class MyMaterialApp extends StatelessWidget {
+  /// class AppCore extends StatelessWidget {
   ///   Widget build(BuildContext context) {
   ///     return MaterialApp(
   ///       locale: I18n.locale,
@@ -156,7 +156,7 @@ class I18n extends StatefulWidget {
   /// ```dart
   /// return I18n(
   ///   initialLocale: locale('es', 'ES'),
-  ///   child: MyMaterialApp(),
+  ///   child: AppCore(),
   /// ```
   ///
   /// The [autoSaveLocale] parameter is an optional boolean, and the default is false.
@@ -166,7 +166,7 @@ class I18n extends StatefulWidget {
   /// ```dart
   /// return I18n(
   ///   autoSaveLocale: true,
-  ///   child: MyMaterialApp(),
+  ///   child: AppCore(),
   /// ```
   ///
   /// Note, if your app only ever uses the current system locale, or if you save the

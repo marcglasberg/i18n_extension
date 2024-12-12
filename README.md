@@ -241,12 +241,12 @@ void main() {
 class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return I18n(
-      child: MyMaterialApp(),
+      child: AppCore(),
     );
   }
 }
 
-class MyMaterialApp extends StatelessWidget {
+class AppCore extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: I18n.locale,
@@ -272,10 +272,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
        
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(I18n(child: MyMaterialApp()));
+  runApp(I18n(child: AppCore()));
 }
 
-class MyMaterialApp extends StatelessWidget {
+class AppCore extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: I18n.locale,
@@ -352,7 +352,7 @@ simply set the `autoSaveLocale` parameter to `true`:
 ```dart
 I18n(
   autoSaveLocale: true,
-  child: MyMaterialApp(),
+  child: AppCore(),
   ...
 ```
 
@@ -361,7 +361,8 @@ This will automatically save changes to the locale in the device's storage
 
 Note the locale is read asynchronously, which may result in a one frame flicker
 of the default system locale, before the saved locale is restored. If you want to avoid
-this flicker, you can explicitly preload the locale yourself when the app starts:
+this flicker, you can explicitly preload the locale yourself with
+`initialLocale: await I18n.loadLocale()` when the app starts:
 
 ```dart    
 void main() async {
@@ -371,7 +372,7 @@ void main() async {
     I18n(
       initialLocale: await I18n.loadLocale(),
       autoSaveLocale: true, 
-      child: MyMaterialApp(),    
+      child: AppCore(),    
       ...
 ```
 
@@ -711,9 +712,9 @@ print(localize('Hi.', translations, locale: 'pt-BR');
 print(localize('Goodbye.', translations, locale: 'pt-BR');
 ```
 
-## Interpolation with {id} and maps
+## Interpolation with named placeholders
 
-Your translations file may declare an `args` method to do interpolations:
+Suppose your translations file contains:
 
 ```dart
 static var _t = Translations.byText('en-US') +
@@ -723,26 +724,62 @@ static var _t = Translations.byText('en-US') +
   };
 
 String get i18n => localize(this, _t);
-
-String args(Object params) => localizeArgs(this, params);
 ```
 
-Then you may use it like this:
+You can then use the `args` extension like this:
 
 ```dart
 'Hello {student} and {teacher}'.i18n.args({'student': 'John', 'teacher': 'Mary'});
 
-// Or like this
+// These also work, but they are not recommended:
 'Hello {student} and {teacher}'.i18n.args('John', 'Mary');
-
-// Or like this
 'Hello {student} and {teacher}'.i18n.args(['John', 'Mary']);
 ```
 
 The above code will print `Hello John and Mary` if the locale is English,
 or `Olá John e Mary` if it's Portuguese.
 
-## Interpolation with {} and lists
+## Interpolation with numbered placeholders
+
+Suppose your translations file contains:
+
+```dart
+static var _t = Translations.byText('en-US') +
+  {
+    'en-US': 'Hello {1} and {2}',
+    'pt-BR': 'Olá {1}, aqui é {2}',
+  };
+
+String get i18n => localize(this, _t);
+```
+
+You can then use the `args` extension like this:
+
+```dart
+'Hello {1} and {2}'.i18n.args({1: 'John', 2: 'Mary'});
+
+// These also work, but they are not recommended:
+'Hello {1} and {2}'.i18n.args('John', 'Mary');
+'Hello {1} and {2}'.i18n.args(['John', 'Mary']);
+```
+
+The above code will print `Hello John and Mary` if the locale is English,
+or `Olá John e Mary` if it's Portuguese.
+
+This interpolation method allows for the
+translated string to change the order of the parameters. For example:
+
+```dart
+// Returns `Hello John and Mary`
+'Hello {1} and {2}'.i18n.args({'1': 'John', '2': 'Mary'});
+
+// Returns `Hello Mary and John`
+'Hello {2} and {1}'.i18n.args({'1': 'John', '2': 'Mary'});
+```
+
+## Interpolation with unnamed placeholders
+
+Suppose your translations file contains:
 
 ```dart
 static var _t = Translations.byText('en-US') +
@@ -752,11 +789,9 @@ static var _t = Translations.byText('en-US') +
   };
 
 String get i18n => localize(this, _t);
-
-String args(Object params) => localizeArgs(this, params);
 ```
 
-Then you may use it like this:
+You can then use the `args` extension like this:
 
 ```dart
 'Hello {} and {}'.i18n.args('John', 'Mary');
@@ -772,52 +807,9 @@ or `Olá John e Mary` if it's Portuguese.
 The problem of using this interpolation method is that it doesn’t allow for the
 translated string to change the order of the parameters.
 
-## Interpolation with {1}, {2} etc., and lists
-
-```dart
-static var _t = Translations.byText('en-US') +
-  {
-    'en-US': 'Hello {1} and {2}',
-    'pt-BR': 'Olá {1}, aqui é {2}',
-  };
-
-String get i18n => localize(this, _t);
-
-String args(Object params) => localizeArgs(this, params);
-```
-
-Then you may use it like this:
-
-```dart
-'Hello {1} and {2}'.i18n.args('John', 'Mary');
-
-// Or like this
-'Hello {1} and {2}'.i18n.args(['John', 'Mary']);
-
-// Or like this
-'Hello {1} and {2}'.i18n.args({1: 'John', 2: 'Mary'});
-
-// Or like this
-'Hello {1} and {2}'.i18n.args({'1': 'John', '2': 'Mary'});
-```
-
-The above code will print `Hello John and Mary` if the locale is English,
-or `Olá John e Mary` if it's Portuguese.
-
-This interpolation method allows for the
-translated string to change the order of the parameters. For example:
-
-```dart
-// Returns `Hello Mary and John`
-'Hello {2} and {1}'.i18n.args({'1': 'John', '2': 'Mary'});
-
-// Returns `Hello Mary and John`
-'Hello {1} and {2}'.i18n.args({'2': 'John', '1': 'Mary'});
-```
-
 ## Interpolation with sprintf
 
-Your translations file may declare a `fill` method to do interpolations:
+Suppose your translations file contains:
 
 ```dart
 static var _t = Translations.byText('en-US') +
@@ -827,26 +819,21 @@ static var _t = Translations.byText('en-US') +
   };
 
 String get i18n => localize(this, _t);
-
-String fill(List<Object> params) => localizeFill(this, params);
 ```
 
-Then you may use it like this:
+You can then use the `fill` extension like this:
 
 ```dart
 'Hello %s and %s'.i18n.fill('John', 'Mary');
-```
 
-Or like this:
-
-```dart
+// Or like this:
 'Hello %s and %s'.i18n.fill(['John', 'Mary']);
 ```
 
 The above code will print `Hello John and Mary` if the locale is English,
 or `Olá John e Mary` if it's Portuguese.
 
-It uses the <a href="https://pub.dev/packages/sprintf">sprintf</a> package internally.
+It uses the [sprintf](https://pub.dev/packages/sprintf) package internally.
 Here is
 the [sprintf specification](https://www.tutorialspoint.com/c_standard_library/c_function_sprintf.htm).
 
@@ -1270,7 +1257,7 @@ This means that if you are using `i18n_extension` version `3.0.0` or later, you 
 hyphens in your locale. To help with the transition, `i18n_extension` version `3.0.0`
 will throw descriptive errors if it finds underscores in your translation definitions.
 
-This is an example of a valid locale definition:
+This is an example of a valid translation definition:
 
 ```dart
 Translations.byText('en-US') +
