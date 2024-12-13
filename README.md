@@ -1,6 +1,15 @@
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
-[![pub package](https://img.shields.io/pub/v/i18n_extension.svg)](https://pub.dartlang.org/packages/i18n_extension)
+[![Pub Version](https://img.shields.io/pub/v/i18n_extension?style=flat-square&logo=dart)](https://pub.dev/packages/i18n_extension)
+[![Code Check](https://github.com/marcglasberg/i18n_extension/actions/workflows/code_check.yaml/badge.svg)](https://github.com/marcglasberg/i18n_extension/actions/workflows/code_check.yaml)
+![Code Climate issues](https://img.shields.io/github/issues/marcglasberg/i18n_extension?style=flat-square)
+![GitHub closed issues](https://img.shields.io/github/issues-closed/marcglasberg/i18n_extension?style=flat-square)
+![GitHub contributors](https://img.shields.io/github/contributors/marcglasberg/i18n_extension?style=flat-square)
+![GitHub repo size](https://img.shields.io/github/repo-size/marcglasberg/i18n_extension?style=flat-square)
+![GitHub forks](https://img.shields.io/github/forks/marcglasberg/i18n_extension?style=flat-square)
+![GitHub stars](https://img.shields.io/github/stars/marcglasberg/i18n_extension?style=flat-square)
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/marcglasberg/i18n_extension?style=flat-square)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
 
 # Translate your app!
 
@@ -16,10 +25,9 @@
 
 > This package was mentioned by Google during
 > the [Dart 2.7 announcement](https://medium.com/dartlang/dart-2-7-a3710ec54e97)
-
-> Read
 >
-the [Medium article](https://medium.com/flutter-community/i18n-extension-flutter-b966f4c65df9)
+> Read the
+> [Medium article](https://medium.com/flutter-community/i18n-extension-flutter-b966f4c65df9)
 
 &nbsp;<br>
 
@@ -37,16 +45,16 @@ To make it translatable, just add `.i18n` to the string:
 Text('How are you?'.i18n);
 ``` 
 
-The text will automatically show the correct translation based on the current locale.
+The text will be translated based on the current locale.
 For example, if your app supports `en-US`, `pt-BR`, and `es` (American English, Brazilian
 Portuguese, and Spanish):
 
-- When the current locale is `en-US`, it shows `'How are you?'`
-- When the current locale is `pt-BR`, it shows `'Como vai?'`
-- When the current locale is `es`, it shows `'¿Cómo estás?'`
+- When the locale is `en-US`, it shows `'How are you?'`
+- When the locale is `pt-BR`, it shows `'Como vai?'`
+- When the locale is `es`, it shows `'¿Cómo estás?'`
 - And so on for any other locales you want to support
 
-Note the original English string doubles as the **"translation key"** to
+Note the original English string `'How are you?'` doubles as the **"translation key"** to
 find the appropriate translation. One advantage of this approach is that you don’t need
 to come up with _unique identifiers_ for each string.
 
@@ -124,19 +132,19 @@ Interpolating by replacing placeholders with values, with the `args` function:
 
 ```dart
 // Hello John and Mary
-'Hello {} and {}'.args('John', 'Mary');
+'Hello {} and {}'.i18n.args('John', 'Mary');
 
 // Also works with iterables
-'Hello {} and {}'.args(['John', 'Mary']);
+'Hello {} and {}'.i18n.args(['John', 'Mary']);
 
 // Named placeholders
-'Hello {name} and {other}'.args({'name': 'John', 'other': 'Mary'});
+'Hello {name} and {other}'.i18n.args({'name': 'John', 'other': 'Mary'});
 
 // Numbered placeholders
-'Hello {1} and {2}'.args({1: 'John', 2: 'Mary'});
+'Hello {1} and {2}'.i18n.args({1: 'John', 2: 'Mary'});
 
 // And you can mix placeholder types
-'Hello {name}, let’s meet up with {} and {other} to explore {1} and {2}.'.args('Charlie', {'name': 'Alice', 'other': 'Bob'}, {1: 'Paris', 2: 'London'});
+'Hello {name}, let’s meet up with {} and {other} to explore {1} and {2}.'.i18n.args('Charlie', {'name': 'Alice', 'other': 'Bob'}, {1: 'Paris', 2: 'London'});
 ```
 
 Interpolating by
