@@ -87,13 +87,13 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
             style: commentStyle),
         space16,
         SelectableText('I18n.languageTag == "${I18n.languageTag}"'),
-        const SelectableText('The current locale as a string',
-            style: commentStyle),
+        const SelectableText('The current locale as a string', style: commentStyle),
         space16,
         SelectableText('I18n.languageOnly == "${I18n.languageOnly}"'),
         const SelectableText('Language only, without country/region or script',
             style: commentStyle),
         space16,
+        // ignore: deprecated_member_use
         SelectableText('I18n.localeStr == "${I18n.localeStr}"'),
         const SelectableText('Deprecated way to get the locale as a string',
             style: commentStyle),
@@ -104,7 +104,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
         space16,
         SelectableText(
             'I18n.systemLocale == Locale(${I18n.systemLocale.format(separator: ', ')})'),
-        const SelectableText('The system locale read from the device', style: commentStyle),
+        const SelectableText('The system locale read from the device',
+            style: commentStyle),
         space16,
         SelectableText(
             'I18n.forcedLocale == ${I18n.forcedLocale == null ? null : 'Locale(${I18n.forcedLocale!.format(separator: ', ')})'}'),

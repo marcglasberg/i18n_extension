@@ -1,4 +1,6 @@
 import 'package:i18n_extension/i18n_extension.dart';
+
+// ignore: implementation_imports
 import 'package:i18n_extension_core/src/core_localize_functions.dart' as core;
 
 /// The [localize] function localizes a "translatable string" to the given [languageTag].
