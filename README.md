@@ -1449,7 +1449,6 @@ class MyI18n {
 extension Localization on String {
   String get i18n => localize(this, MyI18n.translations);
   String plural(value) => localizePlural(value, this, MyI18n.translations);
-  String fill(List<Object> params) => localizeFill(this, params);
 }
 ```
 

@@ -57,7 +57,5 @@ extension MyLocalization on Object {
 
   String get i18n => localize(this, _t);
 
-  String fill(List<Object> params) => localizeFill(this, params);
-
   String plural(value) => localizePlural(value, this, _t);
 }

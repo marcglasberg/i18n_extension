@@ -1,5 +1,6 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
+
 import 'package:example/1_translation_example/language_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,29 +9,12 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'main.i18n.dart';
 import 'my_screen.dart';
 
-/// This example demonstrates basic translations using a `I18n` widget.
-///
-/// There are 3 widget files that need translations:
-/// * main.dart
-/// * my_screen.dart
-/// * my_widget.dart
-///
-/// And there is one translations-file for each one:
-/// * main.i18n.dart
-/// * my_screen.i18n.dart
-/// * my_widget.i18n.dart
-///
-/// Note: We could have put all translations into a single translations-file
-/// that would be used by all widget files. It's up to you how to organize
-/// things.
-///
-/// Note: The translations-files in this example use strings as keys.
-/// For example:
-///
-///     "You clicked the button %d times:".plural(counter),
+/// This example demonstrates how to load translations from a file in the assets.
 ///
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await MyTranslations.load();
 
   runApp(
     I18n(

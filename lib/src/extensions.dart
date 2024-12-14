@@ -1,8 +1,43 @@
+import 'dart:io' as io;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:i18n_extension_core/i18n_extension_core.dart' as core;
 
-extension I18nMain on String {
+// ignore: implementation_imports
+import 'package:i18n_extension_core/src/translations_by_locale.dart' as tbl;
+
+import 'json_loader.dart';
+
+extension I18nTranslationsExtension on Translations {
+  Future<void> load() async {
+    _prepareLoadProcess();
+    if (this is tbl.TranslationsByLocale) {
+      return (this as tbl.TranslationsByLocale).completer?.future;
+    }
+  }
+
+  /// Load assets for translations created with `Translations.load(...)`.
+  static void _prepareLoadProcess() {
+    Translations.loadProcess = (tbl.TranslationsByLocale translations) async {
+      //
+      String? dir = translations.dir;
+      if (dir == null) return;
+
+      if (kIsWeb) {
+        throw TranslationsException("Web loading from URL not yet implemented.");
+      }
+      //
+      else if (io.Platform.isAndroid || io.Platform.isIOS) {
+        Map<String, Map<String, String>> loadedTranslations =
+            await JsonLoader().fromAssetDir(dir);
+        translations.translationByLocale_ByTranslationKey.addAll(loadedTranslations);
+      }
+    };
+  }
+}
+
+extension I18nMainExtension on String {
   //
 
   /// The [args] function applies interpolations on this string with the given

@@ -9,12 +9,24 @@ import 'my_screen.dart';
 
 /// This example demonstrates how to use identifiers as translation keys, defined as
 /// constants, using a the [ConstTranslations] constructor:
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
+  runApp(
+    I18n(
+      initialLocale: await I18n.loadLocale(),
+      autoSaveLocale: true,
+      child: AppCore(),
+    ),
+  );
+}
+
+class AppCore extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
+        locale: I18n.locale,
         debugShowCheckedModeBanner: false,
+        //
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -24,13 +36,7 @@ class MyApp extends StatelessWidget {
           const Locale('en', "US"),
           const Locale('pt', "BR"),
         ],
-        home: I18n(
-          //
-          // Keep it commented out to use the current system locale.
-          // initialLocale: 'es-ES'.asLocale,
-          //
-          child: MyHomePage(),
-        ),
+        home: MyHomePage(),
       );
 }
 

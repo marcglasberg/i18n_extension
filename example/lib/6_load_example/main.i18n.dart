@@ -2,18 +2,13 @@
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:i18n_extension/i18n_extension.dart';
 
-extension Localization on String {
+extension MyTranslations on String {
   //
-  static final _t = Translations.byText("en-US") +
-      const {
-        "en-US": "i18n Demo",
-        "pt-BR": "Demonstração i18n",
-        "es-ES": "Demostración i18n",
-      };
+  static final _t = Translations.byFile('en-US', dir: 'assets/translations');
+
+  static Future<void> load() => _t.load();
 
   String get i18n => localize(this, _t);
 
   String plural(value) => localizePlural(value, this, _t);
-
-  String version(Object modifier) => localizeVersion(modifier, this, _t);
 }
