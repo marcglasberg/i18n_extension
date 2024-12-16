@@ -413,9 +413,9 @@ class I18n extends StatefulWidget {
 
   /// Returns a list of loaders to be used by the i18n_extension.
   /// By default, it loads from JSON (.json) and PO (.po) files.
-  /// This list may be changed statically, to add or remove loaders.
-  /// You may create your own loaders by extending [I18nLoader].
-  static List<I18nLoader Function()> loaders = [
+  /// This list may be changed statically, to add or remove loaders,
+  /// and you may create your own loaders by extending [I18nLoader].
+  static final List<I18nLoader Function()> loaders = [
     () => I18nJsonLoader(),
     () => I18nPoLoader(),
   ];

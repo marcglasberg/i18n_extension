@@ -2,7 +2,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
-## 14.0.0
+## 14.0.1
 
 Version 14 brings important improvements, like new interpolation methods, useful
 extensions, and improved standardization, with the cost of a few breaking changes that

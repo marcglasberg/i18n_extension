@@ -1380,7 +1380,7 @@ The only important difference is that you must use `DefaultLocale.set()` instead
 of `I18n.of(context).locale = ...` to set the locale. And you won’t have access
 and won’t need to use the `i18n` widget, obviously.
 
-# Reading translations from files
+# Load translations from files
 
 If you want to load translations from `.json` files in your assets directory,
 create a folder and add some translation files like this:
@@ -1507,15 +1507,18 @@ The following formats may be used with translations:
 * YAML: Can be used, however it lacks specific features for translation, like plurals and
   gender.
 
-Currently, only `.PO` and `.JSON` loaders are supported out-of-the-box by this package.
-If you need to load from any other custom format, remember loading is easy to do
-because the Translation constructors use maps as input. If you can generate a map from
-your file format, you can then use the `Translation.byLocale()` constructor to create the
-translation objects. If you want to help creating importers for any of the other formats
-above, we accept PRs.
+Currently, only `.PO` and `.JSON` loaders are supported out-of-the-box, but if you need
+to load from any other custom format, remember loading translations is easy to do because
+the Translation constructors use maps as input. If you can generate a map from your file
+format, you can then use the `Translation.byLocale()` constructor to create the
+translation objects.
 
-Your custom "loaders" should extend class `I18nLoader`. To see an example, check how
-class `I18nJsonLoader` is implemented to load `.json` files:
+If you want to create custom loaders that are used automatically when you call
+`Translations.byFile()`, you can do that by extending the `I18nLoader` class, and then
+adding your custom loader to the static `I18n.loaders` list.
+
+To see an example on how to create a loader, this is how `I18nJsonLoader` is implemented
+to load `.json` files:
 
 ```dart
 class I18nJsonLoader extends I18nLoader {
