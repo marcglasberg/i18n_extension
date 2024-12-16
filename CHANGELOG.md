@@ -494,7 +494,9 @@ instructions below to upgrade your code.
 
   Try running
   the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_by_file_example/main.dart">
-  load example</a>.
+  load by file example</a>, and  
+  the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/7_load_by_http_example/main.dart">
+  load by http example</a>, and the
 
 ## 12.0.1
 
