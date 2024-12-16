@@ -353,6 +353,8 @@ class I18n extends StatefulWidget {
     return inherited.data;
   }
 
+  /// Use this for tests only.
+  ///
   /// To change the current locale, during tests:
   ///
   ///     I18n.define(Locale('es', 'ES'));
@@ -364,7 +366,7 @@ class I18n extends StatefulWidget {
   /// IMPORTANT: This will change the current locale only for the i18n_extension,
   /// and not for Flutter as a whole. In other words, the widgets will not rebuild.
   /// This static method should be used in tests ONLY. The real app, you should
-  /// instead do: `I18n.of(context).locale = Locale('es', 'ES');`
+  /// instead do something like: `I18n.of(context).locale = Locale('es', 'ES');`
   ///
   @visibleForTesting
   static void define(Locale? locale) {
@@ -386,6 +388,14 @@ class I18n extends StatefulWidget {
   /// Locale to override the system-locale.
   /// If this is non-null, it means the locale is being forced.
   static Locale? _forcedLocale;
+
+  /// Forces the rebuild of [I18n] and all its descendant widgets.
+  static void rebuild() {
+    var state = _i18nKey.currentState;
+    if (state != null) {
+      state._rebuildAllChildren();
+    }
+  }
 
   /// Saves the given [locale] to the shared preferences of the device.
   ///
@@ -420,7 +430,9 @@ class I18n extends StatefulWidget {
     () => I18nPoLoader(),
   ];
 
-  /// Initialize the load process, for translations created with [Translations.byFile].
+  /// Initialize the load process, for translations created with [Translations.byFile]
+  /// and [Translations.byHttp].
+  ///
   static void _initLoadProcess() {
     I18nTranslationsExtension.initLoadProcess();
   }

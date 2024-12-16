@@ -2,11 +2,12 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
-## 14.0.1
+## 14.1.0
 
 Version 14 brings important improvements, like new interpolation methods, useful
-extensions, and improved standardization, with the cost of a few breaking changes that
-are easy to fix. Please, follow the instructions below to upgrade your code.
+extensions, improved standardization, and loading translations from files and from the
+web, with the cost of a few breaking changes that are easy to fix. Please, follow the
+instructions below to upgrade your code.
 
 * **Breaking Change**: Now, you must have a single (no more than one) `I18n` widget in
   your entire widget tree, and it must always be put ABOVE the `MaterialApp`
@@ -385,8 +386,10 @@ are easy to fix. Please, follow the instructions below to upgrade your code.
   In most cases, it will do exactly what you’d expect.
   However, if you want all the details, check the README.md file.
 
-* **Load translations from files**. If you want to load translations from `.json` files in
-  your assets directory, create a folder and add some translation files like this:
+* **Load translations from files or the web**.
+
+  If you want to load translations from `.json` files in your assets directory,
+  create a folder and add some translation files like this:
 
   ```
   assets
@@ -429,9 +432,24 @@ are easy to fix. Please, follow the instructions below to upgrade your code.
   files present in the `assets/translations` directory, and then rebuild your widgets with
   those new translations.
 
-  Note: Since rebuilding widgets when the translations finish loading can cause a visible
-  flicker, you can optionally avoid that by preloading the translations before running
-  your app. To that end, first create a `load()` method in your `MyTranslations`
+  Similarly, `Translations.byHttp()` allows you to load translations from `.json` or `.po`
+  files in the web. Use it like this:
+
+  ```
+  extension MyTranslations on String {
+  
+    static final _t = Translations.byHttp('en-US', 
+      url: 'https://example.com/translations', 
+      resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po']);
+    );
+       
+    String get i18n => localize(this, _t);  
+  }       
+  ```
+
+  IMPORTANT: Since rebuilding widgets when the translations finish loading can cause a
+  visible flicker, you can optionally avoid that by preloading the translations before
+  running your app. To that end, first create a `load()` method in your `MyTranslations`
   extension:
 
   ```dart
@@ -443,7 +461,7 @@ are easy to fix. Please, follow the instructions below to upgrade your code.
   }
   ```
 
-And then, in your `main()` method, call `MyTranslations.load()` before running the app:
+  And then, in your `main()` method, call `MyTranslations.load()` before running the app:
 
   ```dart
   void main() async {
@@ -461,7 +479,7 @@ And then, in your `main()` method, call `MyTranslations.load()` before running t
   }
   ```
 
-Another alternative is using a `FutureBuilder`:
+  Another alternative is using a `FutureBuilder`:
 
   ```dart
   return FutureBuilder(
@@ -474,9 +492,9 @@ Another alternative is using a `FutureBuilder`:
     } ...
   ```       
 
-Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_example/main.dart">
-load example</a>.
+  Try running
+  the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_by_file_example/main.dart">
+  load example</a>.
 
 ## 12.0.1
 

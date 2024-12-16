@@ -1200,7 +1200,7 @@ Unfortunately, the `ConstTranslations` class is not as flexible as the `Translat
 class, as you can’t define modifiers like `plural()` etc with it. This limits its
 usefulness.
 
-# A quick recap of Flutter locales
+## A quick recap of Flutter locales
 
 Flutter comes with a `Locale` class used throughout the Flutter framework to handle
 internationalization.
@@ -1355,7 +1355,7 @@ To sum up, the recommendation is to use the provided `asLocale` extension
 to create `Locale` objects from string language tags; and the `format()` extension
 to convert `Locale` objects back to string language tags, if needed.
 
-# Dart-only package
+## Dart-only package
 
 This `i18n_extension` Flutter package depends on the Dart-only
 package [i18n_extension_core](https://pub.dev/packages/i18n_extension_core).
@@ -1380,7 +1380,7 @@ The only important difference is that you must use `DefaultLocale.set()` instead
 of `I18n.of(context).locale = ...` to set the locale. And you won’t have access
 and won’t need to use the `i18n` widget, obviously.
 
-# Load translations from files
+## Load translations from files
 
 If you want to load translations from `.json` files in your assets directory,
 create a folder and add some translation files like this:
@@ -1458,8 +1458,8 @@ void main() async {
 ```
 
 Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_example/main.dart">
-load example</a>.
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_by_file_example/main.dart">
+load by file example</a>.
 
 Another alternative is using a `FutureBuilder`:
 
@@ -1482,6 +1482,88 @@ duration.
 
 **Note:** The code to load translations from files is adapted from original code
 created by <a href="https://github.com/bauerj">Johann Bauer</a>.
+
+## Load translations from the web
+
+You can use `Translations.byHttp()` to load translations from `.json` or `.po` files on
+the web, using **https**. Use it like this:
+
+```
+extension MyTranslations on String {
+  
+  static final _t = Translations.byHttp('en-US', 
+    url: 'https://example.com/translations', 
+    resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po']);
+  );
+       
+  String get i18n => localize(this, _t);  
+}       
+```
+
+The above code will asynchronously load all the resources listed above:
+
+```
+https://example.com/translations/en-US.json
+https://example.com/translations/es.json
+https://example.com/translations/pt-BR.po
+https://example.com/translations/fr.po
+```
+
+It will then rebuild your widgets with those new translations.
+
+Note: Since rebuilding widgets when the translations finish loading can cause a visible
+flicker, you can optionally avoid that by preloading the translations before running your
+app. To that end, first create a `load()` method in your `MyTranslations` extension:
+
+```dart
+extension MyTranslations on String {
+  static final _t = Translations.byHttp('en-US', url: ..., resources: ...);  
+  String get i18n => localize(this, _t);  
+  
+  static Future<void> load() => _t.load(); // Here!  
+}
+```
+
+And then, in your `main()` method, call `MyTranslations.load()` before running the app:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await MyTranslations.load(); // Here!
+  
+  runApp(
+    I18n(
+      initialLocale: await I18n.loadLocale(),
+      autoSaveLocale: true,
+      child: AppCore(),
+    ),
+  );
+}
+```
+
+Try running
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/7_load_by_http_example/main.dart">
+load by http example</a>.
+
+Another alternative is using a `FutureBuilder`:
+
+```dart
+return FutureBuilder(
+  future: MyTranslations.load(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+    return MyWidget(...);
+  } else {
+    return const Center(child: CircularProgressIndicator());
+  } ...
+```
+
+Note: The load by http process has a default timeout of 1 second. If the timeout is
+reached, the future returned by `load` will complete, but the load process still
+continues in the background, and the widgets will rebuild automatically when the
+translations finally finish loading. Optionally, you can provide a different `timeout`
+duration.
 
 ## Translation formats
 

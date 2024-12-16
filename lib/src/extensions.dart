@@ -62,7 +62,7 @@ extension I18nTranslationsExtension on Translations {
   ///
   ///
   Future<void> load([
-    Duration timeout = const Duration(milliseconds: 500),
+    Duration? timeout,
     VoidCallback? callback,
   ]) async {
     I18nTranslationsExtension.initLoadProcess();
@@ -78,12 +78,21 @@ extension I18nTranslationsExtension on Translations {
       final startTime = DateTime.now();
       var timedOut = false;
 
+      // Translations.byHttp have default timeout of 1 second.
+      // Others, like Translations.byFile, have timeout of 0.5 seconds.
+      timeout ??= (translations.url != null)
+          ? const Duration(seconds: 1)
+          : const Duration(milliseconds: 500);
+
       await (this as tbl.TranslationsByLocale).completer?.future.timeout(
         timeout,
         onTimeout: () {
           timedOut = true;
           if (callback == null) {
-            print('Loading translations timed out. Still loading in the background.');
+            var path = Uri.parse(translations.url ?? '').path;
+            path += translations.resources.toString();
+            print('Loading translations timed out. '
+                'Still loading in the background: $path');
           } else {
             callback();
           }
@@ -93,50 +102,95 @@ extension I18nTranslationsExtension on Translations {
       if (callback == null && !timedOut) {
         final endTime = DateTime.now();
         final loadTime = endTime.difference(startTime);
-        print('Loaded translations in ${loadTime.inMilliseconds} ms.');
+        print('Loaded all translations in ${loadTime.inMilliseconds} ms.');
       }
     }
   }
 
-  /// Initialize the load process, for translations created with [Translations.byFile].
+  /// Initialize the load process, for translations created with [Translations.byFile]
+  /// and [Translations.byHttp].
+  ///
   static void initLoadProcess() {
-    Translations.loadProcess = defaultLoadProcess;
+    Translations.loadByFile = defaultLoadByFile;
+    Translations.loadByHttp = defaultLoadByHttp;
   }
 
   /// Load assets for translations created with [Translations.byFile].
   /// The loaders used are listed in [I18n.loaders].
-  static Future<void> defaultLoadProcess(tbl.TranslationsByLocale translations) async {
+  static Future<void> defaultLoadByFile(tbl.TranslationsByLocale translations) async {
     //
     String? dir = translations.dir;
     if (dir == null) return;
 
     if (kIsWeb) {
-      throw TranslationsException("Web loading from URL not yet implemented.");
+      return;
     }
     //
     else {
       var futures = I18n.loaders.map((loader) => loader().fromAssetDir(dir));
       var loadedTranslationsList = await Future.wait(futures);
 
+      _mergeTranslations(loadedTranslationsList, translations);
+
+      I18n.rebuild();
+    }
+  }
+
+  /// Load assets for translations created with [Translations.byHttp].
+  /// The loaders used are listed in [I18n.loaders].
+  static Future<void> defaultLoadByHttp(tbl.TranslationsByLocale translations) async {
+    //
+    // The url is something like "https://example.com/translations/".
+    String? url = translations.url;
+
+    // The resources are something like ["en-US.json", "es-ES.json"].
+    Iterable<String>? resources = translations.resources;
+
+    if (url != null && resources != null && resources.isNotEmpty) {
+      //
+      if (!url.endsWith('/')) url += '/'; // Adds the last slash if necessary.
+
+      List<String> urlCombinations =
+          resources.map((resource) => '$url$resource').toList();
+
+      var futures = I18n.loaders
+          .expand((loader) => urlCombinations.map((url) => loader().fromUrl(url)));
+
+      var loadedTranslationsList = await Future.wait(futures);
+
       // For each file loaded, merge the translations into the main translations.
-      for (var loadedTranslations in loadedTranslationsList) {
+      _mergeTranslations(loadedTranslationsList, translations);
+
+      I18n.rebuild();
+    }
+  }
+
+  /// For each file loaded, merge the translations into the main translations.
+  static void _mergeTranslations(
+      List<Map<String, Map<String, String>>> loadedTranslationsList,
+      tbl.TranslationsByLocale<
+              String,
+              Map<core.StringLocale, core.StringTranslated>,
+              Map<String, core.StringTranslated>,
+              Map<core.StringLocale, Map<String, core.StringTranslated>>>
+          translations) {
+    for (var loadedTranslations in loadedTranslationsList) {
+      //
+      Map<String, Map<String, String>> dest =
+          translations.translationByLocale_ByTranslationKey;
+
+      for (MapEntry<String, Map<String, String>> entry in loadedTranslations.entries) {
         //
-        Map<String, Map<String, String>> dest =
-            translations.translationByLocale_ByTranslationKey;
+        String key = entry.key;
+        Map<String, String> srcMap = entry.value;
 
-        for (MapEntry<String, Map<String, String>> entry in loadedTranslations.entries) {
-          //
-          String key = entry.key;
-          Map<String, String> srcMap = entry.value;
-
-          Map<String, String>? destMap = dest[key];
-          if (destMap == null) {
-            destMap = {};
-            dest[key] = destMap;
-          }
-
-          destMap.addAll(srcMap);
+        Map<String, String>? destMap = dest[key];
+        if (destMap == null) {
+          destMap = {};
+          dest[key] = destMap;
         }
+
+        destMap.addAll(srcMap);
       }
     }
   }
