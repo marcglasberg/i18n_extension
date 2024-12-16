@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'loader.dart';
+import 'i18n_loader.dart';
 
-class JsonLoader extends Loader {
+class I18nJsonLoader extends I18nLoader {
   //
   @override
   String get extension => '.json';

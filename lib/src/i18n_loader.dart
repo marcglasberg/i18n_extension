@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 
-abstract class Loader {
+abstract class I18nLoader {
   //
 
   /// For example, for file 'en-US.json', the extension is '.json'.
@@ -14,16 +14,28 @@ abstract class Loader {
   /// returns a JSON map of translations.
   Map<String, dynamic> decode(String source);
 
-  /// load a file, like `es-ES.json`, containing something like:
+  /// load files like `es-ES.json`, containing something like:
   ///
   /// ```json
   /// {
   ///   "Welcome to this demo.": "Bienvenido a esta demostración.",
   ///   "i18n Demo": "Demostración i18n",
-  ///   "Increment": "Incrementar",
-  ///   "Change Language": "Cambiar idioma",
   ///   "You clicked the button %d times:": "Hiciste clic en el botón %d veces:"
   /// }
+  /// ```
+  ///
+  /// And files like `es-ES.po`, containing something like:
+  ///
+  /// ```po
+  /// msgid ""
+  /// msgstr ""
+  /// "Content-Type: text/plain; charset=UTF-8\n"
+  ///
+  /// msgid "Increment"
+  /// msgstr "Incrementar"
+  ///
+  /// msgid "Change Language"
+  /// msgstr "Cambiar Idioma"
   /// ```
   ///
   /// And add to the translations, with something like:
@@ -60,34 +72,53 @@ abstract class Loader {
   /// );
   Future<Map<String, Map<String, String>>> fromAssetDir(String dir) async {
     //
+    // The manifest file lists all the assets in the assets directory.
     String manifestContent = await rootBundle.loadString("AssetManifest.json");
-    Map<String, dynamic> manifestMap = decode(manifestContent);
+    Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
     Map<String, Map<String, String>> translations = HashMap();
 
     for (String path in manifestMap.keys) {
+      //
       if (!path.startsWith(dir)) continue;
 
-      var fileName = path.split("/").last;
+      if (path.endsWith(extension)) {
+        //
+        var fileName = path.split("/").last;
+        var languageTag = fileName.split(".")[0].asLanguageTag;
+        var stringReadFromBundle = await rootBundle.loadString(path);
 
-      if (!fileName.endsWith(extension)) {
-        throw TranslationsException("Ignoring '$path' which is not a $extension file.");
-      }
+        print('Loading $path');
 
-      var languageTag = fileName.split(".")[0].asLanguageTag;
+        Map<String, dynamic> map;
+        try {
+          map = decode(stringReadFromBundle);
+        } catch (error) {
+          throw TranslationsException('Error decoding $path: $error');
+        }
 
-      var stringReadFromBundle = await rootBundle.loadString(path);
+        var translationsInFile = Map<String, dynamic>.from(map);
 
-      var translationsInFile =
-          Map<String, dynamic>.from(json.decode(stringReadFromBundle));
+        for (MapEntry<String, dynamic> entry in translationsInFile.entries) {
+          String key = entry.key;
+          dynamic value = entry.value;
 
-      for (MapEntry<String, dynamic> entry in translationsInFile.entries) {
-        String key = entry.key;
-        dynamic value = entry.value;
-        if (value is String) {
-          translations.putIfAbsent(key, () => HashMap())[languageTag] = value;
-        } else
-          throw TranslationsException("Value for key '$key' in '$path' is not a String.");
+          if (value is String) {
+            //
+            // Create a map for the key if it doesn't exist.
+            translations.putIfAbsent(key, () => HashMap());
+
+            // Get the map for the key.
+            Map<String, String>? translationsForKey = translations[key];
+
+            // Add a translation for the language.
+            translationsForKey?[languageTag] = value;
+          }
+          //
+          else
+            throw TranslationsException("Error in $path: "
+                "Value '$value' for key '$key' is not a String.");
+        }
       }
     }
 

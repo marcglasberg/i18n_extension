@@ -1,7 +1,5 @@
 {
   "Hello, welcome to this internationalization demo.": "Hola, bienvenido a esta demostración de internacionalización.",
   "i18n Demo": "Demostración i18n",
-  "Increment": "Incrementar",
-  "Change Language": "Cambiar idioma",
   "You clicked the button %d times:": "Hiciste clic en el botón %d veces:"
 }

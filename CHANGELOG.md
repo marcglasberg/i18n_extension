@@ -2,7 +2,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
-## 14.0.0-dev.2
+## 14.0.0
 
 Version 14 brings important improvements, like new interpolation methods, useful
 extensions, and improved standardization, with the cost of a few breaking changes that
@@ -384,6 +384,99 @@ are easy to fix. Please, follow the instructions below to upgrade your code.
   Fallback behavior is now more intuitive and aligned with common sense.
   In most cases, it will do exactly what you’d expect.
   However, if you want all the details, check the README.md file.
+
+* **Load translations from files**. If you want to load translations from `.json` files in
+  your assets directory, create a folder and add some translation files like this:
+
+  ```
+  assets
+  └── translations
+      ├── en-US.json
+      ├── es-ES.json
+      ├── zh-Hans-CN.json
+      └── pt.json  
+  ```
+
+  You can also use `.po` files:
+
+  ```
+  assets
+  └── translations
+      ├── en-US.po
+      ├── es-ES.po
+      ├── zh-Hans-CN.po
+      └── pt.po  
+  ```
+
+  Don't forget to declare your assets directory in your `pubspec.yaml`:
+
+  ```yaml
+  flutter:
+    assets:
+      - assets/translations/
+  ```
+
+  Then, you can load the translations using `Translations.byFile()`:
+
+  ```dart
+  extension MyTranslations on String {
+    static final _t = Translations.byFile('en-US', dir: 'assets/translations');     
+    String get i18n => localize(this, _t);  
+  }
+  ```
+
+  The above code will asynchronously load all the translations from the `.json` and `.po`
+  files present in the `assets/translations` directory, and then rebuild your widgets with
+  those new translations.
+
+  Note: Since rebuilding widgets when the translations finish loading can cause a visible
+  flicker, you can optionally avoid that by preloading the translations before running
+  your app. To that end, first create a `load()` method in your `MyTranslations`
+  extension:
+
+  ```dart
+  extension MyTranslations on String {
+    static final _t = Translations.byFile('en-US', dir: 'assets/translations');  
+    String get i18n => localize(this, _t);  
+    
+    static Future<void> load() => _t.load(); // Here!  
+  }
+  ```
+
+And then, in your `main()` method, call `MyTranslations.load()` before running the app:
+
+  ```dart
+  void main() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    await MyTranslations.load(); // Here!
+    
+    runApp(
+      I18n(
+        initialLocale: await I18n.loadLocale(),
+        autoSaveLocale: true,
+        child: AppCore(),
+      ),
+    );
+  }
+  ```
+
+Another alternative is using a `FutureBuilder`:
+
+  ```dart
+  return FutureBuilder(
+    future: MyTranslations.load(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.done) {
+      return MyWidget(...);
+    } else {
+      return const Center(child: CircularProgressIndicator());
+    } ...
+  ```       
+
+Try running
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_example/main.dart">
+load example</a>.
 
 ## 12.0.1
 

@@ -190,6 +190,27 @@ I18n(
   child: ...
 ```
 
+Defining translations directly in code:
+
+```dart
+Translations.byText('en-US') + {
+  'en-US': 'Hello, how are you?',      
+  'es': '¿Hola! Cómo estás?',
+};
+```
+
+Importing translations from a file:
+
+```dart
+Translations.byFile('en-US', dir: 'assets/translations');
+```
+
+Importing translations from the web:
+
+```dart
+Translations.byUrl('en-US', dir: 'https://example.com/translations.json');
+```
+
 ## See it working
 
 Try running
@@ -1359,26 +1380,110 @@ The only important difference is that you must use `DefaultLocale.set()` instead
 of `I18n.of(context).locale = ...` to set the locale. And you won’t have access
 and won’t need to use the `i18n` widget, obviously.
 
-# Importing and exporting
+# Reading translations from files
 
-The `i18n_extension` package is optimized so that you can easily create and manage all of
-your translations yourself, by hand.
+If you want to load translations from `.json` files in your assets directory,
+create a folder and add some translation files like this:
 
-However, for large projects with big teams you probably need to follow a more involved
-process:
+```
+assets
+└── translations
+    ├── en-US.json
+    ├── es-ES.json
+    ├── zh-Hans-CN.json
+    └── pt.json  
+```
 
-* Export all your translatable strings to files in some external format your professional
-  translator, or your crowdsourcing tool uses (see formats below).
+You can also use `.po` files:
 
-* Continue developing your app while waiting for the translations.
+```
+assets
+└── translations
+    ├── en-US.po
+    ├── es-ES.po
+    ├── zh-Hans-CN.po
+    └── pt.po  
+```
 
-* Import the translation files into the project and test the app in each language you
-  added.
+Don't forget to declare your assets directory in your `pubspec.yaml`:
 
-* Repeat the process as needed, translating just the changes between each app revision.
-  As necessary, perform additional localization steps yourself.
+```yaml
+flutter:
+  assets:
+    - assets/translations/
+```
 
-## Formats
+Then, you can load the translations using `Translations.byFile()`:
+
+```dart
+extension MyTranslations on String {
+  static final _t = Translations.byFile('en-US', dir: 'assets/translations');     
+  String get i18n => localize(this, _t);  
+}
+```
+
+The above code will asynchronously load all the translations from the `.json` and `.po`
+files present in the `assets/translations` directory, and then rebuild your widgets with
+those new translations.
+
+Note: Since rebuilding widgets when the translations finish loading can cause a visible
+flicker, you can optionally avoid that by preloading the translations before running your
+app. To that end, first create a `load()` method in your `MyTranslations` extension:
+
+```dart
+extension MyTranslations on String {
+  static final _t = Translations.byFile('en-US', dir: 'assets/translations');  
+  String get i18n => localize(this, _t);  
+  
+  static Future<void> load() => _t.load(); // Here!  
+}
+```
+
+And then, in your `main()` method, call `MyTranslations.load()` before running the app:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await MyTranslations.load(); // Here!
+  
+  runApp(
+    I18n(
+      initialLocale: await I18n.loadLocale(),
+      autoSaveLocale: true,
+      child: AppCore(),
+    ),
+  );
+}
+```
+
+Try running
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_example/main.dart">
+load example</a>.
+
+Another alternative is using a `FutureBuilder`:
+
+```dart
+return FutureBuilder(
+  future: MyTranslations.load(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+    return MyWidget(...);
+  } else {
+    return const Center(child: CircularProgressIndicator());
+  } ...
+```
+
+Note: The load process has a default timeout of 0.5 seconds. If the timeout is
+reached, the future returned by `load` will complete, but the load process still
+continues in the background, and the widgets will rebuild automatically when the
+translations finally finish loading. Optionally, you can provide a different `timeout`
+duration.
+
+**Note:** The code to load translations from files is adapted from original code
+created by <a href="https://github.com/bauerj">Johann Bauer</a>.
+
+## Translation formats
 
 The following formats may be used with translations:
 
@@ -1402,100 +1507,44 @@ The following formats may be used with translations:
 * YAML: Can be used, however it lacks specific features for translation, like plurals and
   gender.
 
-## Importing
-
-Up to version `8.0.0`, the `i18n_extension` package contained the importer library.
-It has now been separated and is now independently available as a standalone package.
-You can find it at: https://pub.dev/packages/i18n_extension_importer.
-
-**Note:** Those importers were contributed
-by <a href="https://github.com/bauerj">Johann Bauer</a>,
-and were separated into their own package
-by <a href="https://github.com/c0dezli">Xiang Li</a>.
-
-Currently, only `.PO` and `.JSON` importers are supported out-of-the-box.
-If you want to help creating importers for any of the other formats above, please PR
-there.
-
-It also includes the `GetStrings` exporting utility, which is a useful script designed to
-automate the export of all translatable strings from your project.
-
-Add your translation files as assets to your app in a directory structure like this:
-
-```
-app
- \_ assets
-    \_ locales
-       \_ de.po
-       \_ fr.po
-        ...
-```
-
-Then you can import them using `GettextImporter` or `JSONImporter`:
-
-```dart
-import 'package:i18n_extension_importer/io/import.dart';
-import 'package:i18n_extension/i18n_extension.dart';
-
-class MyI18n {
-  static var translations = Translations.byLocale('en');
-
-  static Future<void> loadTranslations() async {
-    translations +=
-        await GettextImporter().fromAssetDirectory('assets/locales');
-  }
-}
-
-extension Localization on String {
-  String get i18n => localize(this, MyI18n.translations);
-  String plural(value) => localizePlural(value, this, MyI18n.translations);
-}
-```
-
-For usage in main.dart,
-see <a href="https://github.com/marcglasberg/i18n_extension/issues/63#issuecomment-770056237">
-here</a>.
-
-**Note**: When using .po files, make sure not to include the country code, because the
-locales are generated from the filenames which don’t contain the country code and if you'd
-include the country codes, you'll get errors like this:
-`There are no translations in 'en-US' for 'Hello there'`.
-
-**Note:** If you need to import any other custom format, remember importing is easy to do
+Currently, only `.PO` and `.JSON` loaders are supported out-of-the-box by this package.
+If you need to load from any other custom format, remember loading is easy to do
 because the Translation constructors use maps as input. If you can generate a map from
-your file format, you can then use the `Translation()` or `Translation.byLocale()`
-constructors to create the translation objects.
+your file format, you can then use the `Translation.byLocale()` constructor to create the
+translation objects. If you want to help creating importers for any of the other formats
+above, we accept PRs.
 
-## The GetStrings exporting utility
-
-A utility script to automatically export all translatable strings from your project was
-also contributed by <a href="https://github.com/bauerj">Johann Bauer</a>.
-
-Simply run `flutter pub run i18n_extension_importer:getstrings` in your project root
-directory, and you will get a list of strings to translate in `strings.json`.
-
-Note the tool simply searches the source code for strings to which getters like `.i18n`
-are applied. Since it is not very smart, you should not make it too hard:
+Your custom "loaders" should extend class `I18nLoader`. To see an example, check how
+class `I18nJsonLoader` is implemented to load `.json` files:
 
 ```dart
-print('Hello World!'.i18n); // This would work.
+class I18nJsonLoader extends I18nLoader {
 
-// But the tool would not be able to spot this 
-// since it doesn’t execute the code.
-var x = 'Hello World';
-print(x.i18n);
+  @override
+  String get extension => '.json';
+
+  @override
+  Map<String, dynamic> decode(String source) => json.decode(source);
+}
 ```
 
-## Other ways to export
+## Exporting
 
-As previously discussed, i18n_extension will automatically list all keys into a map if you
-use some unknown locale, run the app, and manually or automatically go through all the
+As previously discussed, `i18n_extension` will automatically list all keys into a map if
+you use some unknown locale, run the app, and manually or automatically go through all the
 screens. For example, create a Greek locale if your app doesn’t have Greek translations,
 and it will list all keys into `Translations.missingTranslationCallback`.
 
 Then you can read from this map and create your exported file. There is
-also <a href="https://pub.dev/packages/flutter_storyboard">this package</a>
-that goes through all screens automatically.
+also [this package](https://pub.dev/packages/flutter_storyboard) that goes through all
+screens automatically.
+
+Another alternative is to use the `i18n_extension_importer` package,
+at https://pub.dev/packages/i18n_extension_importer, where you can find the `GetStrings`
+exporting utility, created by [Johann Bauer](https://github.com/bauerj).
+It's a useful script designed to automate the export of all translatable strings from your
+project. Simply run `flutter pub run i18n_extension_importer:getstrings` in your project
+root directory, and you will get a list of strings to translate in `strings.json`.
 
 # FAQ
 
@@ -1592,11 +1641,9 @@ you import from `.arb` files and translations are missing in some language._
 
 **Q: Are there importers for X?**
 
-**A:** _Currently, only `.PO` and `.JSON` importers are supported out-of-the-box. Keep in
-mind this lib development is still new, and I hope the community will help writing more
-importers/exporters. We hope to have those for `.arb` `.icu` `.xliff` `.csv` and `.yaml`,
-but we're not there yet. However, since the `Translations` object use maps as
-input/output, you can use whatever file you want if you convert them to a map yourself._
+**A:** _Currently, only `.PO` and `.JSON` importers are supported out-of-the-box.
+However, since the `Translations` object use maps as input/output, you can use whatever
+file you want if you convert them to a map yourself._
 
 <br>
 

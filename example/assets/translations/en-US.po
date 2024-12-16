@@ -1,0 +1,9 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Increment"
+msgstr "Increment"
+
+msgid "Change Language"
+msgstr "Change Language"

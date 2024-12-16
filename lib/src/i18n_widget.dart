@@ -1,20 +1,20 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'dart:async';
-import 'dart:io' as io;
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension/src/json_loader.dart';
+import 'package:i18n_extension/src/i18n_json_loader.dart';
+import 'package:i18n_extension/src/i18n_po_loader.dart';
 
-// ignore: implementation_imports
-import 'package:i18n_extension_core/src/translations_by_locale.dart' as core;
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'i18n_loader.dart';
 
 /// # Setup
 ///
@@ -405,29 +405,24 @@ class I18n extends StatefulWidget {
   /// See also: [saveLocale], [deleteLocale].
   ///
   static Future<Locale?> loadLocale() async {
-    _prepareLoadProcess();
+    _initLoadProcess();
 
     String? localeStr = await SharedPreferencesAsync().getString('locale');
     return (localeStr == null) ? null : localeStr.asLocale;
   }
 
-  /// Load assets for translations created with `Translations.load(...)`.
-  static void _prepareLoadProcess() {
-    Translations.loadProcess = (core.TranslationsByLocale translations) async {
-      //
-      String? dir = translations.dir;
-      if (dir == null) return;
+  /// Returns a list of loaders to be used by the i18n_extension.
+  /// By default, it loads from JSON (.json) and PO (.po) files.
+  /// This list may be changed statically, to add or remove loaders.
+  /// You may create your own loaders by extending [I18nLoader].
+  static List<I18nLoader Function()> loaders = [
+    () => I18nJsonLoader(),
+    () => I18nPoLoader(),
+  ];
 
-      if (kIsWeb) {
-        throw TranslationsException("Web loading from URL not yet implemented.");
-      }
-      //
-      else if (io.Platform.isAndroid || io.Platform.isIOS) {
-        Map<String, Map<String, String>> loadedTranslations =
-            await JsonLoader().fromAssetDir(dir);
-        translations.translationByLocale_ByTranslationKey.addAll(loadedTranslations);
-      }
-    };
+  /// Initialize the load process, for translations created with [Translations.byFile].
+  static void _initLoadProcess() {
+    I18nTranslationsExtension.initLoadProcess();
   }
 
   /// Deletes the locale previously saved with [saveLocale], from the shared
@@ -535,7 +530,7 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
     _locale = widget.initialLocale;
     _forceAndObserveLocale();
 
-    I18n._prepareLoadProcess();
+    I18n._initLoadProcess();
 
     if (autoSaveLocale) _loadAndSetLocale(context);
 

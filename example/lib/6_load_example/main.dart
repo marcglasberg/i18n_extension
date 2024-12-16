@@ -11,9 +11,23 @@ import 'my_screen.dart';
 
 /// This example demonstrates how to load translations from a file in the assets.
 ///
+/// Note `MyTranslations` uses `Translations.byFile`:
+///
+/// ```dart
+/// extension MyTranslations on String {
+///   static final _t = Translations.byFile('en-US', dir: 'assets/translations');
+///   static Future<void> load() => _t.load();
+///   String get i18n => localize(this, _t);
+/// }
+/// ```
+///
+///
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Preloading the translations here is recommended but optional. If you remove this
+  // line, the translations will be loaded automatically anyway later, but this may cause
+  // a visible flicker when the widget rebuilds with the new translations.
   await MyTranslations.load();
 
   runApp(

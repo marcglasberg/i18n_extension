@@ -1,4 +1,3 @@
-import 'dart:io' as io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:i18n_extension/i18n_extension.dart';
@@ -7,33 +6,139 @@ import 'package:i18n_extension_core/i18n_extension_core.dart' as core;
 // ignore: implementation_imports
 import 'package:i18n_extension_core/src/translations_by_locale.dart' as tbl;
 
-import 'json_loader.dart';
-
 extension I18nTranslationsExtension on Translations {
-  Future<void> load() async {
-    _prepareLoadProcess();
-    if (this is tbl.TranslationsByLocale) {
-      return (this as tbl.TranslationsByLocale).completer?.future;
+  //
+
+  /// Calling [load] starts the process of loading the translations. It returns a future
+  /// which you can use to wait for the translations to be loaded.
+  ///
+  /// While [load] can safely be called for any translation type, it only loads
+  /// the translations for those types that need them, like those created
+  /// with [Translations.byFile].
+  ///
+  /// Note translations are loaded automatically anyway when you use them for the first
+  /// time, even if you don't call [load]. For this reason, calling [load] is optional,
+  /// and only needed if you want to wait for the translations to be loaded before
+  /// continuing.
+  ///
+  /// # Usage
+  ///
+  /// If you want to load the translations when the app starts:
+  ///
+  /// ```dart
+  /// extension MyTranslations on String {
+  ///   static final _t = Translations.byFile('en-US', dir: 'assets/translations');
+  ///   static Future<void> load() => _t.load();
+  ///   String get i18n => localize(this, _t);
+  /// }
+  ///
+  /// void main() async {
+  ///   WidgetsFlutterBinding.ensureInitialized();
+  ///   await MyTranslations.load();
+  ///   runApp(I18n(...));
+  /// }
+  /// ```
+  ///
+  /// Or you can also use a [FutureBuilder]:
+  ///
+  /// ```dart
+  /// return FutureBuilder(
+  ///   future: MyTranslations.load(),
+  ///   builder: (context, snapshot) {
+  ///     if (snapshot.connectionState == ConnectionState.done) {
+  ///     return ...;
+  ///   } else {
+  ///     return const Center(child: CircularProgressIndicator());
+  ///   }
+  /// ...
+  /// ```
+  ///
+  /// Note: The load process has a default timeout of 0.5 seconds. If the timeout is
+  /// reached, the future returned by [load] will complete, but the load process still
+  /// continues in the background, and the widgets will rebuild automatically when the
+  /// translations finally finish loading. Optionally, you can provide your own [timeout]
+  /// duration, as well as a [callback] function to be called only in case the timeout is
+  /// reached.
+  ///
+  ///
+  Future<void> load([
+    Duration timeout = const Duration(milliseconds: 500),
+    VoidCallback? callback,
+  ]) async {
+    I18nTranslationsExtension.initLoadProcess();
+    // ---
+
+    var translations = this;
+
+    if (translations is tbl.TranslationsByLocale) {
+      //
+      var completer = translations.completer;
+      if (completer == null || completer.isCompleted) return;
+
+      final startTime = DateTime.now();
+      var timedOut = false;
+
+      await (this as tbl.TranslationsByLocale).completer?.future.timeout(
+        timeout,
+        onTimeout: () {
+          timedOut = true;
+          if (callback == null) {
+            print('Loading translations timed out. Still loading in the background.');
+          } else {
+            callback();
+          }
+        },
+      );
+
+      if (callback == null && !timedOut) {
+        final endTime = DateTime.now();
+        final loadTime = endTime.difference(startTime);
+        print('Loaded translations in ${loadTime.inMilliseconds} ms.');
+      }
     }
   }
 
-  /// Load assets for translations created with `Translations.load(...)`.
-  static void _prepareLoadProcess() {
-    Translations.loadProcess = (tbl.TranslationsByLocale translations) async {
-      //
-      String? dir = translations.dir;
-      if (dir == null) return;
+  /// Initialize the load process, for translations created with [Translations.byFile].
+  static void initLoadProcess() {
+    Translations.loadProcess = defaultLoadProcess;
+  }
 
-      if (kIsWeb) {
-        throw TranslationsException("Web loading from URL not yet implemented.");
+  /// Load assets for translations created with [Translations.byFile].
+  /// The loaders used are listed in [I18n.loaders].
+  static Future<void> defaultLoadProcess(tbl.TranslationsByLocale translations) async {
+    //
+    String? dir = translations.dir;
+    if (dir == null) return;
+
+    if (kIsWeb) {
+      throw TranslationsException("Web loading from URL not yet implemented.");
+    }
+    //
+    else {
+      var futures = I18n.loaders.map((loader) => loader().fromAssetDir(dir));
+      var loadedTranslationsList = await Future.wait(futures);
+
+      // For each file loaded, merge the translations into the main translations.
+      for (var loadedTranslations in loadedTranslationsList) {
+        //
+        Map<String, Map<String, String>> dest =
+            translations.translationByLocale_ByTranslationKey;
+
+        for (MapEntry<String, Map<String, String>> entry in loadedTranslations.entries) {
+          //
+          String key = entry.key;
+          Map<String, String> srcMap = entry.value;
+
+          Map<String, String>? destMap = dest[key];
+          if (destMap == null) {
+            destMap = {};
+            dest[key] = destMap;
+          }
+
+          destMap.addAll(srcMap);
+        }
       }
-      //
-      else if (io.Platform.isAndroid || io.Platform.isIOS) {
-        Map<String, Map<String, String>> loadedTranslations =
-            await JsonLoader().fromAssetDir(dir);
-        translations.translationByLocale_ByTranslationKey.addAll(loadedTranslations);
-      }
-    };
+    }
   }
 }
 
