@@ -156,7 +156,7 @@ with the `fill` function:
 'Hello %s and %s'.fill('John', 'Mary');
 ```
 
-Getting and setting the current locale:
+Getting the current locale:
 
 ```dart
 context.locale; // Current locale, from context
@@ -173,6 +173,8 @@ I18n.systemLocale; // Current system locale, read from the device
 
 Localizations.maybeLocaleOf(context); // The Flutter native way also works  
 ```
+
+Setting the current locale:
 
 ```dart
 context.locale = Locale('en', 'US'); // Set the current locale
