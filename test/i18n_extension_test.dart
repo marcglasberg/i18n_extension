@@ -549,6 +549,16 @@ void main() {
 
   test("Record missing keys and missing translations.", () {
     //
+    Translations.supportedLocales = [
+      'en-US',
+      'cs-cz',
+      'en-uk',
+      'pt-BR',
+      'es',
+      'es-ES',
+      'es-US'
+    ];
+
     // ---------------
 
     // 1) Search for a key which exists, and the translation also exists.
@@ -631,8 +641,35 @@ void main() {
     expect("Hi.".i18n, "Hi.");
 
     expect(Translations.missingKeys, isEmpty);
-    expect(Translations.missingTranslations.single.locale, "xx-YY");
-    expect(Translations.missingTranslations.single.key, "Hi.");
+    expect(Translations.missingTranslations, isEmpty);
+
+    // ---------------
+
+    // 5) Search for a key which exists, but the translation in the locale does NOT.
+
+    Translations.supportedLocales = [
+      'en-US',
+      'cs-cz',
+      'en-uk',
+      'pt-BR',
+      'es',
+      'es-ES',
+      'es-US',
+      'xx-yy'
+    ];
+
+    Translations.missingKeys.clear();
+    Translations.missingTranslations.clear();
+
+    I18n.define(const Locale("xx", "yy"));
+    expect("Hi.".i18n, "Hi.");
+
+    expect(Translations.missingKeys, isEmpty);
+    expect(Translations.missingTranslations, isEmpty);
+
+    // ---------------
+
+    Translations.supportedLocales = [];
   });
 
   test(
@@ -643,6 +680,7 @@ void main() {
 
     // 1) You CAN provide the translations "by locale" in the default locale, if you want.
 
+    Translations.supportedLocales = ["en-US", "es-ES"];
     Translations.missingKeys.clear();
     Translations.missingTranslations.clear();
 
@@ -665,6 +703,7 @@ void main() {
 
     // 2) But you don’t NEED to to provide the translations "by locale" in the default locale.
 
+    Translations.supportedLocales = ["en-US", "es-ES"];
     Translations.missingKeys.clear();
     Translations.missingTranslations.clear();
 
@@ -709,6 +748,8 @@ void main() {
         throwsA(TranslationsException("No default translation for 'en-US'.")));
 
     // ---------------
+
+    Translations.supportedLocales = [];
   });
 
   test("You must provide the translation in the default language.", () {

@@ -2,6 +2,49 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
+## 15.0.0-dev.1
+
+* Optionally, you can now set the `supportedLocales` of your app in the `I18n` widget.
+  For example, if your app supports American English and Standard Spanish, you'd use:
+  `supportedLocales: [Locale('en', 'US'), Locale('es')]`,
+  or `supportedLocales: ['en-US'.asLocale, 'es'.asLocale]`.
+
+  If you do set `I18n.supportedLocales`, you must add the line
+  `supportedLocales: I18n.supportedLocales` to your `MaterialApp` (or `CupertinoApp`)
+  widget, like this:
+
+  ```dart
+  void main() {
+    WidgetsFlutterBinding.ensureInitialized();
+  
+    runApp(I18n(
+        initialLocale: ...,
+        supportedLocales: ['en-US'.asLocale, 'es'.asLocale], // Here!
+        child: AppCore(),
+      ));
+    }
+  }
+  
+  class AppCore extends StatelessWidget {
+    Widget build(BuildContext context) {
+      return MaterialApp(
+        locale: I18n.locale,
+        supportedLocales: I18n.supportedLocales, // Here!
+        ...
+      ),
+  ```
+
+  If you provide `I18n.supportedLocales`, only those supported locales will be
+  considered when recording **missing translations**. In other words, unsupported locales
+  will not be recorded as missing translations.
+
+
+* **Breaking Change**: The `Translations.missingTranslationCallback` signature has
+  changed. This will only affect you if you have defined your own callback, which is
+  unlikely. If your code does break, update it to the new signature, which is an easy fix.
+  Note that it now returns a boolean. Only if it returns `true` will the missing
+  translation be added to the `Translations.missingTranslations` map.
+
 ## 14.1.0
 
 Version 14 brings important improvements, like new interpolation methods, useful

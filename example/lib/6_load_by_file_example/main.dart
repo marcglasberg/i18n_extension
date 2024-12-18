@@ -34,6 +34,16 @@ void main() async {
     I18n(
       initialLocale: await I18n.loadLocale(),
       autoSaveLocale: true,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'), // Could also be 'en-US'.asLocale,
+        const Locale('pt', 'BR'), // Could also be 'pt-BR'.asLocale,
+        const Locale('es', 'ES'), // Could also be 'es-ES'.asLocale,
+      ],
       child: AppCore(),
     ),
   );
@@ -43,19 +53,10 @@ class AppCore extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: I18n.locale,
       debugShowCheckedModeBanner: false,
-      //
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        const Locale('en', 'US'),
-        const Locale('pt', 'BR'),
-        const Locale('es', 'ES'),
-      ],
+      locale: I18n.locale,
+      localizationsDelegates: I18n.localizationsDelegates,
+      supportedLocales: I18n.supportedLocales,
       home: MyHomePage(),
       theme: ThemeData(
         elevatedButtonTheme: ElevatedButtonThemeData(

@@ -52,7 +52,7 @@ import 'i18n_loader.dart';
 ///     ),
 /// ```
 ///
-/// Note that the [I18n] widget is above the [MaterialApp] widget, but declared storeTester.dispatch(InitBasicoQuandoJaTemUmUsuarioLogado_Action());
+/// Note that the [I18n] widget is above the [MaterialApp] widget, but declared
 /// in a parent widget. If you declare it in the same widget as the [MaterialApp]
 /// widget, it will not work. This is WRONG:
 ///
@@ -95,14 +95,122 @@ class I18n extends StatefulWidget {
 
   final Widget child;
 
-  /// If you want to force a specific locale, you can set it here.
-  /// If you don’t set it, the current system-locale will be used.
+  /// Optionally, you can set [initialLocale] to force a specific locale when the app
+  /// opens. If you don’t set it, the current system-locale, read from the device
+  /// settings, will be used.
+  ///
+  /// If you set the [initialLocale], you must add the line `locale: I18n.locale` to
+  /// your [MaterialApp] (or [CupertinoApp]) widget:
+  ///
+  /// ```dart
+  /// void main() async {
+  ///   WidgetsFlutterBinding.ensureInitialized();
+  ///
+  ///   runApp(I18n(
+  ///     initialLocale: Locale('en', 'US'), // Here!
+  ///     supportedLocales: [ ... ],
+  ///     child: AppCore(),
+  ///     ));
+  ///   }
+  /// }
+  ///
+  /// class AppCore extends StatelessWidget {
+  ///   Widget build(BuildContext context) {
+  ///     return MaterialApp(
+  ///       locale: I18n.locale, // Here!
+  ///       supportedLocales: I18n.supportedLocales,
+  ///       ...
+  ///     ),
+  /// ```
+  ///
   final Locale? initialLocale;
+
+  /// Optionally, you can set the [supportedLocales] of your app.
+  /// For example, if your app supports American English and Standard Spanish, use:
+  /// `supportedLocales: [Locale('en', 'US'), Locale('es')]`,
+  /// or `supportedLocales: ['en-US'.asLocale, 'es'.asLocale]`.
+  ///
+  /// If you set the [supportedLocales], you must add the line
+  /// `supportedLocales: I18n.supportedLocales` to your [MaterialApp]
+  /// (or [CupertinoApp]) widget:
+  ///
+  /// ```dart
+  /// void main() {
+  ///   WidgetsFlutterBinding.ensureInitialized();
+  ///
+  ///   runApp(I18n(
+  ///       initialLocale: ...,
+  ///       supportedLocales: [Locale('en', 'US'), Locale('es')], // Here!
+  ///       child: AppCore(),
+  ///     ));
+  ///   }
+  /// }
+  ///
+  /// class AppCore extends StatelessWidget {
+  ///   Widget build(BuildContext context) {
+  ///     return MaterialApp(
+  ///       locale: I18n.locale,
+  ///       supportedLocales: I18n.supportedLocales, // Here!
+  ///       ...
+  ///     ),
+  /// ```
+  final Iterable<Locale> _supportedLocales;
+
+  /// Optionally, you can set the [localizationsDelegates] of your app.
+  ///
+  /// If you do that, you must add the line
+  /// `localizationsDelegates: I18n.localizationsDelegates` to your [MaterialApp]
+  /// (or [CupertinoApp]) widget:
+  ///
+  /// ```dart
+  /// void main() {
+  ///   WidgetsFlutterBinding.ensureInitialized();
+  ///
+  ///   runApp(I18n(
+  ///       localizationsDelegates: [ // Here!
+  ///           GlobalMaterialLocalizations.delegate,
+  ///           GlobalWidgetsLocalizations.delegate,
+  ///           GlobalCupertinoLocalizations.delegate,
+  ///         ],
+  ///       child: AppCore(),
+  ///     ));
+  ///   }
+  /// }
+  ///
+  /// class AppCore extends StatelessWidget {
+  ///   Widget build(BuildContext context) {
+  ///     return MaterialApp(
+  ///       localizationsDelegates: I18n.localizationsDelegates, // Here!
+  ///       ...
+  ///     ),
+  /// ```
+  final Iterable<LocalizationsDelegate<dynamic>> _localizationsDelegates;
 
   /// If [autoSaveLocale] is true, the locale will be saved and recovered between
   /// app restarts. This is useful if you want to remember the user's language
   /// preference. If your app only ever uses the current system locale, or if you
-  /// save the locale in another way, keep [autoSaveLocale] as false.
+  /// save the locale in another way, keep [autoSaveLocale] as false:
+  ///
+  /// ```dart
+  /// void main() async {
+  ///   WidgetsFlutterBinding.ensureInitialized();
+  ///
+  ///   runApp(I18n(
+  ///     initialLocale: await I18n.loadLocale(),
+  ///     supportedLocales: ['en-US'.asLocale, 'es'.asLocale],
+  ///     autoSaveLocale: true, // Here!
+  ///     child: AppCore(),
+  ///   ));
+  /// }
+  ///
+  /// class AppCore extends StatelessWidget {
+  ///   Widget build(BuildContext context) {
+  ///     return MaterialApp(
+  ///       locale: I18n.locale,
+  ///       supportedLocales: I18n.supportedLocales,
+  ///       ...
+  ///     ),
+  /// ```
   final bool autoSaveLocale;
 
   /// # Setup
@@ -141,7 +249,7 @@ class I18n extends StatefulWidget {
   ///     ),
   /// ```
   ///
-  /// Note that the [I18n] widget is above the [MaterialApp] widget, but declared storeTester.dispatch(InitBasicoQuandoJaTemUmUsuarioLogado_Action());
+  /// Note that the [I18n] widget is above the [MaterialApp] widget, but declared
   /// in a parent widget. If you declare it in the same widget as the [MaterialApp]
   /// widget, it will not work. This is WRONG:
   ///
@@ -181,8 +289,14 @@ class I18n extends StatefulWidget {
   I18n({
     required this.child,
     this.initialLocale,
+    Iterable<Locale> supportedLocales = const [],
+    Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = const [],
     this.autoSaveLocale = false,
-  }) : super(key: _i18nKey);
+  })  : _supportedLocales = supportedLocales,
+        _localizationsDelegates = localizationsDelegates,
+        super(key: _i18nKey) {
+    Translations.supportedLocales = supportedLocales.map((e) => e.format()).toList();
+  }
 
   /// Return the current locale of the app.
   ///
@@ -274,6 +388,32 @@ class I18n extends StatefulWidget {
   /// locale if needed. Otherwise, leave it as is.
   static Locale preInitializationLocale = const Locale('es', 'US');
 
+  /// Returns the supported locales of the app, as set in the [I18n] widget.
+  static Iterable<Locale> get supportedLocales {
+    //
+    var currentState = _i18nKey.currentState;
+
+    if (currentState == null)
+      throw TranslationsException("Can't get I18n.supportedLocales. "
+          "Make sure the I18n widget is in a separate parent widget, "
+          "above MaterialApp/CupertinoApp in the widget tree.");
+
+    return currentState.widget._supportedLocales;
+  }
+
+  /// Returns the localization delegates of the app, as set in the [I18n] widget.
+  static Iterable<LocalizationsDelegate<dynamic>> get localizationsDelegates {
+    //
+    var currentState = _i18nKey.currentState;
+
+    if (currentState == null)
+      throw TranslationsException("Can't get I18n.localizationsDelegates. "
+          "Make sure the I18n widget is in a separate parent widget, "
+          "above MaterialApp/CupertinoApp in the widget tree.");
+
+    return currentState.widget._localizationsDelegates;
+  }
+
   /// Even before we can use `View.of()` it's possible we have access to the device
   /// locale via the `PlatformDispatcher`. If that's `undefined` (`und`) return the
   /// `preInitializationLocale` instead.
@@ -287,11 +427,11 @@ class I18n extends StatefulWidget {
   /// Note this is just the language itself, without region/country, script etc.
   /// For example, if the locale is Locale('en', 'US'), then it returns 'en'.
   static String getLanguageOnlyFromLocale(Locale locale) {
-    _checkLanguageCode(locale);
+    _assertLanguageCode(locale);
     return locale.languageCode.toLowerCase().trim();
   }
 
-  static void _checkLanguageCode(Locale locale) {
+  static void _assertLanguageCode(Locale locale) {
     if (locale.languageCode.contains("_")) {
       throw TranslationsException("Language code '${locale.languageCode}' is invalid: "
           "Contains an underscore character.");
@@ -563,7 +703,7 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
     I18n._forcedLocale = _locale;
     Locale newLocale = I18n.locale;
 
-    I18n._checkLanguageCode(newLocale);
+    I18n._assertLanguageCode(newLocale);
 
     if (oldLocale != newLocale)
       I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
@@ -625,7 +765,7 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
       I18n._systemLocale = newSystemLocale;
       Locale newLocale = I18n.locale;
 
-      I18n._checkLanguageCode(newLocale);
+      I18n._assertLanguageCode(newLocale);
 
       if (oldLocale != newLocale)
         I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);

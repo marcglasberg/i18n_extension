@@ -16,6 +16,15 @@ void main() async {
     I18n(
       initialLocale: await I18n.loadLocale(),
       autoSaveLocale: true,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', "US"),
+        const Locale('pt', "BR"),
+      ],
       child: AppCore(),
     ),
   );
@@ -24,18 +33,10 @@ void main() async {
 class AppCore extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
-        locale: I18n.locale,
         debugShowCheckedModeBanner: false,
-        //
-        localizationsDelegates: [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: [
-          const Locale('en', "US"),
-          const Locale('pt', "BR"),
-        ],
+        locale: I18n.locale,
+        localizationsDelegates: I18n.localizationsDelegates,
+        supportedLocales: I18n.supportedLocales,
         home: MyHomePage(),
       );
 }
