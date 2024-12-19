@@ -226,15 +226,15 @@ translation example</a>.
 Follow these 4 easy steps to set up the `i18n_extension` package in your app:
 
 1. Wrap your widget tree with a single `I18n` widget, above your `MaterialApp`
-   (or `CupertinoApp`) widget. Remember you should not have more than one single `I18n`
-   widget in your widget tree.
+   (or `CupertinoApp`) widget. Remember you should **not** have more than one single
+   `I18n` widget in your widget tree.
 
    Note: Since the `I18n` widget is **above** the `MaterialApp`, it will be able
    to provide translations to all your routes and dialogs.
 
 
 2. Make sure the `I18n` widget is NOT declared in the same widget as the
-   `MaterialApp`. It must be in a parent widget. For example, this is wrong:
+   `MaterialApp`. It must be in a **parent** widget. For example, this is wrong:
 
     ```dart
     Widget build(BuildContext context) {
@@ -244,19 +244,38 @@ Follow these 4 easy steps to set up the `i18n_extension` package in your app:
     ```
 
 
-3. Add `locale: I18n.locale` to your `MaterialApp` widget:
+3. Make sure to provide `supportedLocales` and `localizationsDelegates` to
+   the `I18n` widget:
+
+   ```
+   return I18n(       
+      supportedLocales: [
+        'en-US'.asLocale,
+        'es-ES'.asLocale,
+        'pt-BR'.asLocale,
+      ],
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      child: AppCore(),
+   );
+   ```
+
+
+4. Add `locale: I18n.locale`,
+   and `localizationsDelegates: I18n.localizationsDelegates`,
+   and `supportedLocales: I18n.supportedLocales`, 
+   to your `MaterialApp` widget:
 
    ```
    MaterialApp(
       locale: I18n.locale,
+      localizationsDelegates: I18n.localizationsDelegates,
+      supportedLocales: I18n.supportedLocales,
       ...      
    ```
-
-
-4. Make sure to provide `localizationsDelegates` and `supportedLocales` to
-   the `MaterialApp`.
-
-&nbsp;<br>
 
 This is how your `main.dart` file could look like:
 
@@ -272,6 +291,16 @@ void main() {
 class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return I18n(
+      supportedLocales: [
+        'en-US'.asLocale,
+        'es-ES'.asLocale,
+        'pt-BR'.asLocale,
+      ],       
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       child: AppCore(),
     );
   }
@@ -281,21 +310,14 @@ class AppCore extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: I18n.locale,
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        'en-US'.asLocale,
-        'es-ES'.asLocale,
-        'pt-BR'.asLocale,
-      ],
+      locale: I18n.locale,
+      localizationsDelegates: I18n.localizationsDelegates,
+      supportedLocales: I18n.supportedLocales,
       home: ...
     ),
 ```  
 
-Another alternative is declaring the `I18n` widget in the `main` function:
+Another alternative is declaring the `I18n` widget in the `runApp()` of `main` function:
 
 ```dart    
 import 'package:i18n_extension/i18n_extension.dart';
@@ -303,23 +325,29 @@ import 'package:flutter_localizations/flutter_localizations.dart';
        
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(I18n(child: AppCore()));
+  
+  runApp(I18n(
+    supportedLocales: [
+      'en-US'.asLocale,
+      'es-ES'.asLocale,
+      'pt-BR'.asLocale,
+    ],       
+    localizationsDelegates: [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    child: AppCore(),
+  ));
 }
 
 class AppCore extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: I18n.locale,
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        'en-US'.asLocale,
-        'es-ES'.asLocale,
-        'pt-BR'.asLocale,
-      ],
+      locale: I18n.locale,
+      localizationsDelegates: I18n.localizationsDelegates,
+      supportedLocales: I18n.supportedLocales,
       home: ...
     ),
 ```  
@@ -670,8 +698,20 @@ For example:
 
 ```dart
 Translations.missingTranslationCallback =
-  (key, locale) =>
-    throw TranslationsException('There are no translations in $locale for key $key.');
+  ({
+    required Object? key,
+    required StringLocale locale,
+    required Translations translations,
+    required Iterable<String> supportedLocales,
+  }) {
+    if (locale != translations.defaultLocaleStr &&
+        (supportedLocales.isEmpty || supportedLocales.contains(locale))) {
+      print('➜ There are no translations in "$locale" for "$key".');
+      return true;
+    } else {
+      return false;
+    }
+  }
 ```
 
 ## Defining translations by locale instead of by key

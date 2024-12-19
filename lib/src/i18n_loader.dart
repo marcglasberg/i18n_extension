@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -78,25 +77,27 @@ abstract class I18nLoader {
   ///
   Future<Map<String, Map<String, String>>> fromAssetDir(String dir) async {
     //
-    // The manifest file lists all the assets in the assets directory.
-    String manifestContent = await rootBundle.loadString("AssetManifest.json");
-    Map<String, dynamic> manifestMap = json.decode(manifestContent);
+    // Load the asset manifest using the AssetManifest API.
+    // See: https://api.flutter.dev/flutter/services/AssetManifest-class.html
+    final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    final assets = assetManifest.listAssets();
 
     Map<String, Map<String, String>> translations = HashMap();
 
     final startTime = DateTime.now();
 
-    for (String path in manifestMap.keys) {
-      //
-      if (!path.startsWith(dir)) continue;
+    // Filter the assets that match the directory and file extension.
+    final relevantAssets =
+        assets.where((path) => path.startsWith(dir) && path.endsWith(extension)).toList();
 
-      if (path.endsWith(extension)) {
-        //
+    // Process all matching assets in parallel.
+    await Future.wait(
+      relevantAssets.map((path) async {
         var fileName = path.split("/").last;
         var languageTag = fileName.split(".")[0].asLanguageTag;
-        var stringReadFromBundle = await rootBundle.loadString(path);
 
         print('Loading $path');
+        var stringReadFromBundle = await rootBundle.loadString(path);
 
         Map<String, dynamic> map;
         try {
@@ -123,16 +124,17 @@ abstract class I18nLoader {
             translationsForKey?[languageTag] = value;
           }
           //
-          else
+          else {
             throw TranslationsException("Error in $path: "
                 "Value '$value' for key '$key' is not a String.");
+          }
         }
 
         final endTime = DateTime.now();
         final loadTime = endTime.difference(startTime);
         print('Finished $path in ${loadTime.inMilliseconds} ms.');
-      }
-    }
+      }),
+    );
 
     return translations;
   }

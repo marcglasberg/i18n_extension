@@ -16,14 +16,14 @@ void main() async {
     I18n(
       initialLocale: await I18n.loadLocale(),
       autoSaveLocale: true,
+      supportedLocales: [
+        const Locale('en', "US"),
+        const Locale('pt', "BR"),
+      ],
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        const Locale('en', "US"),
-        const Locale('pt', "BR"),
       ],
       child: AppCore(),
     ),

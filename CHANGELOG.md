@@ -2,7 +2,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
-## 15.0.0-dev.1
+## 15.0.0
 
 * Optionally, you can now set the `supportedLocales` of your app in the `I18n` widget.
   For example, if your app supports American English and Standard Spanish, you'd use:
@@ -20,6 +20,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
     runApp(I18n(
         initialLocale: ...,
         supportedLocales: ['en-US'.asLocale, 'es'.asLocale], // Here!
+        localizationsDelegates: [ ... ],
         child: AppCore(),
       ));
     }
@@ -30,20 +31,21 @@ Sponsored by [MyText.ai](https://mytext.ai)
       return MaterialApp(
         locale: I18n.locale,
         supportedLocales: I18n.supportedLocales, // Here!
+        localizationsDelegates: I18n.localizationsDelegates,
         ...
       ),
   ```
 
-  If you provide `I18n.supportedLocales`, only those supported locales will be
-  considered when recording **missing translations**. In other words, unsupported locales
-  will not be recorded as missing translations.
+  By providing `I18n.supportedLocales`, only those supported locales will be considered
+  when recording **missing translations**. In other words, unsupported locales will not be
+  recorded as missing translations.
 
 
 * **Breaking Change**: The `Translations.missingTranslationCallback` signature has
-  changed. This will only affect you if you have defined your own callback, which is
-  unlikely. If your code does break, update it to the new signature, which is an easy fix.
-  Note that it now returns a boolean. Only if it returns `true` will the missing
-  translation be added to the `Translations.missingTranslations` map.
+  changed. This will only affect you if you've defined your own callback, which is
+  unlikely. If your code does break, just update it to the new signature, which is an easy
+  fix. Also, note that it now returns a boolean. Only if it returns `true`, the missing
+  translation be recorded to the `Translations.missingTranslations` map.
 
 ## 14.1.0
 

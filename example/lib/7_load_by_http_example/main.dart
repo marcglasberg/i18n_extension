@@ -43,15 +43,15 @@ void main() async {
     I18n(
       initialLocale: await I18n.loadLocale(),
       autoSaveLocale: true,
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
       supportedLocales: [
         const Locale('en', 'US'), // Could also be 'en-US'.asLocale,
         const Locale('pt', 'BR'), // Could also be 'pt-BR'.asLocale,
         const Locale('es', 'ES'), // Could also be 'es-ES'.asLocale,
+      ],
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
       child: AppCore(),
     ),
