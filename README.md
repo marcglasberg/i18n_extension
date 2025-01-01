@@ -1,15 +1,20 @@
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
+[![Pub popularity](https://badgen.net/pub/popularity/i18n_extension)](https://pub.dev/packages/i18n_extension)
 [![Pub Version](https://img.shields.io/pub/v/i18n_extension?style=flat-square&logo=dart)](https://pub.dev/packages/i18n_extension)
 [![Code Check](https://github.com/marcglasberg/i18n_extension/actions/workflows/code_check.yaml/badge.svg)](https://github.com/marcglasberg/i18n_extension/actions/workflows/code_check.yaml)
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/marcglasberg/i18n_extension?style=flat-square)
+[![GitHub stars](https://img.shields.io/github/stars/marcglasberg/i18n_extension?style=social)](https://github.com/woltapp/i18n_extension)
 ![Code Climate issues](https://img.shields.io/github/issues/marcglasberg/i18n_extension?style=flat-square)
 ![GitHub closed issues](https://img.shields.io/github/issues-closed/marcglasberg/i18n_extension?style=flat-square)
 ![GitHub contributors](https://img.shields.io/github/contributors/marcglasberg/i18n_extension?style=flat-square)
 ![GitHub repo size](https://img.shields.io/github/repo-size/marcglasberg/i18n_extension?style=flat-square)
 ![GitHub forks](https://img.shields.io/github/forks/marcglasberg/i18n_extension?style=flat-square)
-![GitHub stars](https://img.shields.io/github/stars/marcglasberg/i18n_extension?style=flat-square)
-![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/marcglasberg/i18n_extension?style=flat-square)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
+[![Developed by Marcelo Glasberg](https://img.shields.io/badge/Developed%20by%20Marcelo%20Glasberg-blue.svg)](https://glasberg.dev/)
+[![Wolt on pub.dev](https://img.shields.io/pub/publisher/i18n_extension.svg)](https://pub.dev/packages/glasberg.dev/publisher)
+[![Platforms](https://badgen.net/pub/flutter-platform/i18n_extension)](https://pub.dev/packages/i18n_extension)
+
 
 # Translate your app!
 

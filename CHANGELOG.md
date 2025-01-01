@@ -2,7 +2,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
-## 15.0.0
+## 15.0.1
 
 * Optionally, you can now set the `supportedLocales` of your app in the `I18n` widget.
   For example, if your app supports American English and Standard Spanish, you'd use:
