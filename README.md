@@ -1,10 +1,8 @@
-[![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
-
 [![Pub popularity](https://badgen.net/pub/popularity/i18n_extension)](https://pub.dev/packages/i18n_extension)
 [![Pub Version](https://img.shields.io/pub/v/i18n_extension?style=flat-square&logo=dart)](https://pub.dev/packages/i18n_extension)
 [![Code Check](https://github.com/marcglasberg/i18n_extension/actions/workflows/code_check.yaml/badge.svg)](https://github.com/marcglasberg/i18n_extension/actions/workflows/code_check.yaml)
 ![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/marcglasberg/i18n_extension?style=flat-square)
-[![GitHub stars](https://img.shields.io/github/stars/marcglasberg/i18n_extension?style=social)](https://github.com/woltapp/i18n_extension)
+[![GitHub stars](https://img.shields.io/github/stars/marcglasberg/i18n_extension?style=social)](https://github.com/marcglasberg/i18n_extension)
 ![Code Climate issues](https://img.shields.io/github/issues/marcglasberg/i18n_extension?style=flat-square)
 ![GitHub closed issues](https://img.shields.io/github/issues-closed/marcglasberg/i18n_extension?style=flat-square)
 ![GitHub contributors](https://img.shields.io/github/contributors/marcglasberg/i18n_extension?style=flat-square)
@@ -12,9 +10,18 @@
 ![GitHub forks](https://img.shields.io/github/forks/marcglasberg/i18n_extension?style=flat-square)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
 [![Developed by Marcelo Glasberg](https://img.shields.io/badge/Developed%20by%20Marcelo%20Glasberg-blue.svg)](https://glasberg.dev/)
-[![Wolt on pub.dev](https://img.shields.io/pub/publisher/i18n_extension.svg)](https://pub.dev/packages/glasberg.dev/publisher)
+[![Glasberg.dev on pub.dev](https://img.shields.io/pub/publisher/async_redux.svg)](https://pub.dev/publishers/glasberg.dev/packages)
 [![Platforms](https://badgen.net/pub/flutter-platform/i18n_extension)](https://pub.dev/packages/i18n_extension)
 
+#### Contributors
+
+<a href="https://github.com/marcglasberg/i18n_extension/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=marcglasberg/i18n_extension" alt="contributors"/>
+</a>
+
+#### Sponsor
+
+[![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
 # Translate your app!
 
@@ -271,7 +278,7 @@ Follow these 4 easy steps to set up the `i18n_extension` package in your app:
 
 4. Add `locale: I18n.locale`,
    and `localizationsDelegates: I18n.localizationsDelegates`,
-   and `supportedLocales: I18n.supportedLocales`, 
+   and `supportedLocales: I18n.supportedLocales`,
    to your `MaterialApp` widget:
 
    ```
@@ -1845,3 +1852,5 @@ _stackoverflow.com/users/3411681/marcg_</a>
   (versions: <a href="https://habr.com/ru/post/500210/">русский</a>)
 * <a href="https://medium.com/flutter-community/the-new-way-to-create-themes-in-your-flutter-app-7fdfc4f3df5f">
   The New Way to create Themes in your Flutter App</a> 
+
+[![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
