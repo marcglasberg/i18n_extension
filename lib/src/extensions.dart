@@ -528,8 +528,9 @@ extension I18nLocaleExtension on Locale {
   String format({String? separator}) {
     String? languageTag = core.DefaultLocale.normalizeLocale(toLanguageTag());
 
-    if ((languageTag != null) && (separator != null))
+    if ((languageTag != null) && (separator != null)) {
       languageTag = languageTag.replaceAll('-', separator);
+    }
 
     if (languageTag == null || languageTag.isEmpty) return 'und';
 

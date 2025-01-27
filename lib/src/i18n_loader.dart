@@ -198,9 +198,10 @@ abstract class I18nLoader {
           translationsForKey?[languageTag] = value;
         }
         //
-        else
+        else {
           throw TranslationsException("Error in $url: "
               "Value '$value' for key '$key' is not a String.");
+        }
       }
 
       final endTime = DateTime.now();

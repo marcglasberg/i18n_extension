@@ -1366,7 +1366,7 @@ var locale = 'en-US'.asLocale;
 Ideally, the string should be a
 valid [IETF BCP47 Locale Identifier](https://www.ietf.org/rfc/bcp/bcp47.html)
 (which is compatible with
-the [Unicode Locale Identifier (ULI) syntax](http://www.unicode.org/reports/tr35/)).
+the [Unicode Locale Identifier (ULI) syntax](https://www.unicode.org/reports/tr35/)).
 such as 'en', 'en-US', 'pt-BR', 'es-419', 'hi-Deva-IN' or 'zh-Hans-CN'.
 
 However, the `asLocale` extension will automatically fix lowercase/uppercase issues,

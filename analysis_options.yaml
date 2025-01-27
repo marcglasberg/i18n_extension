@@ -13,6 +13,7 @@ analyzer:
 # https://github.com/dart-lang/linter/blob/master/example/all.yaml
 linter:
   rules:
+    - curly_braces_in_flow_control_structures
     - always_declare_return_types
     - annotate_overrides
     - avoid_empty_else

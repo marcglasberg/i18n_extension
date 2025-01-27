@@ -393,10 +393,11 @@ class I18n extends StatefulWidget {
     //
     var currentState = _i18nKey.currentState;
 
-    if (currentState == null)
+    if (currentState == null) {
       throw TranslationsException("Can't get I18n.supportedLocales. "
           "Make sure the I18n widget is in a separate parent widget, "
           "above MaterialApp/CupertinoApp in the widget tree.");
+    }
 
     return currentState.widget._supportedLocales;
   }
@@ -406,10 +407,11 @@ class I18n extends StatefulWidget {
     //
     var currentState = _i18nKey.currentState;
 
-    if (currentState == null)
+    if (currentState == null) {
       throw TranslationsException("Can't get I18n.localizationsDelegates. "
           "Make sure the I18n widget is in a separate parent widget, "
           "above MaterialApp/CupertinoApp in the widget tree.");
+    }
 
     return currentState.widget._localizationsDelegates;
   }
@@ -475,6 +477,19 @@ class I18n extends StatefulWidget {
     required Locale newLocale,
   }) observeLocale = ({required Locale oldLocale, required Locale newLocale}) {};
 
+  /// Calling [I18n.reset] will remove the entire widget tree inside [I18n] for one frame,
+  /// and then restore it, rebuilding everything. This can be helpful in rare
+  /// circumstances, when some widgets are not responding to locale changes. This is a
+  /// brute-force method, and it's probably not necessary in the vast majority of cases.
+  /// A side effect is that the all stateful widgets below [I18n] will be recreated, and
+  /// their state reset by calling their `initState()` method. This means you should only
+  /// use this method if you don't mind loosing all this state, or if you have mechanisms
+  /// to recover it, like for example having the state come from above the [I18n] widget.
+  static void reset() {
+    var homepageState = _i18nKey.currentState;
+    homepageState?._reset();
+  }
+
   /// Getter:
   /// print(I18n.of(context).locale);
   ///
@@ -518,8 +533,9 @@ class I18n extends StatefulWidget {
     _forcedLocale = locale;
     Locale newLocale = I18n.locale;
 
-    if (oldLocale != newLocale)
+    if (oldLocale != newLocale) {
       I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+    }
   }
 
   /// The system-locale read from the device.
@@ -542,10 +558,11 @@ class I18n extends StatefulWidget {
   /// See also: [loadLocale], [deleteLocale].
   ///
   static Future<void> saveLocale(Locale? locale) {
-    if (locale == null)
+    if (locale == null) {
       return SharedPreferencesAsync().remove('locale');
-    else
+    } else {
       return SharedPreferencesAsync().setString('locale', locale.format());
+    }
   }
 
   /// Load the locale previously saved with [saveLocale], from the shared
@@ -595,6 +612,19 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
   Locale? _locale;
 
   Locale _viewLocale = PlatformDispatcher.instance.locale;
+
+  bool _isResetting = false;
+
+  void _reset() {
+    if (mounted) {
+      setState(() {
+        _isResetting = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => _isResetting = false);
+        });
+      });
+    }
+  }
 
   /// Ways to read the current locale:
   ///
@@ -652,7 +682,7 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
     locale = null;
   }
 
-  /// Loads the locale previously saved with [saveLocale], from the shared
+  /// Loads the locale previously saved with [I18n.saveLocale], from the shared
   /// preferences of the device, and then set it.
   ///
   /// IMPORTANT: This method may be safely called from initState. Note that the locale
@@ -705,8 +735,9 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
 
     I18n._assertLanguageCode(newLocale);
 
-    if (oldLocale != newLocale)
+    if (oldLocale != newLocale) {
       I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+    }
   }
 
   /// Will be called when the system locale changes.
@@ -724,13 +755,17 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    _processSystemLocale();
-    _rebuildAllChildren();
+    if (_isResetting) {
+      return const SizedBox();
+    } else {
+      _processSystemLocale();
+      _rebuildAllChildren();
 
-    return _InheritedI18n(
-      data: this,
-      child: widget.child,
-    );
+      return _InheritedI18n(
+        data: this,
+        child: widget.child,
+      );
+    }
   }
 
   @override
@@ -767,11 +802,13 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
 
       I18n._assertLanguageCode(newLocale);
 
-      if (oldLocale != newLocale)
+      if (oldLocale != newLocale) {
         I18n.observeLocale(oldLocale: oldLocale, newLocale: newLocale);
+      }
 
-      if (I18n._forcedLocale == null)
+      if (I18n._forcedLocale == null) {
         WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
+      }
     }
   }
 }
