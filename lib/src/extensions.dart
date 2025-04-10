@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:i18n_extension_core/i18n_extension_core.dart' as core;
-
 // ignore: implementation_imports
 import 'package:i18n_extension_core/src/translations_by_locale.dart' as tbl;
 
@@ -117,7 +116,8 @@ extension I18nTranslationsExtension on Translations {
 
   /// Load assets for translations created with [Translations.byFile].
   /// The loaders used are listed in [I18n.loaders].
-  static Future<void> defaultLoadByFile(tbl.TranslationsByLocale translations) async {
+  static Future<void> defaultLoadByFile(
+      tbl.TranslationsByLocale translations) async {
     //
     String? dir = translations.dir;
     if (dir == null) return;
@@ -138,7 +138,8 @@ extension I18nTranslationsExtension on Translations {
 
   /// Load assets for translations created with [Translations.byHttp].
   /// The loaders used are listed in [I18n.loaders].
-  static Future<void> defaultLoadByHttp(tbl.TranslationsByLocale translations) async {
+  static Future<void> defaultLoadByHttp(
+      tbl.TranslationsByLocale translations) async {
     //
     // The url is something like "https://example.com/translations/".
     String? url = translations.url;
@@ -153,8 +154,8 @@ extension I18nTranslationsExtension on Translations {
       List<String> urlCombinations =
           resources.map((resource) => '$url$resource').toList();
 
-      var futures = I18n.loaders
-          .expand((loader) => urlCombinations.map((url) => loader().fromUrl(url)));
+      var futures = I18n.loaders.expand(
+          (loader) => urlCombinations.map((url) => loader().fromUrl(url)));
 
       var loadedTranslationsList = await Future.wait(futures);
 
@@ -179,7 +180,8 @@ extension I18nTranslationsExtension on Translations {
       Map<String, Map<String, String>> dest =
           translations.translationByLocale_ByTranslationKey;
 
-      for (MapEntry<String, Map<String, String>> entry in loadedTranslations.entries) {
+      for (MapEntry<String, Map<String, String>> entry
+          in loadedTranslations.entries) {
         //
         String key = entry.key;
         Map<String, String> srcMap = entry.value;
@@ -300,8 +302,8 @@ extension I18nMainExtension on String {
           Object? p13,
           Object? p14,
           Object? p15]) =>
-      localizeArgs(
-          this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+      localizeArgs(this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13,
+          p14, p15);
 
   /// The [fill] function applies a `sprintf` on this string with the given
   /// params, [p1], [p2], [p3], ..., [p15].
@@ -358,8 +360,8 @@ extension I18nMainExtension on String {
           Object? p13,
           Object? p14,
           Object? p15]) =>
-      localizeFill(
-          this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+      localizeFill(this, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13,
+          p14, p15);
 }
 
 extension I18nBuildContextExtension on BuildContext {
@@ -479,7 +481,9 @@ extension I18nStringExtension on String {
         scriptCode = part;
       }
       // If countryCode not found yet and part is a two-letter uppercase region code.
-      else if (countryCode == null && part.length == 2 && part.toUpperCase() == part) {
+      else if (countryCode == null &&
+          part.length == 2 &&
+          part.toUpperCase() == part) {
         countryCode = part;
       }
     }

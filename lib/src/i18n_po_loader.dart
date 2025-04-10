@@ -37,7 +37,8 @@ class I18nPoLoader extends I18nLoader {
     //
     Map<String, String> out = {};
 
-    Map<String, dynamic> translations = gettext_parser.po.parse(source)["translations"];
+    Map<String, dynamic> translations =
+        gettext_parser.po.parse(source)["translations"];
 
     Iterable<dynamic> contexts = translations.values;
     for (Map context in contexts) {

@@ -1,6 +1,6 @@
 name: i18n_extension
 description: Translation and Internationalization (i18n) for Flutter. Easy to use for both large and small projects. Uses Dart extensions to reduce boilerplate.
-version: 15.01.4
+version: 15.0.5
 # author: Marcelo Glasberg <marcglasberg@gmail.com>
 homepage: https://github.com/marcglasberg/i18n_extension
 topics:
@@ -14,7 +14,7 @@ environment:
   sdk: '>=3.5.0 <4.0.0'
 
 dependencies:
-  intl: '>=0.17.0 <=0.20.1'
+  intl: '>=0.17.0 <=0.21.0'
   i18n_extension_core: ^5.0.0
   http: ^1.2.2
   shared_preferences: ^2.3.3

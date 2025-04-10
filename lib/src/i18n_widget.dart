@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:i18n_extension/src/i18n_json_loader.dart';
 import 'package:i18n_extension/src/i18n_po_loader.dart';
-
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -295,7 +294,8 @@ class I18n extends StatefulWidget {
   })  : _supportedLocales = supportedLocales,
         _localizationsDelegates = localizationsDelegates,
         super(key: _i18nKey) {
-    Translations.supportedLocales = supportedLocales.map((e) => e.format()).toList();
+    Translations.supportedLocales =
+        supportedLocales.map((e) => e.format()).toList();
   }
 
   /// Return the current locale of the app.
@@ -435,7 +435,8 @@ class I18n extends StatefulWidget {
 
   static void _assertLanguageCode(Locale locale) {
     if (locale.languageCode.contains("_")) {
-      throw TranslationsException("Language code '${locale.languageCode}' is invalid: "
+      throw TranslationsException(
+          "Language code '${locale.languageCode}' is invalid: "
           "Contains an underscore character.");
     }
   }
@@ -475,7 +476,8 @@ class I18n extends StatefulWidget {
   static void Function({
     required Locale oldLocale,
     required Locale newLocale,
-  }) observeLocale = ({required Locale oldLocale, required Locale newLocale}) {};
+  }) observeLocale =
+      ({required Locale oldLocale, required Locale newLocale}) {};
 
   /// Calling [I18n.reset] will remove the entire widget tree inside [I18n] for one frame,
   /// and then restore it, rebuilding everything. This can be helpful in rare
@@ -501,7 +503,8 @@ class I18n extends StatefulWidget {
         context.dependOnInheritedWidgetOfExactType<_InheritedI18n>();
 
     if (inherited == null) {
-      throw TranslationsException("Can’t find the `I18n` widget up in the tree. "
+      throw TranslationsException(
+          "Can’t find the `I18n` widget up in the tree. "
           "Please make sure to wrap some ancestor widget with `I18n`.");
     }
 

@@ -1,5 +1,4 @@
 import 'package:i18n_extension/i18n_extension.dart';
-
 // ignore: implementation_imports
 import 'package:i18n_extension_core/src/core_localize_functions.dart' as core;
 
@@ -276,7 +275,8 @@ Map<String?, String> localizeAllVersions(
   Translations translations, {
   String? languageTag,
 }) =>
-    core.localizeAllVersions(key, translations, locale: languageTag ?? I18n.languageTag);
+    core.localizeAllVersions(key, translations,
+        locale: languageTag ?? I18n.languageTag);
 
 /// Function [recordMissingKey] simply records the given key as a missing translation
 /// with unknown locale. It returns the same [key] provided, unaffected.

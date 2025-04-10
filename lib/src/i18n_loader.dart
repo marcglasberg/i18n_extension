@@ -87,8 +87,9 @@ abstract class I18nLoader {
     final startTime = DateTime.now();
 
     // Filter the assets that match the directory and file extension.
-    final relevantAssets =
-        assets.where((path) => path.startsWith(dir) && path.endsWith(extension)).toList();
+    final relevantAssets = assets
+        .where((path) => path.startsWith(dir) && path.endsWith(extension))
+        .toList();
 
     // Process all matching assets in parallel.
     await Future.wait(

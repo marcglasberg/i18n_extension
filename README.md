@@ -1,7 +1,5 @@
-[![Pub popularity](https://badgen.net/pub/popularity/i18n_extension)](https://pub.dev/packages/i18n_extension)
 [![Pub Version](https://img.shields.io/pub/v/i18n_extension?style=flat-square&logo=dart)](https://pub.dev/packages/i18n_extension)
 [![Code Check](https://github.com/marcglasberg/i18n_extension/actions/workflows/code_check.yaml/badge.svg)](https://github.com/marcglasberg/i18n_extension/actions/workflows/code_check.yaml)
-![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/marcglasberg/i18n_extension?style=flat-square)
 [![GitHub stars](https://img.shields.io/github/stars/marcglasberg/i18n_extension?style=social)](https://github.com/marcglasberg/i18n_extension)
 ![Code Climate issues](https://img.shields.io/github/issues/marcglasberg/i18n_extension?style=flat-square)
 ![GitHub closed issues](https://img.shields.io/github/issues-closed/marcglasberg/i18n_extension?style=flat-square)
