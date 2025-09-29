@@ -14,7 +14,23 @@ abstract class I18nLoader {
   /// returns a JSON map of translations.
   Map<String, dynamic> decode(String source);
 
-  /// load files like `es-ES.json`, containing something like:
+  /// This loader will search for all files that end with the expected [extension],
+  /// in the given [dir] directory AND its subdirectories.
+  ///
+  /// While the function itself searches subdirectories, in `pubspec.yaml` you
+  /// must **separately** declare all dirs and subdirectories that contain
+  /// assets. In other words, Flutter automatically finds all files in the
+  /// directory, but it does NOT enter subdirectories, unless you declare them
+  /// explicitly in `pubspec.yaml`. For example:
+  ///
+  /// ```yaml
+  /// flutter:
+  ///   assets:
+  ///     - assets/translations/
+  ///     - assets/translations/more_translations/
+  /// ```
+  ///
+  /// A file like `es-ES.json` could contain something like:
   ///
   /// ```json
   /// {

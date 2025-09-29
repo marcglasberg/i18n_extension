@@ -64,7 +64,7 @@ Portuguese, and Spanish):
 - When the locale is `es`, it shows `'¿Cómo estás?'`
 - And so on for any other locales you want to support
 
-Note the original English string `'How are you?'` doubles as the **"translation key"** to
+The original English string `'How are you?'` doubles as the **"translation key"** to
 find the appropriate translation. One advantage of this approach is that you don’t need
 to come up with _unique identifiers_ for each string.
 
@@ -89,14 +89,16 @@ Text(greetings.i18n);
 Or, if you want to namespace your identifiers:
 
 ```dart
-class MyScope {
-  static const greetings = Object();
+class Salutes {  
+  static const hi = Object();  
+  static const welcome = Object();
+  static const goodbye = Object();
 } 
 
-Text(MyScope.greetings.i18n);
+Text(Salutes.welcome.i18n);
 ```
 
-Note you can always mix and match strings and identifiers as translation keys.
+You can always mix and match strings and identifiers as translation keys.
 For example, you might use string keys for short texts,
 while using identifiers for long texts, as shown here:
 
@@ -119,7 +121,7 @@ Widget build(BuildContext context) {
 
 ## Other features
 
-Other `i18n_extension` features that will be later discussed in more detail include:
+_Other `i18n_extension` features that will be later discussed in more detail include:_
 
 Providing different translations depending on modifiers, such as `plural` quantities:
 
@@ -239,7 +241,7 @@ Follow these 4 easy steps to set up the `i18n_extension` package in your app:
    (or `CupertinoApp`) widget. Remember you should **not** have more than one single
    `I18n` widget in your widget tree.
 
-   Note: Since the `I18n` widget is **above** the `MaterialApp`, it will be able
+   Since the `I18n` widget is **above** the `MaterialApp`, it will be able
    to provide translations to all your routes and dialogs.
 
 
@@ -377,12 +379,14 @@ dependencies:
 
 &nbsp;<br>
 
-**Note:** The `MaterialApp` widget contains, internally, a `Localizations` widget,
+As you probably know, the `MaterialApp` widget contains a `Localizations` 
+widget inside it, 
 which is used by Flutter to provide translations to native Flutter widgets.
-The `I18n` widget will automatically keep in sync with the `Localizations` widget,
-so that when you change the locale in `I18n`, it will also change in the `Localizations`.
+The `I18n` widget will automatically keep in sync with the `Localizations` 
+widget, so that when you change the locale in `I18n`, it will also change in 
+the `Localizations`.
 This means that `Localizations.of(context).locale` is always equal
-to `I18n.of(context).locale`, and to `context.locale`, and to `I18n.locale`.
+to `I18n.of(context).locale`, to `context.locale`, and to `I18n.locale`.
 
 ## Initial locale
 
@@ -407,8 +411,8 @@ automatically.
 
 ## Auto saving the locale
 
-Some apps may allow the user to change the language/locale of the app, from inside the
-app. You can allow that by creating some widget that presents the list of available
+Some apps may allow the user to change the locale of the app from inside the
+app itself. You can allow that by creating some widget that presents a list of available
 locales, and then set it with:
 
 ```dart
@@ -445,16 +449,15 @@ void main() async {
       ...
 ```
 
-> Note: While usually not needed, you can also manually load, save and delete the
-> locale from the shared preferences, at any later time,
-> by using the provided static functions:
+> Note, this is usually not required, but you can manually load, save, or delete the 
+> locale from the shared preferences at any time by using these static functions:
 > `var locale = await I18n.loadLocale()`, `I18n.saveLocale(locale)`
 > and `I18n.deleteLocale()`.
 
 # Translating a widget
 
-When you create a widget that has translatable strings, add this default import to the
-widget's file:
+When you want to create a widget that contains translatable texts, 
+start by temporarily adding this _default import_ to the widget's file:
 
 ```dart
 import 'package:i18n_extension/default.i18n.dart';
@@ -477,7 +480,7 @@ file:
 import 'my_widget.i18n.dart';
 ```
 
-Your translation file itself will be something like this:
+Your translation file itself may be something like this:
 
 ```dart
 import 'package:i18n_extension/i18n_extension.dart';
@@ -589,7 +592,7 @@ Just use `Translations.byId<T>()` and provide the type `T` of your identifier. Y
 can be anything, including `String`, `int`, `double`, `DateTime`, or even your own custom
 object types, as long as they implement `==` and `hashCode`.
 
-Don’t forget that your extensions need to be on your type.
+Don’t forget that your extensions need to be _on your type_.
 For example, if you use `int` as your key type, you need to
 declare `extension Localization on int { ... }`.
 
@@ -669,6 +672,217 @@ Text('My Settings'.i18n);
 Text('Ok'.i18n);
 Text('Back'.i18n);
 ```
+
+## Load translations from files
+
+If you want to load translations from `.json` files in your assets directory,
+create a folder and add some translation files like this:
+
+```
+assets
+└── translations
+    ├── en-US.json
+    ├── es-ES.json
+    ├── zh-Hans-CN.json
+    └── pt.json  
+```
+
+You can also use `.po` files:
+
+```
+assets
+└── translations
+    ├── en-US.po
+    ├── es-ES.po
+    ├── zh-Hans-CN.po
+    └── pt.po  
+```
+
+Don't forget to declare your assets directory in your `pubspec.yaml`:
+
+```yaml
+flutter:
+  assets:
+    - assets/translations/
+```
+
+Note, you can also have files in subdirectories, like:
+
+```
+assets
+└── translations
+    ├── en-US.json    
+    ├── zh-Hans-CN.json
+    ├── pt.json  
+    └── more_translations
+        └── es-ES.json  
+```
+
+In this case, your `pubspec.yaml` you must **separately** declare all 
+directories and subdirectories that contain assets. 
+In other words, Flutter automatically finds all files in the directory, 
+but it does NOT enter subdirectories,
+unless you declare them explicitly in `pubspec.yaml`. For example:
+
+```yaml
+ flutter:
+   assets:
+     - assets/translations/
+     - assets/translations/more_translations/
+ ```
+
+Once you have your files in place, 
+you can load the translations using `Translations.byFile()`:
+
+```dart
+extension MyTranslations on String {
+  static final _t = Translations.byFile('en-US', dir: 'assets/translations');     
+  String get i18n => localize(this, _t);  
+}
+```
+
+The above code will asynchronously load all the translations from the `.json` and `.po`
+files present in the `assets/translations` directory, and then rebuild your widgets with
+those new translations.
+
+Note: Since rebuilding widgets when the translations finish loading can cause a visible
+flicker, you can optionally avoid that by preloading the translations before running your
+app. To that end, first create a `load()` method in your `MyTranslations` extension:
+
+```dart
+extension MyTranslations on String {
+  static final _t = Translations.byFile('en-US', dir: 'assets/translations');  
+  String get i18n => localize(this, _t);  
+  
+  static Future<void> load() => _t.load(); // Here!  
+}
+```
+
+And then, in your `main()` method, call `MyTranslations.load()` before running the app:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await MyTranslations.load(); // Here!
+  
+  runApp(
+    I18n(
+      initialLocale: await I18n.loadLocale(),
+      autoSaveLocale: true,
+      child: AppCore(),
+    ),
+  );
+}
+```
+
+Try running
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_by_file_example/main.dart">
+load by file example</a>.
+
+Another alternative is using a `FutureBuilder`:
+
+```dart
+return FutureBuilder(
+  future: MyTranslations.load(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+    return MyWidget(...);
+  } else {
+    return const Center(child: CircularProgressIndicator());
+  } ...
+```
+
+Note: The load process has a default timeout of 0.5 seconds. If the timeout is
+reached, the future returned by `load` will complete, but the load process still
+continues in the background, and the widgets will rebuild automatically when the
+translations finally finish loading. Optionally, you can provide a different `timeout`
+duration.
+
+**Note:** The code to load translations from files is adapted from original code
+created by <a href="https://github.com/bauerj">Johann Bauer</a>.
+
+## Load translations from the web
+
+You can use `Translations.byHttp()` to load translations from `.json` or `.po` files on
+the web, using **https**. Use it like this:
+
+```
+extension MyTranslations on String {
+  
+  static final _t = Translations.byHttp('en-US', 
+    url: 'https://example.com/translations', 
+    resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po']);
+  );
+       
+  String get i18n => localize(this, _t);  
+}       
+```
+
+The above code will asynchronously load all the resources listed above:
+
+```
+https://example.com/translations/en-US.json
+https://example.com/translations/es.json
+https://example.com/translations/pt-BR.po
+https://example.com/translations/fr.po
+```
+
+It will then rebuild your widgets with those new translations.
+
+Note: Since rebuilding widgets when the translations finish loading can cause a visible
+flicker, you can optionally avoid that by preloading the translations before running your
+app. To that end, first create a `load()` method in your `MyTranslations` extension:
+
+```dart
+extension MyTranslations on String {
+  static final _t = Translations.byHttp('en-US', url: ..., resources: ...);  
+  String get i18n => localize(this, _t);  
+  
+  static Future<void> load() => _t.load(); // Here!  
+}
+```
+
+And then, in your `main()` method, call `MyTranslations.load()` before running the app:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await MyTranslations.load(); // Here!
+  
+  runApp(
+    I18n(
+      initialLocale: await I18n.loadLocale(),
+      autoSaveLocale: true,
+      child: AppCore(),
+    ),
+  );
+}
+```
+
+Try running
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/7_load_by_http_example/main.dart">
+load by http example</a>.
+
+Another alternative is using a `FutureBuilder`:
+
+```dart
+return FutureBuilder(
+  future: MyTranslations.load(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.done) {
+    return MyWidget(...);
+  } else {
+    return const Center(child: CircularProgressIndicator());
+  } ...
+```
+
+Note: The load by http process has a default timeout of 1 second. If the timeout is
+reached, the future returned by `load` will complete, but the load process still
+continues in the background, and the widgets will rebuild automatically when the
+translations finally finish loading. Optionally, you can provide a different `timeout`
+duration.
 
 ## Finding missing translations
 
@@ -1428,194 +1642,9 @@ DefaultLocale.set('es-ES');
 expect('Hello'.i18n, 'Hola');
 ```
 
-The only important difference is that you must use `DefaultLocale.set()` instead
-of `I18n.of(context).locale = ...` to set the locale. And you won’t have access
-and won’t need to use the `i18n` widget, obviously.
-
-## Load translations from files
-
-If you want to load translations from `.json` files in your assets directory,
-create a folder and add some translation files like this:
-
-```
-assets
-└── translations
-    ├── en-US.json
-    ├── es-ES.json
-    ├── zh-Hans-CN.json
-    └── pt.json  
-```
-
-You can also use `.po` files:
-
-```
-assets
-└── translations
-    ├── en-US.po
-    ├── es-ES.po
-    ├── zh-Hans-CN.po
-    └── pt.po  
-```
-
-Don't forget to declare your assets directory in your `pubspec.yaml`:
-
-```yaml
-flutter:
-  assets:
-    - assets/translations/
-```
-
-Then, you can load the translations using `Translations.byFile()`:
-
-```dart
-extension MyTranslations on String {
-  static final _t = Translations.byFile('en-US', dir: 'assets/translations');     
-  String get i18n => localize(this, _t);  
-}
-```
-
-The above code will asynchronously load all the translations from the `.json` and `.po`
-files present in the `assets/translations` directory, and then rebuild your widgets with
-those new translations.
-
-Note: Since rebuilding widgets when the translations finish loading can cause a visible
-flicker, you can optionally avoid that by preloading the translations before running your
-app. To that end, first create a `load()` method in your `MyTranslations` extension:
-
-```dart
-extension MyTranslations on String {
-  static final _t = Translations.byFile('en-US', dir: 'assets/translations');  
-  String get i18n => localize(this, _t);  
-  
-  static Future<void> load() => _t.load(); // Here!  
-}
-```
-
-And then, in your `main()` method, call `MyTranslations.load()` before running the app:
-
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  await MyTranslations.load(); // Here!
-  
-  runApp(
-    I18n(
-      initialLocale: await I18n.loadLocale(),
-      autoSaveLocale: true,
-      child: AppCore(),
-    ),
-  );
-}
-```
-
-Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/6_load_by_file_example/main.dart">
-load by file example</a>.
-
-Another alternative is using a `FutureBuilder`:
-
-```dart
-return FutureBuilder(
-  future: MyTranslations.load(),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.done) {
-    return MyWidget(...);
-  } else {
-    return const Center(child: CircularProgressIndicator());
-  } ...
-```
-
-Note: The load process has a default timeout of 0.5 seconds. If the timeout is
-reached, the future returned by `load` will complete, but the load process still
-continues in the background, and the widgets will rebuild automatically when the
-translations finally finish loading. Optionally, you can provide a different `timeout`
-duration.
-
-**Note:** The code to load translations from files is adapted from original code
-created by <a href="https://github.com/bauerj">Johann Bauer</a>.
-
-## Load translations from the web
-
-You can use `Translations.byHttp()` to load translations from `.json` or `.po` files on
-the web, using **https**. Use it like this:
-
-```
-extension MyTranslations on String {
-  
-  static final _t = Translations.byHttp('en-US', 
-    url: 'https://example.com/translations', 
-    resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po']);
-  );
-       
-  String get i18n => localize(this, _t);  
-}       
-```
-
-The above code will asynchronously load all the resources listed above:
-
-```
-https://example.com/translations/en-US.json
-https://example.com/translations/es.json
-https://example.com/translations/pt-BR.po
-https://example.com/translations/fr.po
-```
-
-It will then rebuild your widgets with those new translations.
-
-Note: Since rebuilding widgets when the translations finish loading can cause a visible
-flicker, you can optionally avoid that by preloading the translations before running your
-app. To that end, first create a `load()` method in your `MyTranslations` extension:
-
-```dart
-extension MyTranslations on String {
-  static final _t = Translations.byHttp('en-US', url: ..., resources: ...);  
-  String get i18n => localize(this, _t);  
-  
-  static Future<void> load() => _t.load(); // Here!  
-}
-```
-
-And then, in your `main()` method, call `MyTranslations.load()` before running the app:
-
-```dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  await MyTranslations.load(); // Here!
-  
-  runApp(
-    I18n(
-      initialLocale: await I18n.loadLocale(),
-      autoSaveLocale: true,
-      child: AppCore(),
-    ),
-  );
-}
-```
-
-Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/7_load_by_http_example/main.dart">
-load by http example</a>.
-
-Another alternative is using a `FutureBuilder`:
-
-```dart
-return FutureBuilder(
-  future: MyTranslations.load(),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.done) {
-    return MyWidget(...);
-  } else {
-    return const Center(child: CircularProgressIndicator());
-  } ...
-```
-
-Note: The load by http process has a default timeout of 1 second. If the timeout is
-reached, the future returned by `load` will complete, but the load process still
-continues in the background, and the widgets will rebuild automatically when the
-translations finally finish loading. Optionally, you can provide a different `timeout`
-duration.
+The main difference is that you must use `DefaultLocale.set(...)` instead of 
+`I18n.of(context).locale = ...` to set the locale. You also will not have access to, 
+or need, the `I18n` widget.
 
 ## Translation formats
 

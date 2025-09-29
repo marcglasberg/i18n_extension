@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.5.0 <4.0.0'
+  sdk: '>=3.9.2 <4.0.0'
 
 dependencies:
   i18n_extension:
@@ -22,3 +22,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/translations/
+    - assets/translations/more_translations/
