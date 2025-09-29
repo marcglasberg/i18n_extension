@@ -46,7 +46,7 @@ extension MyLocalization on Object {
           .two("You clicked a couple times:")
           .many("You clicked %d times:")
           .times(12, "You clicked a dozen times:"),
-      "pt-BR": "Você clicou o botão %d vezes:"
+      "pt-BR": "Você clicou no botão %d vezes:"
           .zero("Você não clicou no botão:")
           .one("Você clicou uma única vez:")
           .two("Você clicou um par de vezes:")

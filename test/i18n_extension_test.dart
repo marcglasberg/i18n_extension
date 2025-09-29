@@ -225,7 +225,7 @@ void main() {
                 .times(12, "You clicked a dozen times"),
           },
           "pt-BR": {
-            key: "Você clicou o botão %d vezes"
+            key: "Você clicou no botão %d vezes"
                 .zero("Você não clicou no botão")
                 .one("Você clicou uma única vez")
                 .two("Você clicou um par de vezes")

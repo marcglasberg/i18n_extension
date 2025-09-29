@@ -75,7 +75,7 @@ which is generally simpler and easier to understand than seeing identifiers.
 
 While the `i18n_extension` package is unique in supporting strings as translation
 keys, it also supports the more traditional approach of using **identifiers** as
-translation keys. Just create an object, and append `.i18n` to it. For example:
+translation keys. Just create an object and append `.i18n` to it. For example:
 
 ```dart
 const greetings = Object();
@@ -165,7 +165,7 @@ with the `fill` function:
 
 ```dart
 // Hello John and Mary
-'Hello %s and %s'.fill('John', 'Mary');
+'Hello %s and %s'.i18n.fill('John', 'Mary');
 ```
 
 Getting the current locale:
@@ -177,9 +177,9 @@ I18n.of(context).locale; // Current locale, from context
 
 I18n.locale; // Current locale, statically 
 
-I18n.languageTag; // Current language tag, like "en-US"
+I18n.languageTag; // Current language tag, like 'en-US'
 
-I18n.languageOnly; // Language without region, Like "en"
+I18n.languageOnly; // Language without region, like 'en'
 
 I18n.systemLocale; // Current system locale, read from the device 
 
@@ -209,7 +209,7 @@ Defining translations directly in code:
 ```dart
 Translations.byText('en-US') + {
   'en-US': 'Hello, how are you?',      
-  'es': '¿Hola! Cómo estás?',
+  'es': '¡Hola! ¿Cómo estás?',
 };
 ```
 
@@ -222,7 +222,7 @@ Translations.byFile('en-US', dir: 'assets/translations');
 Importing translations from the web:
 
 ```dart
-Translations.byUrl('en-US', dir: 'https://example.com/translations.json');
+Translations.byHttp('en-US', url: 'https://example.com/translations', resources: ['en-US.json', 'es.json']);
 ```
 
 ## See it working
@@ -252,14 +252,15 @@ Follow these 4 easy steps to set up the `i18n_extension` package in your app:
     Widget build(BuildContext context) {
       return I18n(
         child: MaterialApp(
-          home: MyScreen(),           
+          home: MyScreen(), 
+          ...          
     ```
 
 
 3. Make sure to provide `supportedLocales` and `localizationsDelegates` to
    the `I18n` widget:
 
-   ```
+   ```dart
    return I18n(       
       supportedLocales: [
         'en-US'.asLocale,
@@ -281,7 +282,7 @@ Follow these 4 easy steps to set up the `i18n_extension` package in your app:
    and `supportedLocales: I18n.supportedLocales`,
    to your `MaterialApp` widget:
 
-   ```
+   ```dart
    MaterialApp(
       locale: I18n.locale,
       localizationsDelegates: I18n.localizationsDelegates,
@@ -322,7 +323,6 @@ class AppCore extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: I18n.locale,
-      locale: I18n.locale,
       localizationsDelegates: I18n.localizationsDelegates,
       supportedLocales: I18n.supportedLocales,
       home: ...
@@ -356,7 +356,6 @@ void main() {
 class AppCore extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: I18n.locale,
       locale: I18n.locale,
       localizationsDelegates: I18n.localizationsDelegates,
       supportedLocales: I18n.supportedLocales,
@@ -491,8 +490,8 @@ extension Localization on String {
     {
       'en-US': 'Hello, how are you?',
       'pt-BR': 'Olá, como vai você?',
-      'es': '¿Hola! Cómo estás?',
-      'fr': 'Salut, comment ca va?',
+      'es': '¡Hola! ¿Cómo estás?',
+      'fr': 'Salut, comment ça va?',
       'de': 'Hallo, wie geht es dir?',
     };
 
@@ -534,7 +533,7 @@ extension Localization on String {
 ```
 
 Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/translation_example/main.dart">
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/1_translation_example/main.dart">
 example using strings as translation keys</a>.
 
 ## Or use identifiers
@@ -567,8 +566,8 @@ extension Localization on Object {
       'pt-BR': 'Demonstração i18n',
     },
     greetings: {
-      'en-US': 'Helo there',
-      'pt-BR': 'Olá como vai',
+      'en-US': 'Hello there',
+      'pt-BR': 'Olá, como vai',
     },    
   });
 
@@ -577,7 +576,7 @@ extension Localization on Object {
 ```
 
 Try running
-the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/example2/main.dart">
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/2_identifier_translation_example/main.dart">
 example using identifiers as translation keys</a>.
 
 <br>
@@ -643,7 +642,7 @@ want to use identifiers, while keeping the rest as string keys.
 In the example below, `privacyPolicy` and `termsOfUse` are used as identifiers,
 while `My Settings`, `Ok` and `Back` are used as string keys:
 
-```
+```dart
 import 'package:flutter/foundation.dart';
 
 final privacyPolicy = Object();
@@ -698,7 +697,7 @@ assets
     └── pt.po  
 ```
 
-Don't forget to declare your assets directory in your `pubspec.yaml`:
+Don’t forget to declare your assets directory in your `pubspec.yaml`:
 
 ```yaml
 flutter:
@@ -715,21 +714,28 @@ assets
     ├── zh-Hans-CN.json
     ├── pt.json  
     └── more_translations
-        └── es-ES.json  
+        ├── es-ES.json
+        └── pt.json  
 ```
 
-In this case, your `pubspec.yaml` you must **separately** declare all 
-directories and subdirectories that contain assets. 
+In `pubspec.yaml` you must **separately** declare all 
+directories **and** subdirectories that contain assets. 
 In other words, Flutter automatically finds all files in the directory, 
 but it does NOT enter subdirectories,
 unless you declare them explicitly in `pubspec.yaml`. For example:
 
 ```yaml
- flutter:
-   assets:
-     - assets/translations/
-     - assets/translations/more_translations/
- ```
+flutter:
+  assets:
+    - assets/translations/
+    - assets/translations/more_translations/
+```
+
+Also note that the above example contains two `pt.json` files, one in the
+`translations` directory, and another in the `more_translations` subdirectory,
+which will result in both being merged together.
+
+### Loading `byFile` 
 
 Once you have your files in place, 
 you can load the translations using `Translations.byFile()`:
@@ -807,12 +813,12 @@ created by <a href="https://github.com/bauerj">Johann Bauer</a>.
 You can use `Translations.byHttp()` to load translations from `.json` or `.po` files on
 the web, using **https**. Use it like this:
 
-```
+```dart
 extension MyTranslations on String {
   
   static final _t = Translations.byHttp('en-US', 
     url: 'https://example.com/translations', 
-    resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po']);
+    resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po'],
   );
        
   String get i18n => localize(this, _t);  
@@ -1003,8 +1009,8 @@ var t2 = Translations.byText('en-US') +
 
 var translations = t1 * t2;
 
-print(localize('Hi.', translations, locale: 'pt-BR');
-print(localize('Goodbye.', translations, locale: 'pt-BR');
+print(localize('Hi.', translations, locale: 'pt-BR'));
+print(localize('Goodbye.', translations, locale: 'pt-BR'));
 ```
 
 ## Interpolation with named placeholders
@@ -1209,7 +1215,7 @@ use the `twoThreeFour` modifier.
 
 Note: It will use the most specific plural modifier. For example, `.two` is more specific
 than `.many`. If no applicable modifier can be found, it will default to the unversioned
-string. For example, this: `'a'.zero('b').four('c')` will default to `"a"` for 1, 2, 3, or
+string. For example, this: `'a'.zero('b').four('c')` will default to `'a'` for 1, 2, 3, or
 more than 5 elements.
 
 ```dart
@@ -1221,7 +1227,7 @@ static var _t = Translations.byText('en-US') +
         .two('You clicked a couple times')
         .many('You clicked {} times')
         .times(12, 'You clicked a dozen times'),
-    'pt-BR': 'Você clicou o botão {} vezes'
+    'pt-BR': 'Você clicou no botão {} vezes'
         .zero('Você não clicou no botão')
         .one('Você clicou uma única vez')
         .two('Você clicou um par de vezes')
@@ -1248,7 +1254,7 @@ static var _t = Translations.byLocale('en-US') +
       },
       'pt-BR': {
         'You clicked the button {} times': 
-          'Você clicou o botão {} vezes'
+          'Você clicou no botão {} vezes'
             .zero('Você não clicou no botão')
             .one('Você clicou uma única vez')
             .two('Você clicou um par de vezes')
@@ -1283,7 +1289,7 @@ modifiers:
 ```dart
 enum Gender {they, female, male}
 
-int gnd = Gender.female;
+var gnd = Gender.female;
 return Text('There is a person'.gender(gnd));
 ```
 
@@ -1318,13 +1324,13 @@ var translations = Translations.byText('en-US') +
     };
 
 // Prints 'Hi'
-print(localize('Hi', translations, locale: 'en-US');
+print(localize('Hi', translations, locale: 'en-US'));
 
 // Prints 'Olá'
-print(localize('Hi', translations, locale: 'pt-BR');
+print(localize('Hi', translations, locale: 'pt-BR'));
 
 // Prints 'Hi'
-print(localize('Hi', translations, locale: 'not valid');
+print(localize('Hi', translations, locale: 'not valid'));
 ```
 
 ## Changing the current locale
@@ -1397,7 +1403,10 @@ However, if you want all the details, here’s a complete breakdown of how it wo
 You can get the current locale by using the `context`:
 
 ```dart
+// Either:
 Locale locale = context.locale;
+
+// Or:
 Locale locale = I18n.of(context).locale;
 ```
 
@@ -1416,7 +1425,7 @@ String languageTag = I18n.locale.format();
 String languageTag = I18n.locale.format(separator: '|');
 
 // Or get only the lowercase language code part of the locale, like 'en'.
-String language = I18n.language;
+String language = I18n.languageOnly;
 ```
 
 Note: Using `I18n.localeStr` is deprecated. It returns a lowercase string with
@@ -1458,7 +1467,7 @@ static const _t = ConstTranslations('en-US',
 ```
 
 IMPORTANT: _Make sure the locales you provide are correct (no spaces, lowercase etc).
-Since this constructor is `const`, the package can’t normalize the locales for you.
+Since this constructor is `const`, the package cannot normalize the locales for you.
 If you are not sure, call `ConstTranslations.normalizeLocale(locale)` on the locale before
 using it._
 
@@ -1522,7 +1531,7 @@ Since the default `Locale` constructor does not accept a script code, you must u
 the `Locale.fromSubtags` constructor, like this:
 
 ```dart
-// Prnts 'zh_Hans_CN'
+// Prints 'zh_Hans_CN'
 print(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'));
 ```
 
@@ -1559,8 +1568,8 @@ Translations.byText('en-US') +
    {
       'en-US': 'Hello, how are you?',
       'pt-BR': 'Olá, como vai você?',
-      'es': '¿Hola! Cómo estás?',
-      'fr': 'Salut, comment ca va?',
+      'es': '¡Hola! ¿Cómo estás?',
+      'fr': 'Salut, comment ça va?',
       'de': 'Hallo, wie geht es dir?',
    };
 ```
@@ -1660,7 +1669,7 @@ The following formats may be used with translations:
 
 * ICU: https://format-message.github.io/icu-message-format-for-translators/
 
-* XLIFF: This is based in XML. https://en.wikipedia.org/wiki/XLIFF
+* XLIFF: This is based on XML. https://en.wikipedia.org/wiki/XLIFF
 
 * CSV: You can open this with Excel, save it in .XLSX and edit it there. However, beware
   not to export it back to CSV with the wrong settings
@@ -1672,7 +1681,7 @@ The following formats may be used with translations:
 
 Currently, only `.PO` and `.JSON` loaders are supported out-of-the-box, but if you need
 to load from any other custom format, remember loading translations is easy to do because
-the Translation constructors use maps as input. If you can generate a map from your file
+the Translations constructors use maps as input. If you can generate a map from your file
 format, you can then use the `Translation.byLocale()` constructor to create the
 translation objects.
 
@@ -1719,7 +1728,7 @@ root directory, and you will get a list of strings to translate in `strings.json
 **A:** _Not really. You do have a Dart file that creates a `Translation` object, yes, and
 this object is optimized for easily creating translations by hand. But it creates them
 from maps. So if you can create maps from some file you can use that file. For example, a
-simple code generator that reads `.json` und outputs Dart maps would do the job:
+simple code generator that reads `.json` and outputs Dart maps would do the job:
 `var _t = Translations.byText('en-US') + readFromJson('myfile.json')`._
 
 <br>
@@ -1818,7 +1827,7 @@ file you want if you convert them to a map yourself._
 **A:** _At the moment you should just print `Translations.missingKeys`
 and `Translations.missingTranslations`. We'll later create a `Translations.printReport()`
 function that correlates these two pieces of information and outputs a more readable
-report.
+report._
 
 <br>
 

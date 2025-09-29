@@ -81,7 +81,7 @@ abstract class I18nLoader {
   ///     },
   ///     "You clicked the button %d times:": {
   ///       "en-US": "You clicked the button %d times:",
-  ///       "pt-BR": "Você clicou o botão %d vezes:",
+  ///       "pt-BR": "Você clicou no botão %d vezes:",
   ///       "es-ES": "Hiciste clic en el botón %d veces:",
   ///     },
   ///   },

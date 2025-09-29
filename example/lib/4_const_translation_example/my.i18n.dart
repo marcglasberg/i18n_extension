@@ -32,7 +32,7 @@ extension Localization on String {
     },
     youClickedThisNumberOfTimes: {
       "en-US": "You clicked the button %d times:",
-      "pt-BR": "Você clicou o botão %d vezes:",
+      "pt-BR": "Você clicou no botão %d vezes:",
     },
     //
     // This will work in future versions:
@@ -46,7 +46,7 @@ extension Localization on String {
     //     12: "You clicked a dozen times:",
     //   },
     //   "pt-BR": {
-    //     '': "Você clicou o botão %d vezes:",
+    //     '': "Você clicou no botão %d vezes:",
     //     'zero': "Você não clicou no botão:",
     //     'one': "Você clicou uma única vez:",
     //     'two': "Você clicou um par de vezes:",

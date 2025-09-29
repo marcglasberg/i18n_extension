@@ -2,9 +2,9 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
-## 15.0.6
+## 15.0.7
 
-* README.md improvement.
+* README.md and example improvements.
 
 ## 15.0.5
 

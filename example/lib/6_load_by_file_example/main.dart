@@ -21,6 +21,34 @@ import 'my_screen.dart';
 /// }
 /// ```
 ///
+/// The translations are inside the assets/translations directory:
+///
+/// ```
+/// assets
+///   └── translations
+///     ├── en-US.json
+///     ├── en-US.po
+///     ├── es.po
+///     ├── pt-BR.json
+///     └── more_translations
+///         ├── en-US.json
+///         └── es-ES.json
+/// ```
+///
+/// Notice that `Translations.byFile('en-US', dir: 'assets/translations')` will
+/// load all files in that directory and its subdirectories that end with
+/// `.json` or `.po`. Since `en-US.json` exists in both directories
+/// (assets/translations and assets/translations/more_translations) , the
+/// translations will be merged. 
+///
+/// In pubspec.yaml, however, you must declare both directories separately:
+///
+/// ```yaml
+/// flutter:
+///   assets:
+///     - assets/translations/
+///     - assets/translations/more_translations/
+/// ```
 ///
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

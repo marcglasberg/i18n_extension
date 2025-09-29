@@ -467,11 +467,13 @@ class I18n extends StatefulWidget {
 
   /// This global callback is called whenever the locale changes. Notes:
   ///
-  /// • To obtain the language, you can do:
-  /// `String language = I18n.getLanguage(newLocale);`
+  /// • To obtain the language, country and script:
+  /// `String languageCode = newLocale.languageCode;`
+  /// `String countryCode = newLocale.countryCode;`
+  /// `String scriptCode = newLocale.scriptCode;`
   ///
-  /// • To obtain the normalized locale as a string, you can do:
-  /// `String localeStr = I18n.trim(newLocale);`
+  /// • To obtain a syntactically valid Unicode BCP47 Locale Identifier:
+  /// `String languageTag = newLocale.toLanguageTag();`
   ///
   static void Function({
     required Locale oldLocale,
