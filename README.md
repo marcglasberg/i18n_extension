@@ -222,7 +222,11 @@ Translations.byFile('en-US', dir: 'assets/translations');
 Importing translations from the web:
 
 ```dart
-Translations.byHttp('en-US', url: 'https://example.com/translations', resources: ['en-US.json', 'es.json']);
+Translations.byHttp(
+   'en-US', 
+   url: 'https://example.com/translations', 
+   resources: ['en-US.json', 'es.json']
+);
 ```
 
 ## See it working
@@ -628,11 +632,11 @@ Even though you can use any object type as a translation key, it is recommended 
 
 ## Recommended way
 
-We believe having to define identifiers is a boring task, and makes it difficult for you
+I believe having to define identifiers is a boring task, and makes it difficult for you
 to remember the exact text of the translations without having to look at the translation
 file.
 
-For this reason we recommend you to simply type the text you want as a `String` inside
+For this reason, I recommend you to simply type the text you want as a `String` inside
 your `Text()` widgets, and add `.i18n` to them.
 
 The exception is when you have very large texts that you need to translate, like for
