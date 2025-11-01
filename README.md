@@ -156,7 +156,7 @@ Interpolating by replacing placeholders with values, with the `args` function:
 'Hello {1} and {2}'.i18n.args({1: 'John', 2: 'Mary'});
 
 // And you can mix placeholder types
-'Hello {name}, let’s meet up with {} and {other} to explore {1} and {2}.'.i18n.args('Charlie', {'name': 'Alice', 'other': 'Bob'}, {1: 'Paris', 2: 'London'});
+'Hello {name}, meet with {} and {other} to explore {1} and {2}.'.i18n.args('Charlie', {'name': 'Alice', 'other': 'Bob'}, {1: 'Paris', 2: 'London'});
 ```
 
 Interpolating by

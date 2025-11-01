@@ -416,13 +416,73 @@ class I18n extends StatefulWidget {
     return currentState.widget._localizationsDelegates;
   }
 
+  /// Return the first (preferred) system-locale. Note this doesn't take into
+  /// consideration the supported locales.
+  ///
+  /// See also:
+  /// - [_getSystemOrPreInitializationLocale], which does take into
+  /// consideration the supported locales.
+  /// - [_getAllSystemOrPreInitializationLocales], which returns all system
+  /// locales.
+  ///
+  static Locale _getFirstSystemOrPreInitializationLocale() =>
+      _getSystemOrPreInitializationLocale([]);
+
   /// Even before we can use `View.of()` it's possible we have access to the device
   /// locale via the `PlatformDispatcher`. If that's `undefined` (`und`) return the
   /// `preInitializationLocale` instead.
-  static Locale _getSystemOrPreInitializationLocale() {
-    Locale systemLocale = PlatformDispatcher.instance.locale;
-    if (systemLocale.languageCode == 'und') return preInitializationLocale;
-    return systemLocale;
+  ///
+  /// See also:
+  /// - [_getFirstSystemOrPreInitializationLocale], which returns the first
+  /// system-locale without taking into consideration the supported locales.
+  /// - [_getAllSystemOrPreInitializationLocales], which returns all system
+  /// locales.
+  ///
+  static Locale _getSystemOrPreInitializationLocale(
+    Iterable<Locale> supportedLocales,
+  ) {
+    List<Locale> allSystemLocales = _getAllSystemOrPreInitializationLocales();
+
+    // We will return the first system locale that is supported.
+    // If none is supported, we return the first system locale anyway.
+    for (Locale systemLocale in allSystemLocales) {
+      String normalizedSystemLocale = systemLocale.format();
+      for (Locale supportedLocale in supportedLocales) {
+        String normalizedSupportedLocale = supportedLocale.format();
+        if (normalizedSystemLocale == normalizedSupportedLocale) {
+          return systemLocale;
+        }
+      }
+    }
+
+    // If no supported locale were found, return the first system locale.
+    return allSystemLocales[0];
+  }
+
+  /// Return a list of all the device locales, or a list with the
+  /// [preInitializationLocale] if none is available. This never returns
+  /// an empty list.
+  ///
+  /// Even before we can use `View.of()` it's possible we have access to all the
+  /// device locales via the `PlatformDispatcher`. If that's empty or contains
+  /// `undefined` (`und`), return a list with the `preInitializationLocale`
+  /// instead.
+  ///
+  /// See also:
+  /// - [_getFirstSystemOrPreInitializationLocale], which returns the first
+  /// system-locale without taking into consideration the supported locales.
+  /// - [_getSystemOrPreInitializationLocale], which does take into
+  /// consideration the supported locales.
+  ///
+  static List<Locale> _getAllSystemOrPreInitializationLocales() {
+    List<Locale> allSystemLocales = PlatformDispatcher.instance.locales;
+    if (allSystemLocales.isEmpty ||
+        (allSystemLocales.length == 1 &&
+            allSystemLocales[0].languageCode == 'und')) {
+      return [preInitializationLocale];
+    } else {
+      return allSystemLocales;
+    }
   }
 
   /// Return the lowercase language-code of the given [locale].
@@ -544,7 +604,7 @@ class I18n extends StatefulWidget {
   }
 
   /// The system-locale read from the device.
-  static Locale _systemLocale = _getSystemOrPreInitializationLocale();
+  static Locale _systemLocale = _getFirstSystemOrPreInitializationLocale();
 
   /// Locale to override the system-locale.
   /// If this is non-null, it means the locale is being forced.
@@ -616,7 +676,7 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
   //
   Locale? _locale;
 
-  Locale _viewLocale = PlatformDispatcher.instance.locale;
+  List<Locale> _viewLocales = PlatformDispatcher.instance.locales;
 
   bool _isResetting = false;
 
@@ -645,7 +705,9 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
   ///     String languageTag = I18n.languageTag;
   ///
   Locale get locale {
-    return _locale ?? I18n._getSystemOrPreInitializationLocale();
+    // If a locale was explicitly set, use it.
+    // Otherwise use the already-resolved system locale.
+    return _locale ?? I18n._systemLocale;
   }
 
   /// To change the current locale:
@@ -746,16 +808,30 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
   }
 
   /// Will be called when the system locale changes.
+  /// This is a WidgetsBindingObserver method that gets called when the user
+  /// changes their device language settings. Triggers a rebuild via setState().
   @override
   void didChangeLocales(List<Locale>? locales) {
-    if (locales != null && locales.isNotEmpty) {
-      var newLocale = locales.first;
-      if (newLocale != _viewLocale) {
-        setState(() {
-          _viewLocale = newLocale;
-        });
+    if (locales != null && _haveLocalesChanged(locales, _viewLocales)) {
+      setState(() {
+        _viewLocales = locales;
+      });
+    }
+  }
+
+  bool _haveLocalesChanged(List<Locale>? newLocales, List<Locale> oldLocales) {
+    if (identical(newLocales, oldLocales)) return false;
+
+    if (newLocales == null || newLocales.length != oldLocales.length) {
+      return true;
+    }
+
+    for (int i = 0; i < newLocales.length; i++) {
+      if (newLocales[i].format() != oldLocales[i].format()) {
+        return true;
       }
     }
+    return false;
   }
 
   @override
@@ -797,7 +873,7 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
 
   void _processSystemLocale() {
     //
-    Locale? newSystemLocale = View.of(context).platformDispatcher.locale;
+    Locale? newSystemLocale = _getNewSystemLocale();
 
     if (newSystemLocale != I18n._systemLocale) {
       //
@@ -814,6 +890,32 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
       if (I18n._forcedLocale == null) {
         WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
       }
+    }
+  }
+
+  /// Returns the new system locale from [View], taking into consideration
+  /// the supported locales.
+  Locale _getNewSystemLocale() {
+    List<Locale> allSystemLocales = View.of(context).platformDispatcher.locales;
+    if (allSystemLocales.isEmpty) {
+      return I18n.preInitializationLocale;
+    } else {
+      var supportedLocales = widget._supportedLocales;
+
+      // We will return the first system locale that is supported.
+      // If none is supported, we return the first system locale anyway.
+      for (Locale systemLocale in allSystemLocales) {
+        String normalizedSystemLocale = systemLocale.format();
+        for (Locale supportedLocale in supportedLocales) {
+          String normalizedSupportedLocale = supportedLocale.format();
+          if (normalizedSystemLocale == normalizedSupportedLocale) {
+            return systemLocale;
+          }
+        }
+      }
+
+      // If no supported locale were found, return the first system locale.
+      return allSystemLocales[0];
     }
   }
 }

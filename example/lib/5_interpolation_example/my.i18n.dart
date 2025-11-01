@@ -50,7 +50,7 @@ extension MyLocalization on Object {
       'pt-BR': 'Olá, {name} e {other}',
     },
     greetings5: {
-      'en-US': 'Hello {name}, let’s meet up with {} and {other} to explore {1} and {2}.',
+      'en-US': 'Hello {name}, meet with {} and {other} to explore {1} and {2}.',
       'es-ES': 'Hola {name}, reunámonos con {} y {other} para explorar {1} y {2}.',
       'pt-BR': 'Olá {name}, vamos nos encontrar com {} e {other} para explorar {1} e {2}.',
     },

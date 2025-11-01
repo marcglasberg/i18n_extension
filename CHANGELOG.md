@@ -2,6 +2,15 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
+## 15.1.0
+
+* Fixed multi-locale fallback to properly handle device language preferences. 
+  The system now correctly checks all device locales (not just the first) 
+  against all supported locales. When a device has multiple language 
+  preferences (e.g., French primary, German secondary), and the primary 
+  language is not supported but a secondary language is, the app will now 
+  correctly use the first supported language from the device's preference list.
+
 ## 15.0.8
 
 * README.md and example improvements.
@@ -288,7 +297,7 @@ instructions below to upgrade your code.
   'Hello {1} and {2}'.i18n.args({1: 'John', 2: 'Mary'});
   
   // And you can mix placeholder types
-  'Hello {name}, let’s meet up with {} and {other} to explore {1} and {2}.'.i18n.args('Charlie', {'name': 'Alice', 'other': 'Bob'}, {1: 'Paris', 2: 'London'});
+  'Hello {name}, meet with {} and {other} to explore {1} and {2}.'.i18n.args('Charlie', {'name': 'Alice', 'other': 'Bob'}, {1: 'Paris', 2: 'London'});
   ```   
 
   For all the details, check the README.md file.
