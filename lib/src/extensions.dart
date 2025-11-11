@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:i18n_extension_core/i18n_extension_core.dart' as core;
+
 // ignore: implementation_imports
 import 'package:i18n_extension_core/src/translations_by_locale.dart' as tbl;
 
@@ -122,6 +123,14 @@ extension I18nTranslationsExtension on Translations {
     String? dir = translations.dir;
     if (dir == null) return;
 
+    // Note: `Translations.byFile` has no effect on the web. This is
+    // intentional, since browsers do not have direct access to the local file
+    // system. Allowing that would mean reading files from a user's machine,
+    // which is not permitted for security reasons.
+    //
+    // On the web, use `Translations.byHttp` instead. You must also specify the
+    // file names explicitly, because the browser cannot scan directories to
+    // discover files as `Translations.byFile` does on other platforms.
     if (kIsWeb) {
       return;
     }
