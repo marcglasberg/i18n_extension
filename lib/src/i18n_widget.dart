@@ -862,6 +862,21 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
   }
 
   /// See: https://stackoverflow.com/a/58513635/3411681
+  ///
+  /// TODO: Try this instead, for better results:
+  /// void _rebuildAllChildren() {
+  ///   WidgetsBinding.instance.addPostFrameCallback((_) {
+  ///     final root = WidgetsBinding.instance.rootElement;
+  ///     if (root == null) return;
+  ///
+  ///     void rebuild(Element el) {
+  ///       el.markNeedsBuild();
+  ///       el.visitChildren(rebuild);
+  ///     }
+  ///
+  ///     rebuild(root);
+  ///   });
+  /// }
   void _rebuildAllChildren() {
     void rebuild(Element el) {
       el.markNeedsBuild();

@@ -2,7 +2,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
-## 15.1.0
+## 15.1.1
 
 * Fixed multi-locale fallback to properly handle device language preferences. 
   The system now correctly checks all device locales (not just the first) 

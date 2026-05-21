@@ -17,7 +17,7 @@ extension Localization on String {
   //
   String get i18n => recordMissingKey(this);
 
-  String plural(value) {
+  String plural(Object? value) {
     recordMissingKey(this);
     return replaceAll("%d", value.toString());
   }
