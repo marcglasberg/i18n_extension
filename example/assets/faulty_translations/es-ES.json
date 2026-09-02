@@ -1,0 +1,10 @@
+// This file is DELIBERATELY BROKEN: comments are not valid JSON, so decoding it fails.
+// It demonstrates `Translations.byFile(..., failOnMissingResource: false)`, which
+// logs and skips this file, while the other files in this directory load normally.
+{
+  "Hello, welcome to this internationalization demo.": "Hola, bienvenido a esta demostración de internacionalización.",
+  "i18n Demo": "Demostración i18n",
+  "Increment": "Incrementar",
+  "Change Language": "Cambiar idioma",
+  "You clicked the button %d times:": "Hiciste clic en el botón %d veces:"
+}

@@ -136,7 +136,10 @@ extension I18nTranslationsExtension on Translations {
     }
     //
     else {
-      var futures = I18n.loaders.map((loader) => loader().fromAssetDir(dir));
+      var futures = I18n.loaders.map((loader) => loader().fromAssetDir(
+            dir,
+            failOnMissingResource: translations.failOnMissingResource,
+          ));
       var loadedTranslationsList = await Future.wait(futures);
 
       _mergeTranslations(loadedTranslationsList, translations);
@@ -164,7 +167,10 @@ extension I18nTranslationsExtension on Translations {
           resources.map((resource) => '$url$resource').toList();
 
       var futures = I18n.loaders.expand(
-          (loader) => urlCombinations.map((url) => loader().fromUrl(url)));
+          (loader) => urlCombinations.map((url) => loader().fromUrl(
+                url,
+                failOnMissingResource: translations.failOnMissingResource,
+              )));
 
       var loadedTranslationsList = await Future.wait(futures);
 

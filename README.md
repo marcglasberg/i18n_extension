@@ -412,6 +412,60 @@ language the user has set in the device settings. Or, if that language is not
 supported by your app, it will fall back to one of the supported languages,
 automatically.
 
+## Locale resolution
+
+When no locale is forced, the `I18n` widget uses the **system locale**. But the device
+actually provides a **list** of locales, in order of user preference. For example, a user
+may have set Portuguese (Portugal) as the main language, and English (United States) as
+the second one, resulting in `[pt-PT, en-US]`. The `I18n` widget must then choose one of
+them, taking into account the `supportedLocales` you provided.
+
+By default, it chooses the first device locale that **exactly** matches one of the
+supported locales. If none matches, it uses the first device locale, as is. So, with
+`supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale]`, the user above gets English,
+because `pt-PT` is not exactly supported, while `en-US` is.
+
+If you'd rather have that user get Brazilian Portuguese, since it's at least Portuguese,
+set the `localeResolver` parameter to `I18n.languageMatchResolver`:
+
+```dart
+I18n(
+  supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale],
+  localeResolver: I18n.languageMatchResolver,
+  child: AppCore(),
+  ...
+```
+
+This resolver goes through the device locales in order, and for each one looks for a
+supported locale that matches it exactly, then by language and script, then by language
+and country, and then by language only. It's the same algorithm Flutter's `MaterialApp`
+uses by default (Flutter's `basicLocaleListResolution` function), so the locale used by
+the native Flutter widgets is the same one used by your translations. If no device
+language is supported at all, it returns the first supported locale, so make sure to
+list your default locale first.
+
+The default behavior is also available as `I18n.exactMatchResolver`. Or, you may
+provide your own function, which receives the device locales and the supported locales,
+and returns the locale the app should use:
+
+```dart
+I18n(
+  supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale],
+  localeResolver: (deviceLocales, supportedLocales) {
+    ...
+    return someLocale;
+  },
+  child: AppCore(),
+  ...
+```
+
+Note the resolver only decides the **locale of the app**. Then, when a string is
+translated, if there's no translation for that exact locale, the closest available
+translation is used anyway, as explained in the [Fallback rules](#fallback-rules)
+section. For example, with the default resolver, a user whose only device locale is
+`pt-PT`, in an app with `supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale]`,
+gets `pt-PT` as the app locale, and then sees the `pt-BR` translations.
+
 ## Auto saving the locale
 
 Some apps may allow the user to change the locale of the app from inside the
@@ -812,6 +866,43 @@ duration.
 **Note:** The code to load translations from files is adapted from original code
 created by <a href="https://github.com/bauerj">Johann Bauer</a>.
 
+### Skipping files that fail to load
+
+By default, if a single file fails to load (for example, because it's not valid JSON, or
+it contains a value that is not a String), the whole load fails, and no translations are
+loaded at all. If you'd rather keep the files that loaded correctly and skip the ones
+that failed, use `failOnMissingResource: false`:
+
+```dart
+extension MyTranslations on String {
+  static final _t = Translations.byFile(
+    'en-US', 
+    dir: 'assets/translations', 
+    failOnMissingResource: false, // Here!
+  );
+  
+  String get i18n => localize(this, _t);  
+}
+```
+
+The file that failed is printed to the console and skipped. Your widgets are then
+rebuilt with the translations from all the other files. This never throws, not even
+when all files fail, in which case your app simply shows the default-locale strings.
+
+If you want to do something else when a file fails to load, like reporting it to your
+crash reporting tool, set `I18n.failedResourceCallback`. It receives the specific
+asset path that failed, plus the error:
+
+```dart
+I18n.failedResourceCallback = (resource, error) {
+  myCrashReporting.log('Could not load $resource: $error');
+};
+```
+
+Try running
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/9_load_by_file_skip_errors_example/main.dart">
+load by file, skipping errors, example</a>.
+
 ## Load translations from the web
 
 You can use `Translations.byHttp()` to load translations from `.json` or `.po` files on
@@ -839,6 +930,26 @@ https://example.com/translations/fr.po
 ```
 
 It will then rebuild your widgets with those new translations.
+
+Note: By default, if a single resource fails to download (for example, a 404 for one of
+the language files), the whole load fails, and no translations are loaded at all, not
+even the other languages. If you'd rather keep the resources that loaded correctly and
+skip the ones that failed, use `failOnMissingResource: false`:
+
+```dart
+static final _t = Translations.byHttp('en-US', 
+  url: 'https://example.com/translations', 
+  resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po'],
+  failOnMissingResource: false, // Here!
+);
+```
+
+The resource that failed is printed to the console and skipped (you can customize this
+by setting `I18n.failedResourceCallback`, which receives the specific url that failed,
+plus the error). This never throws, not even when all resources fail, in which case
+your app simply shows the default-locale strings. Try running
+the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/10_load_by_http_skip_errors_example/main.dart">
+load by http, skipping errors, example</a>.
 
 Note: Since rebuilding widgets when the translations finish loading can cause a visible
 flicker, you can optionally avoid that by preloading the translations before running your
@@ -1374,6 +1485,10 @@ the `i18n_extension`, and also for native Flutter widgets.*
 What happens when you don’t provide the translations for the current locale?
 For example, suppose your current locale is Spanish, but you have only provided
 translations for English and French.
+
+> Note this section is about translating strings to the current locale. For how the
+> current locale itself is chosen from the languages set in the device settings, see the
+> [Locale resolution](#locale-resolution) section.
 
 Don’t worry — fallback behavior is usually intuitive and aligns with common sense.
 In most cases, it will do exactly what you’d expect.

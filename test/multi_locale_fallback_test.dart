@@ -427,8 +427,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Should use preInitializationLocale (default: es-US)
-      expect(I18n.locale.languageCode, 'es');
+      // Should use preInitializationLocale (default: en-US)
+      expect(I18n.locale.languageCode, 'en');
       expect(I18n.locale.countryCode, 'US');
     });
 

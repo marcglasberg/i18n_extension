@@ -15,6 +15,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'i18n_loader.dart';
 
+/// Signature of the [I18n.failedResourceCallback] function.
+///
+/// The [resource] is the specific asset path (like `assets/translations/es.json`)
+/// or url (like `https://example.com/translations/es.json`) that failed to load,
+/// and [error] is the error that was thrown while reading or decoding it.
+typedef FailedResourceCallback = void Function(String resource, Object error);
+
+/// Signature of the [I18n.localeResolver] function, which decides the locale the app
+/// should use, when no locale is being forced.
+///
+/// The [deviceLocales] are the locales set in the device settings, in order of user
+/// preference (never empty). The [supportedLocales] are the ones set in the [I18n]
+/// widget (possibly empty). It must return the locale the app should use.
+///
+/// See also: [I18n.exactMatchResolver] and [I18n.languageMatchResolver].
+typedef LocaleResolver = Locale Function(
+  List<Locale> deviceLocales,
+  Iterable<Locale> supportedLocales,
+);
+
 /// # Setup
 ///
 /// 1. Add a single [I18n] widget in your widget tree, above your [MaterialApp]
@@ -88,6 +108,10 @@ import 'i18n_loader.dart';
 /// Note, if your app only ever uses the current system locale, or if you save the
 /// locale in another way, you can keep [autoSaveLocale] as false.
 ///
+/// The [localeResolver] parameter is optional, and decides how the app chooses its
+/// locale from the locales set in the device settings, given the [supportedLocales].
+/// The default is [exactMatchResolver]. See [localeResolver] for details.
+///
 class I18n extends StatefulWidget {
   //
   static final _i18nKey = GlobalKey<_I18nState>();
@@ -153,7 +177,64 @@ class I18n extends StatefulWidget {
   ///       ...
   ///     ),
   /// ```
+  ///
+  /// The supported locales are also used to decide which of the device locales the
+  /// app should use. See [localeResolver] for details.
   final Iterable<Locale> _supportedLocales;
+
+  /// Optionally, you can set the [localeResolver] to decide how the app chooses its
+  /// locale from the locales set in the device settings, when no locale is being
+  /// forced (see [forcedLocale]).
+  ///
+  /// The device provides a list of locales, in order of user preference. For example,
+  /// a user may have set Portuguese (Portugal) as the main language, and English
+  /// (United States) as the second language, resulting in `[pt-PT, en-US]`.
+  /// The [localeResolver] receives that list, plus the [supportedLocales] you set in
+  /// the [I18n] widget, and returns the locale the app should use. It's called again
+  /// whenever the device locales change.
+  ///
+  /// There are two built-in resolvers:
+  ///
+  /// - [exactMatchResolver] (the default): Returns the first device locale that
+  ///   exactly matches one of the supported locales. If none matches, returns the
+  ///   first device locale, as is. In the example above, with
+  ///   `supportedLocales: [pt-BR, en-US]`, it returns `en-US`, because `pt-PT` is
+  ///   not exactly supported, while `en-US` is.
+  ///
+  /// - [languageMatchResolver]: Prefers a different variant of the user's preferred
+  ///   language, over the user's second language. In the example above, with
+  ///   `supportedLocales: [pt-BR, en-US]`, it returns `pt-BR`, because it's
+  ///   Portuguese, even if not the same variant. If no device language is supported
+  ///   at all, it returns the first supported locale, so make sure to list your
+  ///   default locale first.
+  ///
+  /// ```dart
+  /// runApp(I18n(
+  ///   supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale],
+  ///   localeResolver: I18n.languageMatchResolver, // Here!
+  ///   child: AppCore(),
+  /// ));
+  /// ```
+  ///
+  /// You may also provide your own function:
+  ///
+  /// ```dart
+  /// runApp(I18n(
+  ///   supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale],
+  ///   localeResolver: (deviceLocales, supportedLocales) {
+  ///     ...
+  ///     return someLocale;
+  ///   },
+  ///   child: AppCore(),
+  /// ));
+  /// ```
+  ///
+  /// Note the [localeResolver] only decides the locale of the app. Then, when a string
+  /// is translated, if there is no translation for that exact locale, the [localize]
+  /// function still falls back to the closest available translation. For example, if
+  /// the app locale is `pt-PT` and there is only a `pt-BR` translation, the `pt-BR`
+  /// translation is used. See [localize] for the fallback rules.
+  final LocaleResolver localeResolver;
 
   /// Optionally, you can set the [localizationsDelegates] of your app.
   ///
@@ -285,10 +366,15 @@ class I18n extends StatefulWidget {
   /// Note, if your app only ever uses the current system locale, or if you save the
   /// locale in another way, you can keep [autoSaveLocale] as false.
   ///
+  /// The [localeResolver] parameter is optional, and decides how the app chooses its
+  /// locale from the locales set in the device settings, given the [supportedLocales].
+  /// The default is [exactMatchResolver]. See [localeResolver] for details.
+  ///
   I18n({
     required this.child,
     this.initialLocale,
     Iterable<Locale> supportedLocales = const [],
+    this.localeResolver = exactMatchResolver,
     Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = const [],
     this.autoSaveLocale = false,
   })  : _supportedLocales = supportedLocales,
@@ -306,7 +392,7 @@ class I18n extends StatefulWidget {
   ///   which is set in the device settings. When the app opens, the system-locale is
   ///   read as soon as possible, but it might be unavailable for a brief period in
   ///   which [preInitializationLocale] is used instead, which by default
-  ///   is `Locale('es', 'US')`.
+  ///   is `Locale('en', 'US')`.
   ///
   /// - If a locale was explicitly set by you, we say that the locale is "forced".
   ///   In this case, [locale] is equal to [forcedLocale].
@@ -386,7 +472,7 @@ class I18n extends StatefulWidget {
   /// issue and won’t be noticeable, but in rare cases, this locale will be used until
   /// the actual system locale is determined. You can change this to your preferred
   /// locale if needed. Otherwise, leave it as is.
-  static Locale preInitializationLocale = const Locale('es', 'US');
+  static Locale preInitializationLocale = const Locale('en', 'US');
 
   /// Returns the supported locales of the app, as set in the [I18n] widget.
   static Iterable<Locale> get supportedLocales {
@@ -416,48 +502,80 @@ class I18n extends StatefulWidget {
     return currentState.widget._localizationsDelegates;
   }
 
+  /// The default [localeResolver]. Returns the first of the [deviceLocales] that
+  /// exactly matches one of the [supportedLocales]. If none matches, or if
+  /// [supportedLocales] is empty, returns the first device locale, as is.
+  ///
+  /// Locales are compared by their language tags (see [I18nLocaleExtension.format]),
+  /// so `Locale('en', 'US')` matches `'en-US'.asLocale`, but `pt-PT` does NOT
+  /// match `pt-BR`.
+  ///
+  /// For example, if the device locales are `[pt-PT, en-US]` and the supported
+  /// locales are `[pt-BR, en-US]`, it returns `en-US`. If the supported locales are
+  /// only `[pt-BR]`, it returns `pt-PT`, and then the translations to `pt-BR` end up
+  /// being used anyway, because of the [localize] fallback rules.
+  ///
+  /// See also: [languageMatchResolver].
+  ///
+  static Locale exactMatchResolver(
+    List<Locale> deviceLocales,
+    Iterable<Locale> supportedLocales,
+  ) {
+    for (Locale deviceLocale in deviceLocales) {
+      String deviceTag = deviceLocale.format();
+      for (Locale supportedLocale in supportedLocales) {
+        if (deviceTag == supportedLocale.format()) return deviceLocale;
+      }
+    }
+
+    // If no supported locale was found, return the first device locale.
+    return deviceLocales.isEmpty ? preInitializationLocale : deviceLocales.first;
+  }
+
+  /// A [localeResolver] that prefers a different variant of the user's preferred
+  /// language, over the user's second language.
+  ///
+  /// It goes through the [deviceLocales] in order, and for each one looks for a
+  /// supported locale that matches it exactly, then by language and script, then by
+  /// language and country, and then by language only. It returns the first match,
+  /// giving preference to the supported locale (for example, it returns `pt-BR` and
+  /// not `pt-PT`, when `pt-PT` is the device locale and `pt-BR` is the supported one).
+  ///
+  /// For example, if the device locales are `[pt-PT, en-US]` and the supported
+  /// locales are `[pt-BR, en-US]`, it returns `pt-BR`.
+  ///
+  /// If no device language is supported at all, it returns the first of the
+  /// [supportedLocales], so make sure to list your default locale first. If
+  /// [supportedLocales] is empty, it returns the first device locale, as is.
+  ///
+  /// This uses Flutter's [basicLocaleListResolution], which is the same algorithm
+  /// [MaterialApp] uses by default, so the locale used by the native Flutter widgets
+  /// is the same one used by your translations. See that function for all the
+  /// details, including the country-only match it does as a last resort.
+  ///
+  /// See also: [exactMatchResolver].
+  ///
+  static Locale languageMatchResolver(
+    List<Locale> deviceLocales,
+    Iterable<Locale> supportedLocales,
+  ) {
+    if (supportedLocales.isEmpty) {
+      return deviceLocales.isEmpty ? preInitializationLocale : deviceLocales.first;
+    }
+
+    return basicLocaleListResolution(deviceLocales, supportedLocales);
+  }
+
   /// Return the first (preferred) system-locale. Note this doesn't take into
-  /// consideration the supported locales.
+  /// consideration the supported locales, since it's used before the [I18n] widget
+  /// exists. As soon as the widget is built, the [localeResolver] is used instead.
   ///
   /// See also:
-  /// - [_getSystemOrPreInitializationLocale], which does take into
-  /// consideration the supported locales.
   /// - [_getAllSystemOrPreInitializationLocales], which returns all system
   /// locales.
   ///
   static Locale _getFirstSystemOrPreInitializationLocale() =>
-      _getSystemOrPreInitializationLocale([]);
-
-  /// Even before we can use `View.of()` it's possible we have access to the device
-  /// locale via the `PlatformDispatcher`. If that's `undefined` (`und`) return the
-  /// `preInitializationLocale` instead.
-  ///
-  /// See also:
-  /// - [_getFirstSystemOrPreInitializationLocale], which returns the first
-  /// system-locale without taking into consideration the supported locales.
-  /// - [_getAllSystemOrPreInitializationLocales], which returns all system
-  /// locales.
-  ///
-  static Locale _getSystemOrPreInitializationLocale(
-    Iterable<Locale> supportedLocales,
-  ) {
-    List<Locale> allSystemLocales = _getAllSystemOrPreInitializationLocales();
-
-    // We will return the first system locale that is supported.
-    // If none is supported, we return the first system locale anyway.
-    for (Locale systemLocale in allSystemLocales) {
-      String normalizedSystemLocale = systemLocale.format();
-      for (Locale supportedLocale in supportedLocales) {
-        String normalizedSupportedLocale = supportedLocale.format();
-        if (normalizedSystemLocale == normalizedSupportedLocale) {
-          return systemLocale;
-        }
-      }
-    }
-
-    // If no supported locale were found, return the first system locale.
-    return allSystemLocales[0];
-  }
+      _getAllSystemOrPreInitializationLocales().first;
 
   /// Return a list of all the device locales, or a list with the
   /// [preInitializationLocale] if none is available. This never returns
@@ -471,8 +589,6 @@ class I18n extends StatefulWidget {
   /// See also:
   /// - [_getFirstSystemOrPreInitializationLocale], which returns the first
   /// system-locale without taking into consideration the supported locales.
-  /// - [_getSystemOrPreInitializationLocale], which does take into
-  /// consideration the supported locales.
   ///
   static List<Locale> _getAllSystemOrPreInitializationLocales() {
     List<Locale> allSystemLocales = PlatformDispatcher.instance.locales;
@@ -651,6 +767,37 @@ class I18n extends StatefulWidget {
     () => I18nJsonLoader(),
     () => I18nPoLoader(),
   ];
+
+  /// Called when a translation file or resource fails to load, for translations
+  /// created with `Translations.byFile(..., failOnMissingResource: false)` or
+  /// `Translations.byHttp(..., failOnMissingResource: false)`. The failed file or
+  /// resource is then skipped, while all the others are still loaded.
+  ///
+  /// It receives the specific asset path (like `assets/translations/es.json`) or
+  /// url (like `https://example.com/translations/es.json`) that failed, plus the
+  /// error that was thrown while reading or decoding it.
+  ///
+  /// The default is [defaultFailedResourceCallback], which simply prints the failed
+  /// resource and the error to the console. You may replace it, for example, to
+  /// report the problem to your crash reporting tool:
+  ///
+  /// ```dart
+  /// I18n.failedResourceCallback = (resource, error) {
+  ///   myCrashReporting.log('Could not load $resource: $error');
+  /// };
+  /// ```
+  ///
+  /// Note this callback is NOT called when `failOnMissingResource` is `true` (the
+  /// default), since in that case the error is thrown, and the whole load fails.
+  ///
+  static FailedResourceCallback failedResourceCallback =
+      defaultFailedResourceCallback;
+
+  /// The default [failedResourceCallback], which prints the failed [resource] and
+  /// the [error] to the console.
+  static void defaultFailedResourceCallback(String resource, Object error) {
+    print('Failed to load $resource (skipping it): $error');
+  }
 
   /// Initialize the load process, for translations created with [Translations.byFile]
   /// and [Translations.byHttp].
@@ -908,29 +1055,14 @@ class _I18nState extends State<I18n> with WidgetsBindingObserver {
     }
   }
 
-  /// Returns the new system locale from [View], taking into consideration
-  /// the supported locales.
+  /// Returns the new system locale from [View], by applying the widget's
+  /// [I18n.localeResolver] to the device locales and the supported locales.
   Locale _getNewSystemLocale() {
-    List<Locale> allSystemLocales = View.of(context).platformDispatcher.locales;
-    if (allSystemLocales.isEmpty) {
+    List<Locale> deviceLocales = View.of(context).platformDispatcher.locales;
+    if (deviceLocales.isEmpty) {
       return I18n.preInitializationLocale;
     } else {
-      var supportedLocales = widget._supportedLocales;
-
-      // We will return the first system locale that is supported.
-      // If none is supported, we return the first system locale anyway.
-      for (Locale systemLocale in allSystemLocales) {
-        String normalizedSystemLocale = systemLocale.format();
-        for (Locale supportedLocale in supportedLocales) {
-          String normalizedSupportedLocale = supportedLocale.format();
-          if (normalizedSystemLocale == normalizedSupportedLocale) {
-            return systemLocale;
-          }
-        }
-      }
-
-      // If no supported locale were found, return the first system locale.
-      return allSystemLocales[0];
+      return widget.localeResolver(deviceLocales, widget._supportedLocales);
     }
   }
 }

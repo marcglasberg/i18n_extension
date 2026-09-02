@@ -17,6 +17,11 @@ abstract class I18nLoader {
   /// This loader will search for all files that end with the expected [extension],
   /// in the given [dir] directory AND its subdirectories.
   ///
+  /// A trailing slash is added to [dir] if it's missing, so that a directory
+  /// like `assets/translations` only matches the files inside it, and not the
+  /// files in a sibling directory that starts with the same text, like
+  /// `assets/translations_old/`.
+  ///
   /// While the function itself searches subdirectories, in `pubspec.yaml` you
   /// must **separately** declare all dirs and subdirectories that contain
   /// assets. In other words, Flutter automatically finds all files in the
@@ -88,10 +93,24 @@ abstract class I18nLoader {
   /// );
   /// ```
   ///
-  /// It will throw a [TranslationsException] if the file is not in the valid
-  /// format expected by the loader.
+  /// It will throw a [TranslationsException] if a file is not in the valid
+  /// format expected by the loader, or if it cannot be read.
   ///
-  Future<Map<String, Map<String, String>>> fromAssetDir(String dir) async {
+  /// However, if [failOnMissingResource] is `false`, a file that cannot be read or
+  /// decoded is reported to [I18n.failedResourceCallback] and skipped, while all
+  /// the other files are still loaded. In this case it never throws, not even
+  /// when all files fail (the returned map is then simply empty).
+  ///
+  /// Note that since this method reads the list of files from the asset manifest,
+  /// a file can't really be missing here. What [failOnMissingResource] handles
+  /// in this case are files that cannot be read from the asset bundle, files that
+  /// are not in the valid format expected by the loader, and files that contain
+  /// translations that are not Strings.
+  ///
+  Future<Map<String, Map<String, String>>> fromAssetDir(
+    String dir, {
+    bool failOnMissingResource = true,
+  }) async {
     //
     // Load the asset manifest using the AssetManifest API.
     // See: https://api.flutter.dev/flutter/services/AssetManifest-class.html
@@ -102,64 +121,69 @@ abstract class I18nLoader {
 
     final startTime = DateTime.now();
 
-    // Filter the assets that match the directory and file extension.
-    final relevantAssets =
-        assets.where(
-          (path) => path.startsWith(dir) && path.endsWith(extension)).toList();
+    // Add a trailing slash to the directory if it's missing, so that
+    // `assets/translations` matches only the files inside that directory,
+    // and not files in a sibling directory like `assets/translations_old/`.
+    // An empty dir is kept as is, and matches all assets.
+    final dirPrefix = (dir.isEmpty || dir.endsWith('/')) ? dir : '$dir/';
 
-    // Process all matching assets in parallel.
+    // Filter the assets that match the directory and file extension.
+    final relevantAssets = assets
+        .where((path) => path.startsWith(dirPrefix) && path.endsWith(extension))
+        .toList();
+
+    // Process all matching assets in parallel. Each file is loaded and checked
+    // independently, so that when [failOnMissingResource] is false, a file that
+    // fails is skipped while the other files still load.
     await Future.wait(
       relevantAssets.map((path) async {
-        var fileName = path.split("/").last;
-        var languageTag = fileName.split(".")[0].asLanguageTag;
-
-        print('Loading $path');
-        var stringReadFromBundle = await rootBundle.loadString(path);
-
-        Map<String, dynamic> map;
         try {
-          map = decode(stringReadFromBundle);
+          await _loadAsset(path, translations, startTime);
         } catch (error) {
-          throw TranslationsException('Error decoding $path: $error');
+          if (failOnMissingResource) rethrow;
+          I18n.failedResourceCallback(path, error);
         }
-
-        var translationsInFile = Map<String, dynamic>.from(map);
-
-        for (MapEntry<String, dynamic> entry in translationsInFile.entries) {
-          String key = entry.key;
-          dynamic value = entry.value;
-
-          if (value is String) {
-            //
-            // Create a map for the key if it doesn't exist.
-            translations.putIfAbsent(key, () => HashMap());
-
-            // Get the map for the key.
-            Map<String, String>? translationsForKey = translations[key];
-
-            // Add a translation for the language.
-            translationsForKey?[languageTag] = value;
-          }
-          //
-          else {
-            throw TranslationsException("Error in $path: "
-                "Value '$value' for key '$key' is not a String.");
-          }
-        }
-
-        final endTime = DateTime.now();
-        final loadTime = endTime.difference(startTime);
-        print('Finished $path in ${loadTime.inMilliseconds} ms.');
       }),
     );
 
     return translations;
   }
 
+  /// Reads, decodes and checks a single asset file at [path], and then adds its
+  /// translations into [translations].
+  ///
+  /// The translations are only added after the whole file was read, decoded and
+  /// checked. This guarantees a file is either fully loaded or not loaded at all.
+  ///
+  Future<void> _loadAsset(
+    String path,
+    Map<String, Map<String, String>> translations,
+    DateTime startTime,
+  ) async {
+    var fileName = path.split("/").last;
+    var languageTag = fileName.split(".")[0].asLanguageTag;
+
+    print('Loading $path');
+    var stringReadFromBundle = await rootBundle.loadString(path);
+
+    Map<String, dynamic> map;
+    try {
+      map = decode(stringReadFromBundle);
+    } catch (error) {
+      throw TranslationsException('Error decoding $path: $error');
+    }
+
+    _addTranslations(translations, map, languageTag, path);
+
+    final endTime = DateTime.now();
+    final loadTime = endTime.difference(startTime);
+    print('Finished $path in ${loadTime.inMilliseconds} ms.');
+  }
+
   /// The [url] must something like 'https://example.com/translations/en-US.json'.
   /// Make sure you are using https, not http.
   ///
-  /// It will ignore (and not throw an error) if the file extension os not the one
+  /// It will ignore (and not throw an error) if the file extension is not the one
   /// expected by the loader.
   ///
   /// However, if the file extension is correct, but the file is not found, or if any
@@ -168,7 +192,24 @@ abstract class I18nLoader {
   /// It will also throw a [TranslationsException] if the file is not in the valid
   /// format expected by the loader.
   ///
-  Future<Map<String, Map<String, String>>> fromUrl(String url) async {
+  /// However, if [failOnMissingResource] is `false`, it will never throw. Instead,
+  /// when the resource can't be read or decoded, it's reported to
+  /// [I18n.failedResourceCallback] and an empty map is returned.
+  ///
+  Future<Map<String, Map<String, String>>> fromUrl(
+    String url, {
+    bool failOnMissingResource = true,
+  }) async {
+    try {
+      return await _fromUrl(url);
+    } catch (error) {
+      if (failOnMissingResource) rethrow;
+      I18n.failedResourceCallback(url, error);
+      return HashMap();
+    }
+  }
+
+  Future<Map<String, Map<String, String>>> _fromUrl(String url) async {
     //
     Map<String, Map<String, String>> translations = HashMap();
 
@@ -197,29 +238,7 @@ abstract class I18nLoader {
         throw TranslationsException('Error decoding $url: $error');
       }
 
-      var translationsInFile = Map<String, dynamic>.from(map);
-
-      for (MapEntry<String, dynamic> entry in translationsInFile.entries) {
-        String key = entry.key;
-        dynamic value = entry.value;
-
-        if (value is String) {
-          //
-          // Create a map for the key if it doesn't exist.
-          translations.putIfAbsent(key, () => HashMap());
-
-          // Get the map for the key.
-          Map<String, String>? translationsForKey = translations[key];
-
-          // Add a translation for the language.
-          translationsForKey?[languageTag] = value;
-        }
-        //
-        else {
-          throw TranslationsException("Error in $url: "
-              "Value '$value' for key '$key' is not a String.");
-        }
-      }
+      _addTranslations(translations, map, languageTag, url);
 
       final endTime = DateTime.now();
       final loadTime = endTime.difference(startTime);
@@ -227,5 +246,49 @@ abstract class I18nLoader {
     }
 
     return translations;
+  }
+
+  /// Adds the translations in [map] (as decoded from the file or url named
+  /// [resource]) into [translations], for the given [languageTag].
+  ///
+  /// All values are checked before anything is written. If any value is not a
+  /// String, a [TranslationsException] is thrown and [translations] is left
+  /// untouched.
+  ///
+  void _addTranslations(
+    Map<String, Map<String, String>> translations,
+    Map<String, dynamic> map,
+    String languageTag,
+    String resource,
+  ) {
+    var translationsInFile = Map<String, dynamic>.from(map);
+
+    Map<String, String> checkedTranslations = {};
+
+    for (MapEntry<String, dynamic> entry in translationsInFile.entries) {
+      String key = entry.key;
+      dynamic value = entry.value;
+
+      if (value is String) {
+        checkedTranslations[key] = value;
+      }
+      //
+      else {
+        throw TranslationsException("Error in $resource: "
+            "Value '$value' for key '$key' is not a String.");
+      }
+    }
+
+    for (MapEntry<String, String> entry in checkedTranslations.entries) {
+      //
+      // Create a map for the key if it doesn't exist.
+      translations.putIfAbsent(entry.key, () => HashMap());
+
+      // Get the map for the key.
+      Map<String, String>? translationsForKey = translations[entry.key];
+
+      // Add a translation for the language.
+      translationsForKey?[languageTag] = entry.value;
+    }
   }
 }

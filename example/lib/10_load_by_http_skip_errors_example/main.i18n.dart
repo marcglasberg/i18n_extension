@@ -6,15 +6,19 @@ extension MyTranslations on String {
   //
   static final _t = Translations.byHttp(
     'en-US',
-    url: 'https://raw.githubusercontent.com/marcglasberg/'
+    url:
+        'https://raw.githubusercontent.com/marcglasberg/'
         'i18n_extension/refs/heads/master/example/assets/translations/',
     resources: [
       'en-US.json',
-      'more_translations/es-ES.json',
       'pt-BR.json',
       'en-US.po',
       'es.po',
+      'fr-FR.json', // This one does not exist on the server (404).
     ],
+    // With `failOnMissingResource: false`, the resource that fails (404) is
+    // logged and skipped, while the other resources are still loaded.
+    failOnMissingResource: false,
   );
 
   static Future<void> load() => _t.load();

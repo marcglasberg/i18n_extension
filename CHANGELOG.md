@@ -2,6 +2,88 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
+## 15.3.0
+
+* You can now choose how the `I18n` widget picks the app locale from the list of locales
+  set in the device settings, by providing a `localeResolver`. The device provides its
+  locales in order of user preference, for example `[pt-PT, en-US]`, and the resolver
+  receives that list plus the `supportedLocales` you set in the `I18n` widget.
+
+  There are two built-in resolvers:
+
+  * `I18n.exactMatchResolver` is the default, and keeps the previous behavior: it picks
+    the first device locale that exactly matches one of the supported locales, or the
+    first device locale if none matches. With `supportedLocales: [pt-BR, en-US]` and
+    device locales `[pt-PT, en-US]`, the app locale is `en-US`.
+
+  * `I18n.languageMatchResolver` prefers a different variant of the user's preferred
+    language, over the user's second language. In the same example, the app locale is
+    `pt-BR`. It uses Flutter's `basicLocaleListResolution`, the same algorithm
+    `MaterialApp` uses by default. If no device language is supported at all, it picks
+    the first supported locale, so list your default locale first.
+
+  ```dart
+  I18n(
+    supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale],
+    localeResolver: I18n.languageMatchResolver,
+    child: AppCore(),
+  );
+  ```
+
+  You may also provide your own resolver function. See the "Locale resolution" section
+  of the README for details.
+
+## 15.2.0
+
+* `Translations.byFile()` and `Translations.byHttp()` now accept an optional
+  `failOnMissingResource` parameter. It defaults to `true`, which keeps the previous
+  behavior: if a single file or resource fails to load, the whole load fails, and no
+  translations are loaded at all.
+
+  When you set it to `false`, the file or resource that failed is logged and skipped,
+  and the ones that loaded correctly are kept. This is useful when a language file is
+  temporarily unavailable or broken, and you'd rather show the other languages than
+  none. If all of them fail, no error is thrown either, and your app simply shows the
+  default-locale strings:
+
+  ```dart
+  static final _t = Translations.byHttp('en-US',
+    url: 'https://example.com/translations',
+    resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po'],
+    failOnMissingResource: false, // Keep the resources that loaded correctly.
+  );
+  ```
+
+  For `Translations.byFile()`, the files are listed from the asset manifest, so they
+  can't really be missing. In that case, what's skipped are files that can't be read
+  from the asset bundle, files that can't be decoded (for example, invalid JSON), and
+  files containing values that are not Strings. A file is either fully loaded or fully
+  skipped.
+
+  By default, a skipped file or resource is printed to the console, together with the
+  error. You may customize this by setting `I18n.failedResourceCallback`, which receives
+  the specific asset path or url that failed, plus the error:
+
+  ```dart
+  I18n.failedResourceCallback = (resource, error) {
+    myCrashReporting.log('Could not load $resource: $error');
+  };
+  ```
+
+* `Translations.byFile()` now only loads the files inside the given `dir` (and its
+  subdirectories). Previously, `dir: 'assets/translations'` would also load files
+  from sibling directories that merely start with the same text, like
+  `assets/translations_old/`. To that end, a trailing slash is now automatically added
+  to `dir`, if it's missing.
+
+* See examples
+  [9_load_by_file_skip_errors_example](https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/9_load_by_file_skip_errors_example/main.dart)
+  and
+  [10_load_by_http_skip_errors_example](https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/10_load_by_http_skip_errors_example/main.dart).
+
+* Fixed `I18n.preInitializationLocale` to `Locale('en', 'US')`. This is only used for the
+  brief period when the app starts.
+
 ## 15.1.1
 
 * Fixed multi-locale fallback to properly handle device language preferences. 

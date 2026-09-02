@@ -4,17 +4,13 @@ import 'package:i18n_extension/i18n_extension.dart';
 
 extension MyTranslations on String {
   //
-  static final _t = Translations.byHttp(
+  static final _t = Translations.byFile(
     'en-US',
-    url: 'https://raw.githubusercontent.com/marcglasberg/'
-        'i18n_extension/refs/heads/master/example/assets/translations/',
-    resources: [
-      'en-US.json',
-      'more_translations/es-ES.json',
-      'pt-BR.json',
-      'en-US.po',
-      'es.po',
-    ],
+    dir: 'assets/faulty_translations',
+    // The `es-ES.json` file in that directory is deliberately broken.
+    // With `failOnMissingResource: false`, it's logged and skipped,
+    // while the other files are still loaded.
+    failOnMissingResource: false,
   );
 
   static Future<void> load() => _t.load();

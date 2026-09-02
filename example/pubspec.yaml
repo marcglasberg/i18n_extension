@@ -23,3 +23,4 @@ flutter:
   assets:
     - assets/translations/
     - assets/translations/more_translations/
+    - assets/faulty_translations/
