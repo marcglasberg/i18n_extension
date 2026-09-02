@@ -53,7 +53,10 @@ extension I18nTranslationsExtension on Translations {
   /// ...
   /// ```
   ///
-  /// Note: The load process has a default timeout of 0.5 seconds. If the timeout is
+  /// Note: The load process has a default timeout of 0.5 seconds for
+  /// [Translations.byFile], and of 1 second for [Translations.byHttp]. On the web,
+  /// where the asset files are downloaded from the web server that hosts the app,
+  /// [Translations.byFile] also uses 1 second. If the timeout is
   /// reached, the future returned by [load] will complete, but the load process still
   /// continues in the background, and the widgets will rebuild automatically when the
   /// translations finally finish loading. Optionally, you can provide your own [timeout]
@@ -79,8 +82,10 @@ extension I18nTranslationsExtension on Translations {
       var timedOut = false;
 
       // Translations.byHttp have default timeout of 1 second.
-      // Others, like Translations.byFile, have timeout of 0.5 seconds.
-      timeout ??= (translations.url != null)
+      // Others, like Translations.byFile, have timeout of 0.5 seconds, except on
+      // the web, where the asset files are downloaded from the web server, so
+      // they also get 1 second.
+      timeout ??= (translations.url != null || kIsWeb)
           ? const Duration(seconds: 1)
           : const Duration(milliseconds: 500);
 
@@ -123,29 +128,20 @@ extension I18nTranslationsExtension on Translations {
     String? dir = translations.dir;
     if (dir == null) return;
 
-    // Note: `Translations.byFile` has no effect on the web. This is
-    // intentional, since browsers do not have direct access to the local file
-    // system. Allowing that would mean reading files from a user's machine,
-    // which is not permitted for security reasons.
-    //
-    // On the web, use `Translations.byHttp` instead. You must also specify the
-    // file names explicitly, because the browser cannot scan directories to
-    // discover files as `Translations.byFile` does on other platforms.
-    if (kIsWeb) {
-      return;
-    }
-    //
-    else {
-      var futures = I18n.loaders.map((loader) => loader().fromAssetDir(
-            dir,
-            failOnMissingResource: translations.failOnMissingResource,
-          ));
-      var loadedTranslationsList = await Future.wait(futures);
+    // Note: This also works on the web. `Translations.byFile` doesn't read the
+    // user's file system, but the assets bundled with the app, through the
+    // `rootBundle`. On the web, Flutter downloads those assets from the web
+    // server that hosts the app (as it does for images and fonts), and the
+    // `AssetManifest` API knows how to read the web version of the manifest.
+    var futures = I18n.loaders.map((loader) => loader().fromAssetDir(
+          dir,
+          failOnMissingResource: translations.failOnMissingResource,
+        ));
+    var loadedTranslationsList = await Future.wait(futures);
 
-      _mergeTranslations(loadedTranslationsList, translations);
+    _mergeTranslations(loadedTranslationsList, translations);
 
-      I18n.rebuild();
-    }
+    I18n.rebuild();
   }
 
   /// Load assets for translations created with [Translations.byHttp].

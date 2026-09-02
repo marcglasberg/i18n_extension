@@ -35,6 +35,11 @@ abstract class I18nLoader {
   ///     - assets/translations/more_translations/
   /// ```
   ///
+  /// This works on all platforms, including the web. Note the asset files are
+  /// never read from the user's file system: they are bundled with the app, and
+  /// on the web they are downloaded from the web server that hosts the app, like
+  /// any other asset.
+  ///
   /// A file like `es-ES.json` could contain something like:
   ///
   /// ```json

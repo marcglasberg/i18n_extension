@@ -811,6 +811,11 @@ The above code will asynchronously load all the translations from the `.json` an
 files present in the `assets/translations` directory, and then rebuild your widgets with
 those new translations.
 
+This also works on the web. The translation files are bundled with your app as assets,
+so on the web Flutter downloads them from the web server that hosts your app, like it
+does with images and fonts. Note `Translations.byFile()` never reads the user's file
+system, on any platform.
+
 Note: Since rebuilding widgets when the translations finish loading can cause a visible
 flicker, you can optionally avoid that by preloading the translations before running your
 app. To that end, first create a `load()` method in your `MyTranslations` extension:
@@ -859,7 +864,8 @@ return FutureBuilder(
   } ...
 ```
 
-Note: The load process has a default timeout of 0.5 seconds. If the timeout is
+Note: The load process has a default timeout of 0.5 seconds (or 1 second on the web,
+where the files are downloaded from your web server). If the timeout is
 reached, the future returned by `load` will complete, but the load process still
 continues in the background, and the widgets will rebuild automatically when the
 translations finally finish loading. Optionally, you can provide a different `timeout`

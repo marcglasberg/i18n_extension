@@ -28,7 +28,13 @@ void mockAssets(Map<String, String?> files, {Future<void>? gate}) {
       ],
   };
 
-  var manifestBytes = const StandardMessageCodec().encodeMessage(manifest);
+  var manifestBytes = const StandardMessageCodec().encodeMessage(manifest)!;
+
+  // On the web, Flutter reads `AssetManifest.bin.json` instead, which holds the
+  // same binary manifest, base64-encoded and wrapped in a JSON string. Serving
+  // both lets these tests also run with `flutter test --platform chrome`.
+  var manifestJson =
+      json.encode(base64.encode(Uint8List.sublistView(manifestBytes)));
 
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMessageHandler('flutter/assets', (ByteData? message) async {
@@ -37,6 +43,10 @@ void mockAssets(Map<String, String?> files, {Future<void>? gate}) {
     var key = utf8.decode(Uint8List.sublistView(message!));
 
     if (key == 'AssetManifest.bin') return manifestBytes;
+
+    if (key == 'AssetManifest.bin.json') {
+      return ByteData.sublistView(Uint8List.fromList(utf8.encode(manifestJson)));
+    }
 
     var content = files[key];
     if (content == null) return null;

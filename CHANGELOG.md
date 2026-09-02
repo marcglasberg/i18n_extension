@@ -2,6 +2,24 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
+## 15.3.1
+
+* `Translations.byFile()` now also works on the web. Previously, it did nothing there,
+  so the app showed the default-locale strings, and the only way to load translation
+  files on the web was `Translations.byHttp()`, listing each file by name.
+
+  There was no technical reason for that restriction. `Translations.byFile()` doesn't
+  read the user's file system, but the assets bundled with the app, and on the web
+  Flutter downloads those from the web server that hosts the app, like it does with
+  images and fonts. The list of files also comes from the asset manifest, which Flutter
+  provides on the web too. So the same code now works on all platforms, including
+  scanning the directory and its subdirectories for `.json` and `.po` files.
+
+  On the web, the default timeout of `load()` for `Translations.byFile()` is 1 second,
+  the same as for `Translations.byHttp()`, instead of 0.5 seconds, since the files are
+  downloaded. As before, if the timeout is reached, the load continues in the
+  background, and the widgets rebuild when it finishes.  
+
 ## 15.3.0
 
 * Fixed the way the `I18n` widget picks the app locale from the list of locales set in
