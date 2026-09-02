@@ -4,34 +4,41 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 ## 15.3.0
 
-* You can now choose how the `I18n` widget picks the app locale from the list of locales
-  set in the device settings, by providing a `localeResolver`. The device provides its
-  locales in order of user preference, for example `[pt-PT, en-US]`, and the resolver
-  receives that list plus the `supportedLocales` you set in the `I18n` widget.
+* Fixed the way the `I18n` widget picks the app locale from the list of locales set in
+  the device settings, when the user's preferred language is supported only in a
+  different regional variant.
 
-  There are two built-in resolvers:
+  The device provides its locales in order of user preference, for example
+  `[pt-PT, en-US]`. Since version 15.1.1, the widget would pick the first device locale
+  that _exactly_ matched one of the `supportedLocales`, so with
+  `supportedLocales: [pt-BR, en-US]` the app would show English, even though the user
+  prefers Portuguese. The same happened with device locales `[zh-Hans-GB, en]` and
+  `supportedLocales: [zh, en]`, which resolved to `en` instead of `zh`.
 
-  * `I18n.exactMatchResolver` is the default, and keeps the previous behavior: it picks
-    the first device locale that exactly matches one of the supported locales, or the
-    first device locale if none matches. With `supportedLocales: [pt-BR, en-US]` and
-    device locales `[pt-PT, en-US]`, the app locale is `en-US`.
+  Now, the widget prefers a different variant of the user's preferred language, over
+  the user's second language, so the examples above resolve to `pt-BR` and `zh`. For
+  each device locale, in order, it looks for a supported locale that matches it exactly,
+  then by language and script, then by language and country, and then by language only.
+  This uses Flutter's `basicLocaleListResolution`, the same algorithm `MaterialApp` uses
+  by default, and the one versions 13.x relied on. Also, if no device language is
+  supported at all, the app locale is now the first supported locale (previously, the
+  unsupported first device locale was used), so list your default locale first.
 
-  * `I18n.languageMatchResolver` prefers a different variant of the user's preferred
-    language, over the user's second language. In the same example, the app locale is
-    `pt-BR`. It uses Flutter's `basicLocaleListResolution`, the same algorithm
-    `MaterialApp` uses by default. If no device language is supported at all, it picks
-    the first supported locale, so list your default locale first.
+* The locale resolution is now configurable, through the new `localeResolver` parameter
+  of the `I18n` widget. The default is `I18n.languageMatchResolver`, described above.
+  The previous behavior is available as `I18n.exactMatchResolver`:
 
   ```dart
   I18n(
     supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale],
-    localeResolver: I18n.languageMatchResolver,
+    localeResolver: I18n.exactMatchResolver, // Restores the previous behavior.
     child: AppCore(),
   );
   ```
 
-  You may also provide your own resolver function. See the "Locale resolution" section
-  of the README for details.
+  You may also provide your own resolver function, which receives the device locales
+  and the supported locales, and returns the locale the app should use. See the
+  "Locale resolution" section of the README for details.
 
 ## 15.2.0
 

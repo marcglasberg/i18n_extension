@@ -420,33 +420,35 @@ may have set Portuguese (Portugal) as the main language, and English (United Sta
 the second one, resulting in `[pt-PT, en-US]`. The `I18n` widget must then choose one of
 them, taking into account the `supportedLocales` you provided.
 
-By default, it chooses the first device locale that **exactly** matches one of the
-supported locales. If none matches, it uses the first device locale, as is. So, with
-`supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale]`, the user above gets English,
-because `pt-PT` is not exactly supported, while `en-US` is.
+By default, it prefers a different variant of the user's preferred language, over the
+user's second language. It goes through the device locales in order, and for each one
+looks for a supported locale that matches it exactly, then by language and script, then
+by language and country, and then by language only. So, with
+`supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale]`, the user above gets Brazilian
+Portuguese, since it's at least Portuguese. Likewise, a device with `[zh-Hans-GB, en]`,
+in an app with `supportedLocales: ['zh'.asLocale, 'en'.asLocale]`, gets `zh`.
 
-If you'd rather have that user get Brazilian Portuguese, since it's at least Portuguese,
-set the `localeResolver` parameter to `I18n.languageMatchResolver`:
+This is the same algorithm Flutter's `MaterialApp` uses by default (Flutter's
+`basicLocaleListResolution` function), so the locale used by the native Flutter widgets
+is the same one used by your translations. If no device language is supported at all, it
+uses the first supported locale, so make sure to list your default locale first.
+
+This default behavior is available as `I18n.languageMatchResolver`. If you'd rather have
+the app pick the first device locale that **exactly** matches one of the supported
+locales (and the first device locale, as is, when none matches), set the
+`localeResolver` parameter to `I18n.exactMatchResolver`. With it, the user above gets
+English, because `pt-PT` is not exactly supported, while `en-US` is:
 
 ```dart
 I18n(
   supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale],
-  localeResolver: I18n.languageMatchResolver,
+  localeResolver: I18n.exactMatchResolver,
   child: AppCore(),
   ...
 ```
 
-This resolver goes through the device locales in order, and for each one looks for a
-supported locale that matches it exactly, then by language and script, then by language
-and country, and then by language only. It's the same algorithm Flutter's `MaterialApp`
-uses by default (Flutter's `basicLocaleListResolution` function), so the locale used by
-the native Flutter widgets is the same one used by your translations. If no device
-language is supported at all, it returns the first supported locale, so make sure to
-list your default locale first.
-
-The default behavior is also available as `I18n.exactMatchResolver`. Or, you may
-provide your own function, which receives the device locales and the supported locales,
-and returns the locale the app should use:
+Or, you may provide your own function, which receives the device locales and the
+supported locales, and returns the locale the app should use:
 
 ```dart
 I18n(
@@ -462,7 +464,7 @@ I18n(
 Note the resolver only decides the **locale of the app**. Then, when a string is
 translated, if there's no translation for that exact locale, the closest available
 translation is used anyway, as explained in the [Fallback rules](#fallback-rules)
-section. For example, with the default resolver, a user whose only device locale is
+section. For example, with `I18n.exactMatchResolver`, a user whose only device locale is
 `pt-PT`, in an app with `supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale]`,
 gets `pt-PT` as the app locale, and then sees the `pt-BR` translations.
 

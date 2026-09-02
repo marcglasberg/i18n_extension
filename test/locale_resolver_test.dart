@@ -102,7 +102,29 @@ void main() {
   group('I18n widget with localeResolver', () {
     //
     testWidgets(
-        'The default keeps the previous behavior: '
+        'The default is languageMatchResolver: '
+        'a variant of the first device language wins over an exact match of the second',
+        (WidgetTester tester) async {
+      tester.platformDispatcher.localesTestValue = [ptPT, enUS];
+
+      await tester.pumpWidget(
+        I18n(
+          supportedLocales: [ptBR, enUS],
+          child: MaterialApp(
+            locale: I18n.locale,
+            home: const Scaffold(body: Text('Test')),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(I18n.locale, ptBR);
+      expect(I18n.systemLocale, ptBR);
+      expect(I18n.forcedLocale, isNull);
+    });
+
+    testWidgets(
+        'exactMatchResolver restores the previous behavior: '
         'an exact match of the second device locale wins over a variant of the first',
         (WidgetTester tester) async {
       tester.platformDispatcher.localesTestValue = [ptPT, enUS];
@@ -110,6 +132,7 @@ void main() {
       await tester.pumpWidget(
         I18n(
           supportedLocales: [ptBR, enUS],
+          localeResolver: I18n.exactMatchResolver,
           child: MaterialApp(
             locale: I18n.locale,
             home: const Scaffold(body: Text('Test')),

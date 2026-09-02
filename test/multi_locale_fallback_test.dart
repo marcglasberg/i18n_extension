@@ -104,7 +104,7 @@ void main() {
       expect(I18n.locale.countryCode, 'US');
     });
 
-    testWidgets('Should fallback to first device locale when none are supported',
+    testWidgets('Should fallback to first supported locale when none are supported',
         (WidgetTester tester) async {
       // Set multiple platform locales where none are supported
       tester.platformDispatcher.localesTestValue = [
@@ -129,9 +129,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Should fallback to Filipino (fil-PH) as it's the first device locale
-      expect(I18n.locale.languageCode, 'fil');
-      expect(I18n.locale.countryCode, 'PH');
+      // No device language is supported, so the first supported locale is used.
+      expect(I18n.locale.languageCode, 'en');
+      expect(I18n.locale.countryCode, 'US');
     });
 
     testWidgets('Should handle empty supported locales list',
@@ -303,9 +303,10 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // When locale is undefined, the code returns it as-is (und)
-      // This is the actual behavior based on the current implementation
-      expect(I18n.locale.languageCode, 'und');
+      // When the only device locale is undefined (und), nothing matches,
+      // so the first supported locale is used.
+      expect(I18n.locale.languageCode, 'en');
+      expect(I18n.locale.countryCode, 'US');
     });
 
     testWidgets('Should correctly match locales with script codes',

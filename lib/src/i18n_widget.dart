@@ -110,7 +110,7 @@ typedef LocaleResolver = Locale Function(
 ///
 /// The [localeResolver] parameter is optional, and decides how the app chooses its
 /// locale from the locales set in the device settings, given the [supportedLocales].
-/// The default is [exactMatchResolver]. See [localeResolver] for details.
+/// The default is [languageMatchResolver]. See [localeResolver] for details.
 ///
 class I18n extends StatefulWidget {
   //
@@ -195,23 +195,22 @@ class I18n extends StatefulWidget {
   ///
   /// There are two built-in resolvers:
   ///
-  /// - [exactMatchResolver] (the default): Returns the first device locale that
-  ///   exactly matches one of the supported locales. If none matches, returns the
-  ///   first device locale, as is. In the example above, with
-  ///   `supportedLocales: [pt-BR, en-US]`, it returns `en-US`, because `pt-PT` is
-  ///   not exactly supported, while `en-US` is.
+  /// - [languageMatchResolver] (the default): Prefers a different variant of the
+  ///   user's preferred language, over the user's second language. In the example
+  ///   above, with `supportedLocales: [pt-BR, en-US]`, it returns `pt-BR`, because
+  ///   it's Portuguese, even if not the same variant. If no device language is
+  ///   supported at all, it returns the first supported locale, so make sure to list
+  ///   your default locale first.
   ///
-  /// - [languageMatchResolver]: Prefers a different variant of the user's preferred
-  ///   language, over the user's second language. In the example above, with
-  ///   `supportedLocales: [pt-BR, en-US]`, it returns `pt-BR`, because it's
-  ///   Portuguese, even if not the same variant. If no device language is supported
-  ///   at all, it returns the first supported locale, so make sure to list your
-  ///   default locale first.
+  /// - [exactMatchResolver]: Returns the first device locale that exactly matches one
+  ///   of the supported locales. If none matches, returns the first device locale, as
+  ///   is. In the example above, with `supportedLocales: [pt-BR, en-US]`, it returns
+  ///   `en-US`, because `pt-PT` is not exactly supported, while `en-US` is.
   ///
   /// ```dart
   /// runApp(I18n(
   ///   supportedLocales: ['pt-BR'.asLocale, 'en-US'.asLocale],
-  ///   localeResolver: I18n.languageMatchResolver, // Here!
+  ///   localeResolver: I18n.exactMatchResolver, // Here!
   ///   child: AppCore(),
   /// ));
   /// ```
@@ -368,13 +367,13 @@ class I18n extends StatefulWidget {
   ///
   /// The [localeResolver] parameter is optional, and decides how the app chooses its
   /// locale from the locales set in the device settings, given the [supportedLocales].
-  /// The default is [exactMatchResolver]. See [localeResolver] for details.
+  /// The default is [languageMatchResolver]. See [localeResolver] for details.
   ///
   I18n({
     required this.child,
     this.initialLocale,
     Iterable<Locale> supportedLocales = const [],
-    this.localeResolver = exactMatchResolver,
+    this.localeResolver = languageMatchResolver,
     Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = const [],
     this.autoSaveLocale = false,
   })  : _supportedLocales = supportedLocales,
@@ -502,9 +501,10 @@ class I18n extends StatefulWidget {
     return currentState.widget._localizationsDelegates;
   }
 
-  /// The default [localeResolver]. Returns the first of the [deviceLocales] that
+  /// A [localeResolver] that returns the first of the [deviceLocales] that
   /// exactly matches one of the [supportedLocales]. If none matches, or if
   /// [supportedLocales] is empty, returns the first device locale, as is.
+  /// This was the default before version 15.3.0.
   ///
   /// Locales are compared by their language tags (see [I18nLocaleExtension.format]),
   /// so `Locale('en', 'US')` matches `'en-US'.asLocale`, but `pt-PT` does NOT
@@ -515,7 +515,7 @@ class I18n extends StatefulWidget {
   /// only `[pt-BR]`, it returns `pt-PT`, and then the translations to `pt-BR` end up
   /// being used anyway, because of the [localize] fallback rules.
   ///
-  /// See also: [languageMatchResolver].
+  /// See also: [languageMatchResolver], which is the default.
   ///
   static Locale exactMatchResolver(
     List<Locale> deviceLocales,
@@ -532,8 +532,8 @@ class I18n extends StatefulWidget {
     return deviceLocales.isEmpty ? preInitializationLocale : deviceLocales.first;
   }
 
-  /// A [localeResolver] that prefers a different variant of the user's preferred
-  /// language, over the user's second language.
+  /// The default [localeResolver]. Prefers a different variant of the user's
+  /// preferred language, over the user's second language.
   ///
   /// It goes through the [deviceLocales] in order, and for each one looks for a
   /// supported locale that matches it exactly, then by language and script, then by
