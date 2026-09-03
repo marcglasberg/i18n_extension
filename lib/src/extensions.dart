@@ -136,6 +136,7 @@ extension I18nTranslationsExtension on Translations {
     var futures = I18n.loaders.map((loader) => loader().fromAssetDir(
           dir,
           failOnMissingResource: translations.failOnMissingResource,
+          failOnInvalidResource: translations.failOnInvalidResource,
         ));
     var loadedTranslationsList = await Future.wait(futures);
 
@@ -162,10 +163,11 @@ extension I18nTranslationsExtension on Translations {
       List<String> urlCombinations =
           resources.map((resource) => '$url$resource').toList();
 
-      var futures = I18n.loaders.expand(
-          (loader) => urlCombinations.map((url) => loader().fromUrl(
+      var futures = I18n.loaders
+          .expand((loader) => urlCombinations.map((url) => loader().fromUrl(
                 url,
                 failOnMissingResource: translations.failOnMissingResource,
+                failOnInvalidResource: translations.failOnInvalidResource,
               )));
 
       var loadedTranslationsList = await Future.wait(futures);

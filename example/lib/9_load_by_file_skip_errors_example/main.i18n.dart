@@ -8,9 +8,9 @@ extension MyTranslations on String {
     'en-US',
     dir: 'assets/faulty_translations',
     // The `es-ES.json` file in that directory is deliberately broken.
-    // With `failOnMissingResource: false`, it's logged and skipped,
+    // With `failOnInvalidResource: false`, it's logged and skipped,
     // while the other files are still loaded.
-    failOnMissingResource: false,
+    failOnInvalidResource: false,
   );
 
   static Future<void> load() => _t.load();

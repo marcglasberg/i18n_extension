@@ -757,6 +757,153 @@ assets
     └── pt.po  
 ```
 
+And `.yaml` (or `.yml`) files:
+
+```
+assets
+└── translations
+    ├── en-US.yaml
+    ├── es-ES.yaml
+    ├── zh-Hans-CN.yaml
+    └── pt.yaml  
+```
+
+A YAML file must contain a map, where each key is a translation key, and each value is its
+translation (or a map of its versions, see below). Comments and the YAML multiline styles
+(`|` and `>`) are allowed. For example:
+
+```yaml
+Welcome to this demo.: Bienvenido a esta demostración.
+"i18n Demo": Demostración i18n
+"You clicked the button %d times:":
+  other: "Hiciste clic en el botón %d veces:"
+  zero: "No hiciste clic en el botón:"
+  one: "Hiciste clic en el botón una vez:"
+  12: "Hiciste clic en el botón una docena de veces:"
+```
+
+Note that in YAML, an unquoted `123`, `true` or empty value is read as a number, a boolean
+or null, not as text. To use those as translations, quote them, like `"123"` (the integer
+versions, like the `12` above, are the exception, and may be unquoted). When in doubt,
+quote the keys and values. Lists are not supported.
+
+### Plurals and other versions in JSON and YAML files
+
+In `.json` and `.yaml` files, a translation may also be a map of versions, for plurals
+and genders. This is the same as using the string modifiers `.zero()`, `.one()`,
+`.times()`, `.many()`, `.modifier()` etc. in Dart (see
+[Translation modifiers](#translation-modifiers)). The `other` version is required, and is
+the text used when no other version applies (in Dart, it's the string the modifiers are
+called on). For example, this JSON:
+
+```json
+{
+  "You clicked the button %d times:": {
+    "other": "Hiciste clic en el botón %d veces:",
+    "zero": "No hiciste clic en el botón:",
+    "one": "Hiciste clic en el botón una vez:",
+    "12": "Hiciste clic en el botón una docena de veces:"
+  },
+  "There is a person": {
+    "other": "Hay una persona",
+    "male": "Hay un hombre",
+    "female": "Hay una mujer"
+  }
+}
+```
+
+Is the same as this Dart code:
+
+```dart
+'es-ES': {
+  'You clicked the button %d times:': 'Hiciste clic en el botón %d veces:'
+      .zero('No hiciste clic en el botón:')
+      .one('Hiciste clic en el botón una vez:')
+      .times(12, 'Hiciste clic en el botón una docena de veces:'),
+  'There is a person': 'Hay una persona'
+      .modifier('male', 'Hay un hombre')
+      .modifier('female', 'Hay una mujer'),
+}
+```
+
+The plural versions, for `.plural()`, are `zero`, `one`, `two`, `three`, `four`, `five`,
+`six`, `ten`, `twoThreeFour`, `oneOrMore`, `zeroOne` and `many`, plus any integer, like
+`12`, which is the same as `.times(12)`. Any other name, like `male`, is a version for
+`.version()`, and must be the `toString()` of the modifier you pass to it (for an enum,
+use `.version(gender.name)`, or name the version `Gender.male`). This means the plural
+names above can't be the names of your own versions. Each version must be text, so
+versions can't be nested. A map without `other`, or with two versions that mean the same,
+like `one` and `1`, fails with a clear error.
+
+In YAML, the same translation looks like this (the integer may be unquoted):
+
+```yaml
+"You clicked the button %d times:":
+  other: "Hiciste clic en el botón %d veces:"
+  zero: "No hiciste clic en el botón:"
+  one: "Hiciste clic en el botón una vez:"
+  12: "Hiciste clic en el botón una docena de veces:"
+```
+
+### ARB files
+
+You can also use `.arb` files, the format used by Flutter's own `gen-l10n` tool and by
+most translation services:
+
+```
+assets
+└── translations
+    ├── app_en.arb
+    ├── app_es.arb
+    ├── app_zh_Hans_CN.arb
+    └── pt.arb  
+```
+
+The locale of an ARB file comes from its `@@locale` attribute, or else from the file name,
+which may be the locale itself, like `es-ES.arb`, or end with it after an underscore, as
+Flutter names them, like `app_es.arb`. The `@@` attributes and the `@key` metadata are
+for translators and tools, and are ignored. The ICU messages are converted to the format
+of this package. For example:
+
+```json
+{
+  "@@locale": "es",
+  "welcome": "Bienvenido, {name}",
+  "@welcome": { "placeholders": { "name": { "type": "String" } } },
+  "itemCount": "{count, plural, =0{Sin artículos} one{Un artículo} other{# artículos}}",
+  "pronoun": "{gender, select, male{él} female{ella} other{ellos}}"
+}
+```
+
+Placeholders like `{name}` or `{0}` are kept, to be filled with `.args()`. Formatted
+placeholders, like `{price, number, currency}` or `{date, date, ::yMd}`, become simple
+placeholders like `{price}`, since the loader doesn't format values: pass them already
+formatted to `.args()`. A plural becomes a translation with plural versions, for
+`.plural(count)`, where both `#` and the plural variable become the number. A select (like
+a gender) becomes a translation with versions, for `.version(case)`, with `other` as the
+default text:
+
+```dart
+'welcome'.i18n.args({'name': 'Juan'}); // Bienvenido, Juan
+'itemCount'.plural(0); // Sin artículos
+'itemCount'.plural(5); // 5 artículos
+'pronoun'.version('female'); // ella
+```
+
+Since `.plural()` and `.version()` select a translation by a single value, a message may
+contain a single plural or select, and not one inside the other. Such messages, and the
+plural `offset`, fail to load with an error that explains the problem.
+
+By default, as in `gen-l10n`, there's no escaping: an apostrophe is just an apostrophe. If
+your files were written with `use-escaping: true` in `l10n.yaml` (where `''` is an
+apostrophe and text between single quotes is literal, like `'{'`), replace the default
+loader with `I18nArbLoader(useEscaping: true)`, before the translations are loaded:
+
+```dart
+I18n.loaders.removeWhere((loader) => loader() is I18nArbLoader);
+I18n.loaders.add(() => I18nArbLoader(useEscaping: true));
+```
+
 Don’t forget to declare your assets directory in your `pubspec.yaml`:
 
 ```yaml
@@ -807,9 +954,9 @@ extension MyTranslations on String {
 }
 ```
 
-The above code will asynchronously load all the translations from the `.json` and `.po`
-files present in the `assets/translations` directory, and then rebuild your widgets with
-those new translations.
+The above code will asynchronously load all the translations from the `.json`, `.po`,
+`.yaml` and `.arb` files present in the `assets/translations` directory, and then rebuild
+your widgets with those new translations.
 
 This also works on the web. The translation files are bundled with your app as assets,
 so on the web Flutter downloads them from the web server that hosts your app, like it
@@ -876,17 +1023,24 @@ created by <a href="https://github.com/bauerj">Johann Bauer</a>.
 
 ### Skipping files that fail to load
 
-By default, if a single file fails to load (for example, because it's not valid JSON, or
-it contains a value that is not a String), the whole load fails, and no translations are
+By default, if a single file fails to load, the whole load fails, and no translations are
 loaded at all. If you'd rather keep the files that loaded correctly and skip the ones
-that failed, use `failOnMissingResource: false`:
+that failed, there are two flags, for two kinds of failure:
+
+* `failOnMissingResource: false` skips a file that cannot be read. Since the files come
+  from the asset bundle this is rare, but on the web the assets are downloaded, and the
+  download can fail.
+
+* `failOnInvalidResource: false` skips a file that was read, but is invalid: for example,
+  it's not valid JSON, YAML or ARB, or it contains a value that is not a String.
 
 ```dart
 extension MyTranslations on String {
   static final _t = Translations.byFile(
     'en-US', 
     dir: 'assets/translations', 
-    failOnMissingResource: false, // Here!
+    failOnMissingResource: false, // Skip files that cannot be read.
+    failOnInvalidResource: false, // Skip files that are invalid.
   );
   
   String get i18n => localize(this, _t);  
@@ -896,10 +1050,15 @@ extension MyTranslations on String {
 The file that failed is printed to the console and skipped. Your widgets are then
 rebuilt with the translations from all the other files. This never throws, not even
 when all files fail, in which case your app simply shows the default-locale strings.
+Both flags default to `true`, and you may set just one of them. For example, you may
+want to skip files that cannot be read, but still fail loudly when a file is invalid,
+since that's likely a bug in your translations.
 
 If you want to do something else when a file fails to load, like reporting it to your
 crash reporting tool, set `I18n.failedResourceCallback`. It receives the specific
-asset path that failed, plus the error:
+asset path that failed, plus the error, which is a `MissingTranslationsResourceException`
+or an `InvalidTranslationsResourceException`. Both carry the `resource` that failed and
+the underlying `error`, so you don't need to parse the message:
 
 ```dart
 I18n.failedResourceCallback = (resource, error) {
@@ -913,8 +1072,8 @@ load by file, skipping errors, example</a>.
 
 ## Load translations from the web
 
-You can use `Translations.byHttp()` to load translations from `.json` or `.po` files on
-the web, using **https**. Use it like this:
+You can use `Translations.byHttp()` to load translations from `.json`, `.po`, `.yaml` or
+`.arb` files on the web, using **https**. Use it like this:
 
 ```dart
 extension MyTranslations on String {
@@ -942,20 +1101,25 @@ It will then rebuild your widgets with those new translations.
 Note: By default, if a single resource fails to download (for example, a 404 for one of
 the language files), the whole load fails, and no translations are loaded at all, not
 even the other languages. If you'd rather keep the resources that loaded correctly and
-skip the ones that failed, use `failOnMissingResource: false`:
+skip the ones that failed, use `failOnMissingResource: false`. Likewise, a resource that
+was downloaded but is invalid (for example, it's not valid JSON) fails the whole load,
+unless you use `failOnInvalidResource: false`:
 
 ```dart
 static final _t = Translations.byHttp('en-US', 
   url: 'https://example.com/translations', 
   resources: ['en-US.json', 'es.json', 'pt-BR.po', 'fr.po'],
-  failOnMissingResource: false, // Here!
+  failOnMissingResource: false, // Skip resources that cannot be downloaded.
+  failOnInvalidResource: false, // Skip resources that are invalid.
 );
 ```
 
 The resource that failed is printed to the console and skipped (you can customize this
 by setting `I18n.failedResourceCallback`, which receives the specific url that failed,
-plus the error). This never throws, not even when all resources fail, in which case
-your app simply shows the default-locale strings. Try running
+plus the error, which is a `MissingTranslationsResourceException` or an
+`InvalidTranslationsResourceException`).
+This never throws, not even when all resources fail, in which case your app simply
+shows the default-locale strings. Try running
 the <a href="https://github.com/marcglasberg/i18n_extension/blob/master/example/lib/10_load_by_http_skip_errors_example/main.dart">
 load by http, skipping errors, example</a>.
 
@@ -1788,29 +1952,23 @@ The following formats may be used with translations:
 
 * PO: https://poedit.net
 
-* JSON: Can be used, however it lacks specific features for translation, like plurals and
-  gender.
+* JSON: Supported out-of-the-box. Plurals and other versions, like genders, are written
+  as a map of versions per key, see
+  [Plurals and other versions in JSON and YAML files](#plurals-and-other-versions-in-json-and-yaml-files).
 
-* ARB: This is based on JSON, and is the default format for Flutter localizations.
+* ARB: This is based on JSON, and is the default format for Flutter localizations, with
+  plurals and gender through ICU messages. Supported out-of-the-box, see
+  [Load translations from files](#load-translations-from-files).
   https://github.com/google/app-resource-bundle/wiki/ApplicationResourceBundleSpecification
 
-* ICU: https://format-message.github.io/icu-message-format-for-translators/
+* YAML: Supported out-of-the-box, with the same map of versions per key as JSON, for
+  plurals and genders. https://yaml.org
 
-* XLIFF: This is based on XML. https://en.wikipedia.org/wiki/XLIFF
-
-* CSV: You can open this with Excel, save it in .XLSX and edit it there. However, beware
-  not to export it back to CSV with the wrong settings
-  (using something else than UTF-8 as encoding).
-  https://en.wikipedia.org/wiki/Comma-separated_values
-
-* YAML: Can be used, however it lacks specific features for translation, like plurals and
-  gender.
-
-Currently, only `.PO` and `.JSON` loaders are supported out-of-the-box, but if you need
-to load from any other custom format, remember loading translations is easy to do because
-the Translations constructors use maps as input. If you can generate a map from your file
-format, you can then use the `Translation.byLocale()` constructor to create the
-translation objects.
+Currently, only `.PO`, `.JSON`, `.YAML` (or `.YML`) and `.ARB` loaders are supported
+out-of-the-box, but if you need to load from any other custom format, remember loading
+translations is easy to do because the Translations constructors use maps as input. If
+you can generate a map from your file format, you can then use the
+`Translation.byLocale()` constructor to create the translation objects.
 
 If you want to create custom loaders that are used automatically when you call
 `Translations.byFile()`, you can do that by extending the `I18nLoader` class, and then
@@ -1829,6 +1987,13 @@ class I18nJsonLoader extends I18nLoader {
   Map<String, dynamic> decode(String source) => json.decode(source);
 }
 ```
+
+The values returned by `decode()` may be Strings, or maps of versions (like the JSON
+above), which are then encoded like the string modifiers do. The language tag is taken
+from the file name, like `es-ES` for `es-ES.json`. If your format declares the locale
+inside the file instead, override `decodeFile()`, which receives the file name and its
+content, and returns both the translations and the language tag. See `I18nArbLoader` for
+an example.
 
 ## Exporting
 
@@ -1943,9 +2108,9 @@ you import from `.arb` files and translations are missing in some language._
 
 **Q: Are there importers for X?**
 
-**A:** _Currently, only `.PO` and `.JSON` importers are supported out-of-the-box.
-However, since the `Translations` object use maps as input/output, you can use whatever
-file you want if you convert them to a map yourself._
+**A:** _Currently, `.PO`, `.JSON`, `.YAML` and `.ARB` importers are supported
+out-of-the-box. However, since the `Translations` object use maps as input/output, 
+you can use whatever file you want if you convert them to a map yourself._
 
 <br>
 

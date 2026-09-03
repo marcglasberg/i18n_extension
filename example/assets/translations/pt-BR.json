@@ -3,5 +3,10 @@
   "i18n Demo": "Demonstração i18n",
   "Increment": "Incrementar",
   "Change Language": "Mude Idioma",
-  "You clicked the button %d times:": "Você clicou no botão %d vezes:"
+  "You clicked the button %d times:": {
+    "other": "Você clicou no botão %d vezes:",
+    "zero": "Você ainda não clicou no botão:",
+    "one": "Você clicou no botão uma vez:",
+    "12": "Você clicou no botão uma dúzia de vezes:"
+  }
 }

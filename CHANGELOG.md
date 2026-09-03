@@ -2,6 +2,144 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
+## 15.3.2
+
+* Translations can now also be loaded from YAML files, with `Translations.byFile()` and
+  `Translations.byHttp()`. Files ending with `.yaml` or `.yml` are loaded in the same way
+  as `.json` and `.po` files, with the language tag taken from the file name. Each file
+  must contain a map of translation keys to translations, where each translation is
+  text, or a map of its versions, like plurals and genders (see the next item):
+
+  ```yaml
+  Welcome to this demo.: Bienvenido a esta demostración.
+  "i18n Demo": Demostración i18n
+  "You clicked the button %d times:":
+    other: "Hiciste clic en el botón %d veces:"
+    zero: "No hiciste clic en el botón:"
+    one: "Hiciste clic en el botón una vez:"
+    12: "Hiciste clic en el botón una docena de veces:"
+  ```
+
+  Comments, quoted and unquoted text, anchors, and the multiline styles (`|` and `>`) are
+  supported. Note that in YAML an unquoted `123`, `true` or empty value is read as a
+  number, a boolean or null, not as text, so quote those (except the integer versions,
+  like the `12` above, which may be unquoted). Lists are not allowed. A file that breaks
+  these rules fails with a clear error, or is skipped when `failOnInvalidResource` is
+  `false`.
+
+  The new loaders are `I18nYamlLoader()` (for `.yaml`) and `I18nYamlLoader.yml()`
+  (for `.yml`), and both are included in `I18n.loaders` by default.
+
+* In `.json` and `.yaml` files, a translation may now be a map of versions, for plurals
+  and genders. This is the same as using the string modifiers `.zero()`, `.one()`,
+  `.times()`, `.many()`, `.modifier()` etc. in Dart. The `other` version is required, and
+  is the text used when no other version applies (in Dart, the string the modifiers are
+  called on). For example:
+
+  ```json
+  {
+    "You clicked the button %d times:": {
+      "other": "Hiciste clic en el botón %d veces:",
+      "zero": "No hiciste clic en el botón:",
+      "one": "Hiciste clic en el botón una vez:",
+      "12": "Hiciste clic en el botón una docena de veces:"
+    },
+    "There is a person": {
+      "other": "Hay una persona",
+      "male": "Hay un hombre",
+      "female": "Hay una mujer"
+    }
+  }
+  ```
+
+  The plural versions are `zero`, `one`, `two`, `three`, `four`, `five`, `six`, `ten`,
+  `twoThreeFour`, `oneOrMore`, `zeroOne` and `many`, plus any integer, like `12`, which is
+  the same as `.times(12)`. Any other name, like `male`, is a version for `.version()`.
+  Each version must be text (versions can't be nested), and a map without `other`, or
+  with two versions that mean the same, like `one` and `1`, fails with a clear error.
+  In YAML, the versions are nested keys, as in the YAML example above.
+
+  The encoding is done by the base `I18nLoader`, when the decoded translations are
+  checked, so custom loaders whose `decode()` returns maps of versions get it too.
+
+* Translations can now also be loaded from ARB files (`.arb`), the format used by
+  Flutter's own `gen-l10n` tool and by most translation services, with
+  `Translations.byFile()` and `Translations.byHttp()`. The new loader is
+  `I18nArbLoader()`, included in `I18n.loaders` by default.
+
+  The locale comes from the `@@locale` attribute, or else from the file name, which may
+  be the locale itself (`es-ES.arb`, `es_ES.arb`) or end with it after an underscore,
+  as Flutter names them (`app_es.arb`, `intl_messages_pt_BR.arb`, `app_zh_Hans_CN.arb`).
+  The `@@` attributes and the `@key` metadata are ignored, as they are for translators
+  and tools. The ICU messages are converted to the format of this package:
+
+  ```json
+  {
+    "@@locale": "es",
+    "welcome": "Bienvenido, {name}",
+    "itemCount": "{count, plural, =0{Sin artículos} one{Un artículo} other{# artículos}}",
+    "pronoun": "{gender, select, male{él} female{ella} other{ellos}}"
+  }
+  ```
+
+  * Placeholders like `{name}` or `{0}` are kept, to be filled with `.args()`.
+    Formatted placeholders, like `{price, number, currency}` or `{date, date, ::yMd}`,
+    become simple placeholders, like `{price}`, since the loader doesn't format values:
+    pass them already formatted to `.args()`.
+
+  * A plural becomes a translation with plural versions, for `.plural(count)`. Both `#`
+    and the plural variable become the number. The cases `=0`/`zero`, `=1`/`one`,
+    `=2`/`two`, `few`, `many`, `=N` and `other` become the versions `.zero()`, `.one()`,
+    `.two()`, `.twoThreeFour()`, `.many()`, `.times(N)` and the default text. The plural
+    may be part of a longer message, in which case each version contains the whole
+    message.
+
+  * A select (like a gender) becomes a translation with versions, for `.version(case)`,
+    with `other` as the default text.
+
+  * A message may contain a single plural or select, and not one inside the other, since
+    `.plural()` and `.version()` select a translation by a single value. Such messages,
+    and the plural `offset`, fail to load with an error that explains the problem.
+
+  * By default there's no escaping, as in `gen-l10n`: an apostrophe is just an apostrophe.
+    For files written with `use-escaping: true`, where `''` is an apostrophe and text
+    between single quotes is literal, use `I18nArbLoader(useEscaping: true)`:
+
+    ```dart
+    I18n.loaders.removeWhere((loader) => loader() is I18nArbLoader);
+    I18n.loaders.add(() => I18nArbLoader(useEscaping: true));
+    ```
+
+* `Translations.byFile()` and `Translations.byHttp()` have two flags that control what
+  happens when a single file or resource fails to load. Both default to `true`, which
+  fails the whole load, so that no translations are loaded at all:
+
+  * `failOnMissingResource` applies to a file or resource that cannot be read: a 404 or
+    network error, or an asset that fails to load (which on the web is a download).
+
+  * `failOnInvalidResource` applies to a file or resource that was read, but cannot be
+    decoded (invalid JSON, YAML, ARB or ICU message), or has invalid content, like a
+    value that is not a String.
+
+  When a flag is `false`, that kind of failure is reported to `I18n.failedResourceCallback`
+  and skipped, while the other files or resources still load. The error is a
+  `MissingTranslationsResourceException` or an `InvalidTranslationsResourceException`
+  (both are `TranslationsException`s), which carry the `resource` that failed and the
+  underlying `error`, so the callback can tell them apart and log the problem file
+  without parsing the message. The `I18nLoader.fromAssetDir()` and `fromUrl()` methods
+  have the same two flags.
+
+  This requires `i18n_extension_core` 5.2.0.
+
+* The loader classes `I18nLoader`, `I18nJsonLoader`, `I18nPoLoader`, `I18nYamlLoader`
+  and `I18nArbLoader` are now exported by the package, so that you can configure them
+  or extend `I18nLoader` without importing the `src` files.
+
+* Loaders may now override `I18nLoader.decodeFile()`, which receives the file name and
+  its content, and returns both the translations and the language tag. The default
+  implementation calls `decode()` and takes the language tag from the file name, so
+  custom loaders that only override `decode()` keep working.
+
 ## 15.3.1
 
 * `Translations.byFile()` now also works on the web. Previously, it did nothing there,

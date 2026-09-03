@@ -7,13 +7,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension/src/i18n_json_loader.dart';
-import 'package:i18n_extension/src/i18n_po_loader.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'i18n_loader.dart';
 
 /// Signature of the [I18n.failedResourceCallback] function.
 ///
@@ -529,7 +525,9 @@ class I18n extends StatefulWidget {
     }
 
     // If no supported locale was found, return the first device locale.
-    return deviceLocales.isEmpty ? preInitializationLocale : deviceLocales.first;
+    return deviceLocales.isEmpty
+        ? preInitializationLocale
+        : deviceLocales.first;
   }
 
   /// The default [localeResolver]. Prefers a different variant of the user's
@@ -560,7 +558,9 @@ class I18n extends StatefulWidget {
     Iterable<Locale> supportedLocales,
   ) {
     if (supportedLocales.isEmpty) {
-      return deviceLocales.isEmpty ? preInitializationLocale : deviceLocales.first;
+      return deviceLocales.isEmpty
+          ? preInitializationLocale
+          : deviceLocales.first;
     }
 
     return basicLocaleListResolution(deviceLocales, supportedLocales);
@@ -760,22 +760,46 @@ class I18n extends StatefulWidget {
   }
 
   /// Returns a list of loaders to be used by the i18n_extension.
-  /// By default, it loads from JSON (.json) and PO (.po) files.
-  /// This list may be changed statically, to add or remove loaders,
-  /// and you may create your own loaders by extending [I18nLoader].
+  /// By default, it loads from JSON (.json), PO (.po), YAML (.yaml and .yml)
+  /// and ARB (.arb) files. This list may be changed statically, to add or remove
+  /// loaders, and you may create your own loaders by extending [I18nLoader].
+  ///
+  /// For example, to load ARB files written for `gen-l10n` with
+  /// `use-escaping: true`, replace the default ARB loader:
+  ///
+  /// ```dart
+  /// I18n.loaders.removeWhere((loader) => loader() is I18nArbLoader);
+  /// I18n.loaders.add(() => I18nArbLoader(useEscaping: true));
+  /// ```
   static final List<I18nLoader Function()> loaders = [
     () => I18nJsonLoader(),
     () => I18nPoLoader(),
+    () => I18nYamlLoader(),
+    () => I18nYamlLoader.yml(),
+    () => I18nArbLoader(),
   ];
 
-  /// Called when a translation file or resource fails to load, for translations
-  /// created with `Translations.byFile(..., failOnMissingResource: false)` or
-  /// `Translations.byHttp(..., failOnMissingResource: false)`. The failed file or
-  /// resource is then skipped, while all the others are still loaded.
+  /// Called when a translation file or resource fails to load, and the failure is
+  /// allowed to be skipped, for translations created with `Translations.byFile()`
+  /// or `Translations.byHttp()` with `failOnMissingResource: false` (for files or
+  /// resources that cannot be read, like a 404) or `failOnInvalidResource: false`
+  /// (for files or resources that cannot be decoded, or have invalid content). The
+  /// failed file or resource is then skipped, while all the others are still loaded.
   ///
   /// It receives the specific asset path (like `assets/translations/es.json`) or
   /// url (like `https://example.com/translations/es.json`) that failed, plus the
-  /// error that was thrown while reading or decoding it.
+  /// error that was thrown while reading or decoding it, which is a
+  /// [MissingTranslationsResourceException] or an
+  /// [InvalidTranslationsResourceException]. Both carry the `resource` that
+  /// failed and the underlying `error`, so you don't need to parse the message:
+  ///
+  /// ```dart
+  /// I18n.failedResourceCallback = (resource, error) {
+  ///   if (error is InvalidTranslationsResourceException) {
+  ///     myCrashReporting.log('Invalid translations in ${error.resource}: ${error.error}');
+  ///   }
+  /// };
+  /// ```
   ///
   /// The default is [defaultFailedResourceCallback], which simply prints the failed
   /// resource and the error to the console. You may replace it, for example, to
@@ -787,8 +811,9 @@ class I18n extends StatefulWidget {
   /// };
   /// ```
   ///
-  /// Note this callback is NOT called when `failOnMissingResource` is `true` (the
-  /// default), since in that case the error is thrown, and the whole load fails.
+  /// Note this callback is NOT called for failures that are not allowed to be
+  /// skipped (both flags are `true` by default), since in that case the error is
+  /// thrown, and the whole load fails.
   ///
   static FailedResourceCallback failedResourceCallback =
       defaultFailedResourceCallback;

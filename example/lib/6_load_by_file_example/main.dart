@@ -26,9 +26,11 @@ import 'my_screen.dart';
 /// ```
 /// assets
 ///   └── translations
+///     ├── app_es.arb
 ///     ├── en-US.json
 ///     ├── en-US.po
 ///     ├── es.po
+///     ├── es-ES.yaml
 ///     ├── pt-BR.json
 ///     └── more_translations
 ///         ├── en-US.json
@@ -37,7 +39,7 @@ import 'my_screen.dart';
 ///
 /// Notice that `Translations.byFile('en-US', dir: 'assets/translations')` will
 /// load all files in that directory and its subdirectories that end with
-/// `.json` or `.po`. Since `en-US.json` exists in both directories
+/// `.json`, `.po`, `.yaml`, `.yml` or `.arb`. Since `en-US.json` exists in both directories
 /// (assets/translations and assets/translations/more_translations) , the
 /// translations will be merged. 
 ///

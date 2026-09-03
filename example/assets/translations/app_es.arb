@@ -1,0 +1,13 @@
+{
+  "@@locale": "es-ES",
+  "@@comment": "Translations in the ARB format. The @@ attributes and the @ metadata are for translators and tools, and are ignored by the app.",
+  "You clicked the button %d times:": "{count, plural, =0{Todavía no hiciste clic en el botón:} one{Hiciste clic en el botón una vez:} other{Hiciste clic en el botón # veces:}}",
+  "@You clicked the button %d times:": {
+    "description": "Shown above the counter. Used with the plural function, which gives the number of clicks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

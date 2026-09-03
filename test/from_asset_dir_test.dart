@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:i18n_extension/src/i18n_json_loader.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 
 import 'loader_test_utils.dart';
 

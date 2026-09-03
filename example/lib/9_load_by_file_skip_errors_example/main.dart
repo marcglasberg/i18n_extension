@@ -12,14 +12,14 @@ import 'my_screen.dart';
 /// This example demonstrates how to load translations from files in the assets,
 /// while skipping the files that fail to load, instead of failing the whole load.
 ///
-/// Note `MyTranslations` uses `Translations.byFile` with `failOnMissingResource: false`:
+/// Note `MyTranslations` uses `Translations.byFile` with `failOnInvalidResource: false`:
 ///
 /// ```dart
 /// extension MyTranslations on String {
 ///   static final _t = Translations.byFile(
 ///     'en-US',
 ///     dir: 'assets/faulty_translations',
-///     failOnMissingResource: false,
+///     failOnInvalidResource: false,
 ///   );
 ///   static Future<void> load() => _t.load();
 ///   String get i18n => localize(this, _t);
@@ -36,10 +36,10 @@ import 'my_screen.dart';
 ///     └── pt-BR.json
 /// ```
 ///
-/// By default (`failOnMissingResource: true`), a single broken file would fail the
+/// By default (`failOnInvalidResource: true`), a single invalid file would fail the
 /// whole load, and NO translations would be loaded at all, not even the good ones.
 ///
-/// With `failOnMissingResource: false`, the broken `es-ES.json` file is printed to the
+/// With `failOnInvalidResource: false`, the broken `es-ES.json` file is printed to the
 /// console and skipped, while `en-US.json` and `pt-BR.json` are loaded normally.
 /// This means the app works in English and Portuguese, and when you switch to Spanish
 /// the strings simply fall back to English (the default locale).

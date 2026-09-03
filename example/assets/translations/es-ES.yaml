@@ -1,0 +1,4 @@
+# Translations in the YAML format. Each key is a translation key, and each value
+# is its translation. Both must be text, so when in doubt, quote them.
+Increment: Incrementar
+"Change Language": "Cambiar Idioma"

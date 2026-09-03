@@ -3,14 +3,24 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' show ClientException;
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:i18n_extension/src/i18n_json_loader.dart';
 
 import 'loader_test_utils.dart';
 
-/// Tests for the `failOnMissingResource` flag of [Translations.byFile] and
-/// [Translations.byHttp], which is applied by [I18nLoader.fromAssetDir],
-/// [I18nLoader.fromUrl], and the `defaultLoadByFile`/`defaultLoadByHttp` methods.
+/// Tests for the `failOnMissingResource` and `failOnInvalidResource` flags of
+/// [Translations.byFile] and [Translations.byHttp], which are applied by
+/// [I18nLoader.fromAssetDir], [I18nLoader.fromUrl], and the
+/// `defaultLoadByFile`/`defaultLoadByHttp` methods.
+///
+/// A resource is "missing" when it cannot be read: a 404 or network error, or an
+/// asset that fails to load. It's "invalid" when it was read, but cannot be
+/// decoded, or has invalid content, like a value that is not a String. The
+/// errors are a [MissingTranslationsResourceException] or an [InvalidTranslationsResourceException].
+///
+/// Note the core package wraps the error that fails `load()` in a plain
+/// [TranslationsException], whose message contains the typed exception. The
+/// [I18n.failedResourceCallback] receives the typed exception itself.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -34,6 +44,14 @@ void main() {
   /// Valid JSON, but one of the values is not a String.
   const notString = '{"Hello": "Olá", "Goodbye": 123}';
 
+  /// Matches a [MissingTranslationsResourceException] whose message matches [msg].
+  Matcher isMissing(Object msg) => isA<MissingTranslationsResourceException>()
+      .having((e) => e.msg, 'msg', msg);
+
+  /// Matches an [InvalidTranslationsResourceException] whose message matches [msg].
+  Matcher isInvalid(Object msg) => isA<InvalidTranslationsResourceException>()
+      .having((e) => e.msg, 'msg', msg);
+
   /// Records every call to [I18n.failedResourceCallback] as (resource, error).
   late List<(String, Object)> failures;
 
@@ -52,12 +70,12 @@ void main() {
   group('I18nLoader.fromAssetDir', () {
     //
     test(
-        'failOnMissingResource: false — '
+        'failOnInvalidResource: false — '
         'a corrupt file is skipped, and the other files still load', () async {
       mockAssets({enUs: goodEnUs, esEs: corrupt, ptBr: goodPtBr});
 
       var result = await I18nJsonLoader()
-          .fromAssetDir(dir, failOnMissingResource: false);
+          .fromAssetDir(dir, failOnInvalidResource: false);
 
       expect(result, {
         'Hello': {'en-US': 'Hello', 'pt-BR': 'Olá'},
@@ -65,17 +83,17 @@ void main() {
       });
 
       expect(failures.map((f) => f.$1), [esEs]);
-      expect(failures.single.$2,
-          isTranslationsException(startsWith('Error decoding $esEs: ')));
+      expect(
+          failures.single.$2, isInvalid(startsWith('Error decoding $esEs: ')));
     });
 
     test(
-        'failOnMissingResource: false — '
+        'failOnInvalidResource: false — '
         'a file with a non-String value is skipped as a whole', () async {
       mockAssets({enUs: goodEnUs, ptBr: notString});
 
       var result = await I18nJsonLoader()
-          .fromAssetDir(dir, failOnMissingResource: false);
+          .fromAssetDir(dir, failOnInvalidResource: false);
 
       // The good entry ("Hello") of the bad file is not kept either:
       // a file is either fully loaded or fully skipped.
@@ -87,8 +105,8 @@ void main() {
       expect(failures.map((f) => f.$1), [ptBr]);
       expect(
           failures.single.$2,
-          isTranslationsException(
-              "Error in $ptBr: Value '123' for key 'Goodbye' is not a String."));
+          isInvalid(
+              "Error decoding $ptBr: FormatException: Value '123' for key 'Goodbye' is not a String."));
     });
 
     test(
@@ -105,35 +123,69 @@ void main() {
       });
 
       expect(failures.map((f) => f.$1), [esEs]);
-      expect(failures.single.$2, isA<FlutterError>());
+      expect(
+          failures.single.$2, isMissing(startsWith('Error reading $esEs: ')));
+    });
+
+    test('failOnMissingResource: false does NOT skip an invalid file',
+        () async {
+      mockAssets({enUs: goodEnUs, esEs: corrupt});
+
+      await expectLater(
+        I18nJsonLoader().fromAssetDir(dir, failOnMissingResource: false),
+        throwsA(isInvalid(startsWith('Error decoding $esEs: '))),
+      );
+
+      expect(failures, isEmpty);
     });
 
     test(
-        'failOnMissingResource: false — '
+        'failOnInvalidResource: false does NOT skip a file that cannot be read',
+        () async {
+      mockAssets({enUs: goodEnUs, esEs: null});
+
+      await expectLater(
+        I18nJsonLoader().fromAssetDir(dir, failOnInvalidResource: false),
+        throwsA(isMissing(startsWith('Error reading $esEs: '))),
+      );
+
+      expect(failures, isEmpty);
+    });
+
+    test(
+        'Both flags false — '
         'when all files fail, it returns an empty map and does not throw',
         () async {
       mockAssets({enUs: corrupt, esEs: notString, ptBr: null});
 
-      var result = await I18nJsonLoader()
-          .fromAssetDir(dir, failOnMissingResource: false);
+      var result = await I18nJsonLoader().fromAssetDir(dir,
+          failOnMissingResource: false, failOnInvalidResource: false);
 
       expect(result, isEmpty);
       expect(failures.map((f) => f.$1), unorderedEquals([enUs, esEs, ptBr]));
+
+      expect(failures.singleWhere((f) => f.$1 == enUs).$2,
+          isInvalid(startsWith('Error decoding $enUs: ')));
+      expect(failures.singleWhere((f) => f.$1 == esEs).$2,
+          isInvalid(startsWith('Error decoding $esEs: ')));
+      expect(failures.singleWhere((f) => f.$1 == ptBr).$2,
+          isMissing(startsWith('Error reading $ptBr: ')));
     });
 
     test(
-        'failOnMissingResource: true (the default) — '
+        'Both flags true (the default) — '
         'a corrupt file fails the whole load, as before', () async {
       mockAssets({enUs: goodEnUs, esEs: corrupt, ptBr: goodPtBr});
 
       await expectLater(
         I18nJsonLoader().fromAssetDir(dir),
-        throwsA(isTranslationsException(startsWith('Error decoding $esEs: '))),
+        throwsA(isInvalid(startsWith('Error decoding $esEs: '))),
       );
 
       await expectLater(
-        I18nJsonLoader().fromAssetDir(dir, failOnMissingResource: true),
-        throwsA(isTranslationsException(startsWith('Error decoding $esEs: '))),
+        I18nJsonLoader().fromAssetDir(dir,
+            failOnMissingResource: true, failOnInvalidResource: true),
+        throwsA(isInvalid(startsWith('Error decoding $esEs: '))),
       );
 
       // The callback is not called in this case.
@@ -141,17 +193,66 @@ void main() {
     });
 
     test(
-        'failOnMissingResource: true (the default) — '
+        'Both flags true (the default) — '
         'a non-String value fails the whole load, as before', () async {
       mockAssets({enUs: goodEnUs, ptBr: notString});
 
       await expectLater(
         I18nJsonLoader().fromAssetDir(dir),
-        throwsA(isTranslationsException(
-            "Error in $ptBr: Value '123' for key 'Goodbye' is not a String.")),
+        throwsA(isInvalid(
+            "Error decoding $ptBr: FormatException: Value '123' for key 'Goodbye' is not a String.")),
       );
 
       expect(failures, isEmpty);
+    });
+
+    test(
+        'Both flags true (the default) — '
+        'a file that cannot be read fails the whole load', () async {
+      mockAssets({enUs: goodEnUs, esEs: null});
+
+      await expectLater(
+        I18nJsonLoader().fromAssetDir(dir),
+        throwsA(isMissing(startsWith('Error reading $esEs: '))),
+      );
+
+      expect(failures, isEmpty);
+    });
+
+    test('The exceptions carry the resource and the underlying error',
+        () async {
+      mockAssets({enUs: corrupt, esEs: notString, ptBr: null});
+
+      await I18nJsonLoader().fromAssetDir(dir,
+          failOnMissingResource: false, failOnInvalidResource: false);
+
+      var corruptFile = failures.singleWhere((f) => f.$1 == enUs).$2
+          as InvalidTranslationsResourceException;
+      expect(corruptFile.resource, enUs);
+      expect(corruptFile.error, isA<FormatException>());
+
+      var notStringFile = failures.singleWhere((f) => f.$1 == esEs).$2
+          as InvalidTranslationsResourceException;
+      expect(notStringFile.resource, esEs);
+      expect(
+          notStringFile.error,
+          isA<FormatException>().having((e) => e.message, 'message',
+              "Value '123' for key 'Goodbye' is not a String."));
+
+      var unreadableFile = failures.singleWhere((f) => f.$1 == ptBr).$2
+          as MissingTranslationsResourceException;
+      expect(unreadableFile.resource, ptBr);
+      expect(unreadableFile.error, isA<FlutterError>());
+    });
+
+    test('The errors are TranslationsExceptions', () async {
+      mockAssets({enUs: corrupt, esEs: null});
+
+      await I18nJsonLoader().fromAssetDir(dir,
+          failOnMissingResource: false, failOnInvalidResource: false);
+
+      expect(failures.map((f) => f.$2),
+          everyElement(isA<TranslationsException>()));
     });
 
     test('The default callback prints the failed resource and the error',
@@ -162,7 +263,7 @@ void main() {
       var printed = <String>[];
 
       await runZoned(
-        () => I18nJsonLoader().fromAssetDir(dir, failOnMissingResource: false),
+        () => I18nJsonLoader().fromAssetDir(dir, failOnInvalidResource: false),
         zoneSpecification: ZoneSpecification(
           print: (self, parent, zone, line) => printed.add(line),
         ),
@@ -171,7 +272,7 @@ void main() {
       expect(
         printed,
         contains(startsWith('Failed to load $esEs (skipping it): '
-            'TranslationsException{msg: Error decoding $esEs: ')),
+            'InvalidTranslationsResourceException{msg: Error decoding $esEs: ')),
       );
     });
   });
@@ -189,28 +290,62 @@ void main() {
       expect(result, isEmpty);
       expect(failures.map((f) => f.$1), [esEsUrl]);
       expect(failures.single.$2,
-          isTranslationsException(startsWith('Error reading $esEsUrl: ')));
+          isMissing(startsWith('Error reading $esEsUrl: ')));
+    });
+
+    test('The 404 exception carries the url and the ClientException', () async {
+      await withMockHttp(
+        {enUsUrl: goodEnUs},
+        () => I18nJsonLoader().fromUrl(esEsUrl, failOnMissingResource: false),
+      );
+
+      var missing = failures.single.$2 as MissingTranslationsResourceException;
+      expect(missing.resource, esEsUrl);
+      expect(missing.error, isA<ClientException>());
     });
 
     test(
-        'failOnMissingResource: false — '
+        'failOnInvalidResource: false — '
         'a corrupt resource is skipped, returning an empty map', () async {
       var result = await withMockHttp(
         {esEsUrl: corrupt},
-        () => I18nJsonLoader().fromUrl(esEsUrl, failOnMissingResource: false),
+        () => I18nJsonLoader().fromUrl(esEsUrl, failOnInvalidResource: false),
       );
 
       expect(result, isEmpty);
       expect(failures.map((f) => f.$1), [esEsUrl]);
       expect(failures.single.$2,
-          isTranslationsException(startsWith('Error decoding $esEsUrl: ')));
+          isInvalid(startsWith('Error decoding $esEsUrl: ')));
     });
 
-    test('failOnMissingResource: false — a good resource loads normally',
+    test('failOnMissingResource: false does NOT skip a corrupt resource',
         () async {
+      await withMockHttp({esEsUrl: corrupt}, () async {
+        await expectLater(
+          I18nJsonLoader().fromUrl(esEsUrl, failOnMissingResource: false),
+          throwsA(isInvalid(startsWith('Error decoding $esEsUrl: '))),
+        );
+      });
+
+      expect(failures, isEmpty);
+    });
+
+    test('failOnInvalidResource: false does NOT skip a 404', () async {
+      await withMockHttp({enUsUrl: goodEnUs}, () async {
+        await expectLater(
+          I18nJsonLoader().fromUrl(esEsUrl, failOnInvalidResource: false),
+          throwsA(isMissing(startsWith('Error reading $esEsUrl: '))),
+        );
+      });
+
+      expect(failures, isEmpty);
+    });
+
+    test('Both flags false — a good resource loads normally', () async {
       var result = await withMockHttp(
         {esEsUrl: goodEsEs},
-        () => I18nJsonLoader().fromUrl(esEsUrl, failOnMissingResource: false),
+        () => I18nJsonLoader().fromUrl(esEsUrl,
+            failOnMissingResource: false, failOnInvalidResource: false),
       );
 
       expect(result, {
@@ -220,18 +355,16 @@ void main() {
       expect(failures, isEmpty);
     });
 
-    test('failOnMissingResource: true (the default) — a 404 throws, as before',
-        () async {
+    test('Both flags true (the default) — a 404 throws, as before', () async {
       await withMockHttp({enUsUrl: goodEnUs}, () async {
         await expectLater(
           I18nJsonLoader().fromUrl(esEsUrl),
-          throwsA(
-              isTranslationsException(startsWith('Error reading $esEsUrl: '))),
+          throwsA(isMissing(startsWith('Error reading $esEsUrl: '))),
         );
         await expectLater(
-          I18nJsonLoader().fromUrl(esEsUrl, failOnMissingResource: true),
-          throwsA(
-              isTranslationsException(startsWith('Error reading $esEsUrl: '))),
+          I18nJsonLoader().fromUrl(esEsUrl,
+              failOnMissingResource: true, failOnInvalidResource: true),
+          throwsA(isMissing(startsWith('Error reading $esEsUrl: '))),
         );
       });
 
@@ -239,13 +372,12 @@ void main() {
     });
 
     test(
-        'failOnMissingResource: true (the default) — '
+        'Both flags true (the default) — '
         'a corrupt resource throws, as before', () async {
       await withMockHttp({esEsUrl: corrupt}, () async {
         await expectLater(
           I18nJsonLoader().fromUrl(esEsUrl),
-          throwsA(
-              isTranslationsException(startsWith('Error decoding $esEsUrl: '))),
+          throwsA(isInvalid(startsWith('Error decoding $esEsUrl: '))),
         );
       });
 
@@ -282,7 +414,57 @@ void main() {
 
       expect(failures.map((f) => f.$1), [esEsUrl]);
       expect(failures.single.$2,
-          isTranslationsException(startsWith('Error reading $esEsUrl: ')));
+          isMissing(startsWith('Error reading $esEsUrl: ')));
+    });
+
+    test(
+        'failOnInvalidResource: false — '
+        'one corrupt resource among several: the others are loaded and merged',
+        () async {
+      await withMockHttp(
+          {enUsUrl: goodEnUs, esEsUrl: corrupt, ptBrUrl: goodPtBr}, () async {
+        var t = Translations.byHttp(
+          'en-US',
+          url: baseUrl,
+          resources: ['en-US.json', 'es-ES.json', 'pt-BR.json'],
+          failOnInvalidResource: false,
+        );
+
+        await t.load();
+
+        expect(t.translationByLocale_ByTranslationKey, {
+          'Hello': {'en-US': 'Hello', 'pt-BR': 'Olá'},
+          'Goodbye': {'en-US': 'Goodbye', 'pt-BR': 'Adeus'},
+        });
+      });
+
+      expect(failures.map((f) => f.$1), [esEsUrl]);
+      expect(failures.single.$2,
+          isInvalid(startsWith('Error decoding $esEsUrl: ')));
+    });
+
+    test(
+        'failOnMissingResource: false — '
+        'a corrupt resource still fails the whole load', () async {
+      await withMockHttp(
+          {enUsUrl: goodEnUs, esEsUrl: corrupt, ptBrUrl: goodPtBr}, () async {
+        var t = Translations.byHttp(
+          'en-US',
+          url: baseUrl,
+          resources: ['en-US.json', 'es-ES.json', 'pt-BR.json'],
+          failOnMissingResource: false,
+        );
+
+        await expectLater(
+          t.load(),
+          throwsA(isTranslationsException(contains(
+              'InvalidTranslationsResourceException{msg: Error decoding $esEsUrl'))),
+        );
+
+        expect(t.translationByLocale_ByTranslationKey, isEmpty);
+      });
+
+      expect(failures, isEmpty);
     });
 
     test(
@@ -307,7 +489,7 @@ void main() {
     });
 
     test(
-        'failOnMissingResource: true (the default) — '
+        'Both flags true (the default) — '
         'one 404 fails the whole load, and nothing is merged, as before',
         () async {
       await withMockHttp({enUsUrl: goodEnUs, ptBrUrl: goodPtBr}, () async {
@@ -319,7 +501,8 @@ void main() {
 
         await expectLater(
           t.load(),
-          throwsA(isTranslationsException(contains('Error reading $esEsUrl'))),
+          throwsA(isTranslationsException(contains(
+              'MissingTranslationsResourceException{msg: Error reading $esEsUrl'))),
         );
 
         expect(t.translationByLocale_ByTranslationKey, isEmpty);
@@ -332,10 +515,37 @@ void main() {
   group('Translations.byFile (defaultLoadByFile)', () {
     //
     test(
-        'failOnMissingResource: false — '
+        'failOnInvalidResource: false — '
         'one corrupt file among several: the others are loaded and merged',
         () async {
       mockAssets({enUs: goodEnUs, esEs: corrupt, ptBr: goodPtBr});
+
+      var t = Translations.byFile(
+        'en-US',
+        dir: dir,
+        failOnInvalidResource: false,
+      );
+
+      await t.load();
+
+      expect(t.translationByLocale_ByTranslationKey, {
+        'Hello': {'en-US': 'Hello', 'pt-BR': 'Olá'},
+        'Goodbye': {'en-US': 'Goodbye', 'pt-BR': 'Adeus'},
+      });
+
+      expect(localize('Hello', t, languageTag: 'pt-BR'), 'Olá');
+      expect(localize('Hello', t, languageTag: 'es-ES'), 'Hello');
+
+      expect(failures.map((f) => f.$1), [esEs]);
+      expect(
+          failures.single.$2, isInvalid(startsWith('Error decoding $esEs: ')));
+    });
+
+    test(
+        'failOnMissingResource: false — '
+        'one file that cannot be read among several: the others are loaded',
+        () async {
+      mockAssets({enUs: goodEnUs, esEs: null, ptBr: goodPtBr});
 
       var t = Translations.byFile(
         'en-US',
@@ -350,14 +560,34 @@ void main() {
         'Goodbye': {'en-US': 'Goodbye', 'pt-BR': 'Adeus'},
       });
 
-      expect(localize('Hello', t, languageTag: 'pt-BR'), 'Olá');
-      expect(localize('Hello', t, languageTag: 'es-ES'), 'Hello');
-
       expect(failures.map((f) => f.$1), [esEs]);
+      expect(
+          failures.single.$2, isMissing(startsWith('Error reading $esEs: ')));
     });
 
     test(
         'failOnMissingResource: false — '
+        'a corrupt file still fails the whole load', () async {
+      mockAssets({enUs: goodEnUs, esEs: corrupt, ptBr: goodPtBr});
+
+      var t = Translations.byFile(
+        'en-US',
+        dir: dir,
+        failOnMissingResource: false,
+      );
+
+      await expectLater(
+        t.load(),
+        throwsA(isTranslationsException(contains(
+            'InvalidTranslationsResourceException{msg: Error decoding $esEs'))),
+      );
+
+      expect(t.translationByLocale_ByTranslationKey, isEmpty);
+      expect(failures, isEmpty);
+    });
+
+    test(
+        'failOnInvalidResource: false — '
         'when all files fail, load() completes with empty translations',
         () async {
       mockAssets({enUs: corrupt, esEs: corrupt});
@@ -365,7 +595,7 @@ void main() {
       var t = Translations.byFile(
         'en-US',
         dir: dir,
-        failOnMissingResource: false,
+        failOnInvalidResource: false,
       );
 
       await t.load();
@@ -376,7 +606,7 @@ void main() {
     });
 
     test(
-        'failOnMissingResource: true (the default) — '
+        'Both flags true (the default) — '
         'one corrupt file fails the whole load, and nothing is merged, as before',
         () async {
       mockAssets({enUs: goodEnUs, esEs: corrupt, ptBr: goodPtBr});
@@ -385,7 +615,8 @@ void main() {
 
       await expectLater(
         t.load(),
-        throwsA(isTranslationsException(contains('Error decoding $esEs'))),
+        throwsA(isTranslationsException(contains(
+            'InvalidTranslationsResourceException{msg: Error decoding $esEs'))),
       );
 
       expect(t.translationByLocale_ByTranslationKey, isEmpty);
@@ -393,7 +624,7 @@ void main() {
     });
 
     testWidgets(
-        'failOnMissingResource: false — '
+        'failOnInvalidResource: false — '
         'partially loaded translations trigger a rebuild of the I18n widget',
         (WidgetTester tester) async {
       //
@@ -406,7 +637,7 @@ void main() {
       var t = Translations.byFile(
         'en-US',
         dir: dir,
-        failOnMissingResource: false,
+        failOnInvalidResource: false,
       );
 
       var builds = 0;
