@@ -74,23 +74,60 @@ import 'package:i18n_extension/i18n_extension.dart';
 ///
 /// The plural may be part of a longer message, like `"{name} has {count, plural,
 /// one{one item} other{# items}} in the cart"`, in which case each version contains
-/// the whole message. However, a message may contain only one plural or select, and
-/// not one inside the other, because the `plural` and `version` functions select a
-/// translation by a single value. A message that combines them fails to load, with
-/// an error that explains the problem. The plural `offset` is also not supported.
+/// the whole message. However, a message may contain only one plural or select,
+/// except for a select (like a gender) and a plural, one inside the other (see
+/// below), because the `plural` and `version` functions select a translation by a
+/// single value, or by a gender and a number. A message with two plurals, or two
+/// selects, fails to load with an error that explains the problem. The plural
+/// `offset` is also not supported.
 ///
 /// # Selects
 ///
 /// A message with an ICU select, which is used for genders and similar choices,
-/// becomes a translation with versions, one for each case, to be used with the
-/// `version` function (the one created with [localizeVersion]). The `other` case is
-/// the default text.
+/// becomes a translation with versions, one for each case. The `other` case is the
+/// default text. The cases `male`, `female` and `neutral` become the gender versions
+/// of `.male()`, `.female()` and `.neutral()`, to be used with the `gender` function
+/// (the one created with [localizeGender]):
 ///
 /// ```dart
-/// 'pronoun'.version('male'); // él
-/// 'pronoun'.version('female'); // ella
-/// 'pronoun'.allVersions()[null]; // ellos (the `other` case)
+/// 'pronoun'.gender(Gender.male); // él
+/// 'pronoun'.gender(Gender.female); // ella
+/// 'pronoun'.gender(Gender.neutral); // ellos (the `other` case)
 /// ```
+///
+/// Any other case, like in `"{status, select, done{Listo} other{Pendiente}}"`, is a
+/// version with the name of the case, to be used with the `version` function (the
+/// one created with [localizeVersion]):
+///
+/// ```dart
+/// 'status'.version('done'); // Listo
+/// 'status'.allVersions()[null]; // Pendiente (the `other` case)
+/// ```
+///
+/// # Gender and plural
+///
+/// A select and a plural may be nested, one inside the other, which is the ICU way
+/// of combining gender and number. This becomes a translation with a version for
+/// each combination of their cases, to be used with the `plural` function and its
+/// `gender` parameter (see [localizePlural]):
+///
+/// ```json
+/// "people": "{gender, select, male{{count, plural, =0{No hay hombres} one{Hay un hombre} other{Hay # hombres}}} female{{count, plural, =0{No hay mujeres} one{Hay una mujer} other{Hay # mujeres}}} other{{count, plural, =0{No hay nadie} one{Hay una persona} other{Hay # personas}}}}"
+/// ```
+///
+/// ```dart
+/// 'people'.plural(0, Gender.male); // No hay hombres
+/// 'people'.plural(1, Gender.female); // Hay una mujer
+/// 'people'.plural(3, Gender.neutral); // Hay 3 personas
+/// ```
+///
+/// This is the same as nesting the string modifiers in Dart, like
+/// `.male('Hay un hombre'.zero('No hay hombres').many('Hay %d hombres'))`. The
+/// `one` (or `=1`) case of a gender becomes the gender version itself, which is its
+/// singular, and the `other` case of a gender becomes its `many` version (unless
+/// there's a `many` case), and also its singular, when there's no `one` case. The
+/// select may also be inside the plural, with the same result. A plural inside a
+/// plural, a select inside a select, and deeper nesting are not supported.
 ///
 /// # Escaping
 ///
@@ -321,6 +358,10 @@ class _Selection extends _Node {
   bool get isPlural => type == 'plural';
 }
 
+/// The text of the whole message for a select case and a plural case, which are
+/// null when the message has no select, or no plural. See `_IcuMessage._encode`.
+typedef _Combo = ({String? select, String? plural, String text});
+
 /// Parses one ICU message of an ARB file, and converts it into the format used
 /// by this package: plain text with placeholders, or a text with versions, for
 /// the `plural` and `version` functions. See [I18nArbLoader] for the details.
@@ -375,41 +416,160 @@ class _IcuMessage {
     if (selectionIndexes.length > 1) {
       throw _error("The message has more than one plural or select. "
           "The plural and version functions select a translation by a single "
-          "value, so a message may contain only one plural or select. "
+          "value, so a message may contain only one plural or select "
+          "(or a select and a plural, one inside the other). "
           "Split it into separate messages");
     }
 
     // A message with a plural or select becomes a text with versions, where each
     // version contains the whole message, with the corresponding case in place.
+    // A select (like a gender) and a plural may be nested, one inside the other,
+    // in which case there's a version for each combination of their cases.
     int index = selectionIndexes.single;
-    var selection = nodes[index] as _Selection;
+    var outer = nodes[index] as _Selection;
     var before = nodes.sublist(0, index);
     var after = nodes.sublist(index + 1);
-    String? pluralArgument = selection.isPlural ? selection.argument : null;
 
-    String? defaultText;
-    Map<String, String> versions = {};
+    List<_Combo> combos = [];
 
-    // In a plural, an exact case like `=1` wins over a category like `one`,
-    // so the exact cases are added last, and overwrite the categories.
-    var cases = [
-      ...selection.cases.where((c) => !c.selector.startsWith('=')),
-      ...selection.cases.where((c) => c.selector.startsWith('=')),
-    ];
+    for (var (:selector, :nodes) in _orderedCases(outer)) {
+      //
+      List<int> innerIndexes = [
+        for (int i = 0; i < nodes.length; i++)
+          if (nodes[i] is _Selection) i,
+      ];
 
-    for (var (:selector, :nodes) in cases) {
-      var text = _render([...before, ...nodes, ...after],
-          pluralArgument: pluralArgument);
+      if (innerIndexes.length > 1) {
+        throw _error("The case '$selector' of the ${outer.type} has more than "
+            "one plural or select. A case may contain a single one");
+      }
 
-      if (selector == 'other') {
-        defaultText = text;
-      } else {
-        versions[selection.isPlural ? _pluralModifier(selector) : selector] =
-            text;
+      // A case without a nested plural or select.
+      if (innerIndexes.isEmpty) {
+        var text = _render([...before, ...nodes, ...after],
+            pluralArgument: outer.isPlural ? outer.argument : null);
+
+        combos.add((
+          select: outer.isPlural ? null : selector,
+          plural: outer.isPlural ? selector : null,
+          text: text,
+        ));
+        continue;
+      }
+
+      // A case with a nested plural (in a select) or select (in a plural).
+      int innerIndex = innerIndexes.single;
+      var inner = nodes[innerIndex] as _Selection;
+
+      if (inner.type == outer.type) {
+        throw _error("The message has a ${inner.type} inside a ${outer.type}. "
+            "Only a select (like a gender) and a plural may be nested, one "
+            "inside the other, since the plural function selects a translation "
+            "by a gender and a number");
+      }
+
+      var innerBefore = nodes.sublist(0, innerIndex);
+      var innerAfter = nodes.sublist(innerIndex + 1);
+      var plural = outer.isPlural ? outer : inner;
+
+      for (var (selector: innerSelector, nodes: innerNodes)
+          in _orderedCases(inner)) {
+        var text = _render(
+            [...before, ...innerBefore, ...innerNodes, ...innerAfter, ...after],
+            pluralArgument: plural.argument);
+
+        combos.add((
+          select: outer.isPlural ? innerSelector : selector,
+          plural: outer.isPlural ? selector : innerSelector,
+          text: text,
+        ));
       }
     }
 
-    // The `other` case is required, so `defaultText` is never null here.
+    return _encode(combos);
+  }
+
+  /// The cases of a [selection]. In a plural, an exact case like `=1` wins over a
+  /// category like `one`, so the exact cases come last, to overwrite the categories.
+  static List<({String selector, List<_Node> nodes})> _orderedCases(
+          _Selection selection) =>
+      selection.isPlural
+          ? [
+              ...selection.cases.where((c) => !c.selector.startsWith('=')),
+              ...selection.cases.where((c) => c.selector.startsWith('=')),
+            ]
+          : selection.cases;
+
+  /// Encodes the [combos] into a text with versions. Each combo has the text of the
+  /// whole message for a select case (null when the message has no select) and a
+  /// plural case (null when it has no plural). The text for the `other` cases (or
+  /// for no select and no plural) is the unversioned text.
+  String _encode(List<_Combo> combos) {
+    //
+    String? defaultText;
+    Map<String, String> versions = {};
+
+    // The text of the `other` plural case of each gender, see below.
+    Map<String, String> otherByGender = {};
+
+    // To check that two select cases don't mean the same, like `male` and `m`.
+    Map<String, String> selectorByModifier = {};
+
+    for (var combo in combos) {
+      //
+      // The modifier of the select case, like `m` for `male`, or the name of the
+      // case itself, for the cases that are not genders (see `_selectModifier`).
+      // It's empty when the message has no select, and for the `other` case.
+      String gender = '';
+      String? select = combo.select;
+
+      if (select != null && select != 'other') {
+        gender = _selectModifier(select);
+
+        String? previousSelector = selectorByModifier[gender];
+        if (previousSelector != null && previousSelector != select) {
+          throw _error("The select has both the '$previousSelector' and the "
+              "'$select' cases, which mean the same");
+        }
+        selectorByModifier[gender] = select;
+      }
+
+      String? plural = combo.plural;
+
+      // The `other` plural case, or no plural at all.
+      if (plural == null || plural == 'other') {
+        if (gender.isEmpty) {
+          defaultText = combo.text;
+        } else if (plural == null) {
+          versions[gender] = combo.text;
+        } else {
+          otherByGender[gender] = combo.text;
+        }
+      }
+      //
+      else {
+        String modifier = _pluralModifier(plural);
+
+        // The `one` (or `=1`) case of a gender is the gender version itself, which
+        // is the singular of the gender, like `.male('There is a man')` in Dart.
+        if (gender.isNotEmpty && modifier == '1') {
+          versions[gender] = combo.text;
+        } else {
+          versions['$gender$modifier'] = combo.text;
+        }
+      }
+    }
+
+    // The `other` plural case of a gender is used for the numbers that have no
+    // other case, so it becomes the `many` version of the gender (unless there's a
+    // `many` case) and, when there's no `one` case, also the gender version itself,
+    // which is the one used for 1 element.
+    for (var entry in otherByGender.entries) {
+      versions.putIfAbsent('${entry.key}M', () => entry.value);
+      versions.putIfAbsent(entry.key, () => entry.value);
+    }
+
+    // The `other` cases are required, so `defaultText` is never null here.
     // With no other cases, the message is plain text (which still works with
     // the `plural` function).
     if (versions.isEmpty) return defaultText!;
@@ -445,6 +605,23 @@ class _IcuMessage {
     return buffer.toString();
   }
 
+  /// The version modifier for a select case. The cases `male`, `female` and
+  /// `neutral` become the gender modifiers created by the string extensions
+  /// `.male()`, `.female()` and `.neutral()`, for the `gender` function. Any
+  /// other case is a version with that name, for the `version` function.
+  static String _selectModifier(String selector) {
+    switch (selector) {
+      case 'male':
+        return 'm';
+      case 'female':
+        return 'f';
+      case 'neutral':
+        return 'n';
+      default:
+        return selector;
+    }
+  }
+
   /// The version modifier for a plural case, matching the modifiers created by
   /// the string extensions `.zero()`, `.one()`, `.two()`, `.twoThreeFour()`,
   /// `.many()`, `.ten()` and `.times(n)`.
@@ -468,7 +645,8 @@ class _IcuMessage {
   }
 
   /// Parses the message text until the end (at depth 0), or until the `}` that
-  /// closes the current plural or select case (at depth 1), which is not consumed.
+  /// closes the current plural or select case (at depth 1 or 2), which is not
+  /// consumed. Inside a plural, [inPlural] is true, and `#` is the number.
   List<_Node> _parseMessage({required bool inPlural, required int depth}) {
     //
     List<_Node> nodes = [];
@@ -486,7 +664,7 @@ class _IcuMessage {
 
       if (char == '{') {
         flushText();
-        nodes.add(_parseArgument(depth: depth));
+        nodes.add(_parseArgument(depth: depth, inPlural: inPlural));
       }
       //
       else if (char == '}') {
@@ -550,7 +728,10 @@ class _IcuMessage {
   }
 
   /// Parses an argument, starting at its `{`, and consumes its closing `}`.
-  _Node _parseArgument({required int depth}) {
+  /// The [depth] is 0 in the message itself, and 1 inside a plural or select case
+  /// (a plural or select inside a case is allowed, which makes 2 the depth of its
+  /// cases). Inside a plural, [inPlural] is true.
+  _Node _parseArgument({required int depth, required bool inPlural}) {
     //
     _pos++; // Consumes the `{`.
 
@@ -586,14 +767,13 @@ class _IcuMessage {
     switch (type) {
       case 'plural':
       case 'select':
-        if (depth > 0) {
-          throw _error("The message has a $type inside a plural or select. "
-              "The plural and version functions select a translation by a "
-              "single value, so a message may contain only one plural or select, "
-              "and not one inside the other");
+        if (depth > 1) {
+          throw _error("The message has a $type nested too deeply. "
+              "A select (like a gender) and a plural may be nested, one inside "
+              "the other, but not more than that");
         }
         _expect(',');
-        var cases = _parseCases(type);
+        var cases = _parseCases(type, depth: depth, inPlural: inPlural);
         return _Selection(type, name, cases);
 
       case 'selectordinal':
@@ -618,8 +798,13 @@ class _IcuMessage {
   }
 
   /// Parses the cases of a plural or select, after the `plural,` or `select,`,
-  /// and consumes the closing `}`.
-  List<({String selector, List<_Node> nodes})> _parseCases(String type) {
+  /// and consumes the closing `}`. The [depth] is the one of the plural or select
+  /// itself, and [inPlural] tells if it's inside a plural (see [_parseArgument]).
+  List<({String selector, List<_Node> nodes})> _parseCases(
+    String type, {
+    required int depth,
+    required bool inPlural,
+  }) {
     //
     bool isPlural = (type == 'plural');
     List<({String selector, List<_Node> nodes})> cases = [];
@@ -667,7 +852,7 @@ class _IcuMessage {
 
       _skipWhitespace();
       _expect('{');
-      var nodes = _parseMessage(inPlural: isPlural, depth: 1);
+      var nodes = _parseMessage(inPlural: inPlural || isPlural, depth: depth + 1);
       _expect('}');
 
       if (cases.any((c) => c.selector == selector)) {

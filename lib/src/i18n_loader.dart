@@ -143,20 +143,22 @@ abstract class I18nLoader {
   ///       .one('Hiciste clic en el botón una vez:')
   ///       .times(12, 'Hiciste clic en el botón una docena de veces:'),
   ///   'There is a person': 'Hay una persona'
-  ///       .modifier('male', 'Hay un hombre')
-  ///       .modifier('female', 'Hay una mujer'),
+  ///       .male('Hay un hombre')
+  ///       .female('Hay una mujer'),
   /// }
   /// ```
   ///
   /// The plural versions, for the `plural` function, are `zero`, `one`, `two`,
   /// `three`, `four`, `five`, `six`, `ten`, `twoThreeFour`, `oneOrMore`,
   /// `zeroOne` and `many`, plus any integer, like `12`, which is the same as
-  /// `.times(12)`. Any other name, like `male`, is a version for the `version`
-  /// function, like `.version('male')`, and must be the `toString()` of the
-  /// modifier you pass to that function (for an enum, use `.version(gender.name)`,
-  /// or name the version `Gender.male`). This means the plural names above can't
-  /// be the names of your own versions. Each version must be text, so versions
-  /// can't be nested.
+  /// `.times(12)`. The gender versions, for the `gender` function, are `male`,
+  /// `female` and `neutral`. Any other name, like `formal`, is a version for the
+  /// `version` function, like `.version('formal')`, and must be the `toString()`
+  /// of the modifier you pass to that function (for an enum, use
+  /// `.version(formality.name)`, or name the version `Formality.formal`). This
+  /// means the plural and gender names above can't be the names of your own
+  /// versions. Each version must be text, except that a gender version may be a
+  /// map of plural versions, to combine gender and plural (see below).
   ///
   /// In YAML, the same translation looks like this (the integer may be unquoted):
   ///
@@ -167,6 +169,30 @@ abstract class I18nLoader {
   ///   one: "Hiciste clic en el botón una vez:"
   ///   12: "Hiciste clic en el botón una docena de veces:"
   /// ```
+  ///
+  /// To combine gender and plural, a gender version may itself be a map of plural
+  /// versions, with its own `other`. This is the same as nesting the string
+  /// modifiers in Dart, like `.male('Hay un hombre'.zero('No hay hombres'))`:
+  ///
+  /// ```yaml
+  /// There is a person:
+  ///   other: Hay una persona
+  ///   zero: No hay nadie
+  ///   many: Hay %d personas
+  ///   male:
+  ///     other: Hay un hombre
+  ///     zero: No hay hombres
+  ///     many: Hay %d hombres
+  ///   female:
+  ///     other: Hay una mujer
+  ///     zero: No hay mujeres
+  ///     many: Hay %d mujeres
+  /// ```
+  ///
+  /// Then, `'There is a person'.plural(3, Gender.female)` gives
+  /// `Hay 3 mujeres` (see [localizePlural]). Only the gender versions, and the
+  /// versions with a name of your own, may have nested versions, and only one
+  /// level deep. A plural version can't have versions of its own.
   ///
   /// And add to the translations, with something like:
   ///
@@ -436,8 +462,8 @@ abstract class I18nLoader {
     }
   }
 
-  /// The modifiers of the string extensions (`.zero()`, `.one()` etc.), by the
-  /// name used for them in the files.
+  /// The modifiers of the string extensions (`.zero()`, `.one()`, `.male()` etc.),
+  /// by the name used for them in the files.
   static const _modifiersByName = {
     'zero': '0',
     'one': '1',
@@ -451,18 +477,34 @@ abstract class I18nLoader {
     'oneOrMore': 'R',
     'zeroOne': 'F',
     'many': 'M',
+    'male': 'm',
+    'female': 'f',
+    'neutral': 'n',
   };
+
+  /// The names of the gender versions, which may have plural versions of their own.
+  static const _genderNames = {'male', 'female', 'neutral'};
 
   /// Encodes the [versions] of the translation [key] into a single String, in the
   /// same way the string modifiers `.zero()`, `.one()`, `.times()`, `.modifier()`
   /// etc. do. See [fromAssetDir].
   ///
-  /// The `other` version is required, and is the unversioned text. Throws a
-  /// [FormatException] if it's missing, if a version is not a String, or if two
-  /// versions mean the same, like `one` and `1`.
+  /// The `other` version is required, and is the unversioned text. A gender version
+  /// (or a version with a name of your own) may itself be a map of versions, with
+  /// its own `other`, to combine gender and plural. This is encoded like the nested
+  /// string modifiers, like `.male('There is a man'.zero('There are no men'))`.
   ///
-  static String _encodeVersions(String key, Map versions) {
+  /// Throws a [FormatException] if `other` is missing, if a version is not a String
+  /// (or a map of versions, where allowed), or if two versions mean the same, like
+  /// `one` and `1`. The [parent] is the name of the version whose nested versions
+  /// are being encoded, if any.
+  ///
+  static String _encodeVersions(String key, Map versions, {String? parent}) {
     //
+    // Describes what's being encoded, for the error messages.
+    String what = (parent == null) ? "key '$key'" : "version '$parent' of key '$key'";
+    String What = what[0].toUpperCase() + what.substring(1);
+
     String? defaultText;
     Map<String, String> textByModifier = {};
     Map<String, String> nameByModifier = {};
@@ -473,16 +515,15 @@ abstract class I18nLoader {
 
       if (name is! String) {
         throw FormatException(
-            "Key '$key' has a version named '$name', which is not a String.");
-      }
-
-      if (text is! String) {
-        throw FormatException(
-            "Version '$name' of key '$key' is not a String: '$text'. "
-            "Each version must be text.");
+            "$What has a version named '$name', which is not a String.");
       }
 
       if (name == 'other') {
+        if (text is! String) {
+          throw FormatException(
+              "Version 'other' of $what is not a String: '$text'. It must be text, "
+              "since it's the text used when no other version applies.");
+        }
         defaultText = text;
         continue;
       }
@@ -492,20 +533,48 @@ abstract class I18nLoader {
       String? previousName = nameByModifier[modifier];
       if (previousName != null) {
         throw FormatException(
-            "Key '$key' has both the '$previousName' and the '$name' versions, "
+            "$What has both the '$previousName' and the '$name' versions, "
             "which mean the same.");
       }
-
       nameByModifier[modifier] = name;
-      textByModifier[modifier] = text;
+
+      if (text is String) {
+        textByModifier[modifier] = text;
+      }
+      //
+      // A map of versions inside a version, like the plural versions of a gender.
+      else if (text is Map) {
+        if (parent != null) {
+          throw FormatException(
+              "Version '$name' of $what is a map of versions, but versions can be "
+              "nested only one level deep, like the plural versions inside a gender "
+              "version.");
+        }
+        if (_isPluralName(name)) {
+          throw FormatException(
+              "Version '$name' of $what is a map of versions, but a plural version "
+              "can't have versions of its own. To combine gender and plural, nest the "
+              "plural versions inside the gender versions (male, female and neutral), "
+              "and not the other way around.");
+        }
+        textByModifier[modifier] = _encodeVersions(key, text, parent: name);
+      }
+      //
+      else {
+        throw FormatException(
+            "Version '$name' of $what is not a String: '$text'. "
+            "Each version must be text.");
+      }
     }
 
     if (defaultText == null) {
       throw FormatException(
-          "Key '$key' has versions, but no 'other' version, which is the text "
+          "$What has versions, but no 'other' version, which is the text "
           "used when no other version applies.");
     }
 
+    // Note `modifier()` flattens the nested versions, prepending the modifier
+    // to the modifiers of the nested versions, like `m0` for `male` and `zero`.
     String result = defaultText;
     for (var entry in textByModifier.entries) {
       result = result.modifier(entry.key, entry.value);
@@ -513,6 +582,12 @@ abstract class I18nLoader {
 
     return result;
   }
+
+  /// Whether the version [name] is one of the plural versions, like `zero`,
+  /// `many` or an integer.
+  static bool _isPluralName(String name) =>
+      (_modifiersByName.containsKey(name) && !_genderNames.contains(name)) ||
+      int.tryParse(name) != null;
 
   /// Returns the modifier for the version [name]: a plural modifier for the
   /// plural names and for integers (note the modifier for 10 is `T`, the one of

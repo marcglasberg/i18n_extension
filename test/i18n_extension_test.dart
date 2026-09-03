@@ -818,28 +818,157 @@ void main() {
   test("Custom modifiers.", () {
     //
     I18n.define(const Locale('en', 'US'));
-    var text = "There is a person";
-    expect(text.gender(Gender.male), "There is a man");
-    expect(text.gender(Gender.female), "There is a woman");
-    expect(text.gender(Gender.they), "There is a person");
+    var text = "There is an animal";
+    expect(text.animal(Animal.dog), "There is a dog");
+    expect(text.animal(Animal.cat), "There is a cat");
+    expect(text.animal(Animal.fish), "There is a fish");
 
     expect(
-        () => text.gender(Gender.x),
-        throwsA(TranslationsException("This text has no version for modifier 'Gender.x' "
-            "(modifier: Gender.x, key: 'There is a person', locale: 'en-US').")));
+        () => text.animal(Animal.x),
+        throwsA(TranslationsException("This text has no version for modifier 'Animal.x' "
+            "(modifier: Animal.x, key: 'There is an animal', locale: 'en-US').")));
 
     // ---
 
     I18n.define(const Locale('pt', 'BR'));
-    text = "There is a person";
-    expect(text.gender(Gender.male), "Há um homem");
-    expect(text.gender(Gender.female), "Há uma mulher");
-    expect(text.gender(Gender.they), "Há uma pessoa");
+    text = "There is an animal";
+    expect(text.animal(Animal.dog), "Há um cachorro");
+    expect(text.animal(Animal.cat), "Há um gato");
+    expect(text.animal(Animal.fish), "Há um peixe");
 
     expect(
-        () => text.gender(Gender.x),
-        throwsA(TranslationsException("This text has no version for modifier 'Gender.x' "
-            "(modifier: Gender.x, key: 'There is a person', locale: 'pt-BR').")));
+        () => text.animal(Animal.x),
+        throwsA(TranslationsException("This text has no version for modifier 'Animal.x' "
+            "(modifier: Animal.x, key: 'There is an animal', locale: 'pt-BR').")));
+  });
+
+  test("Gender modifiers.", () {
+    //
+    // A gender without a version (here, neutral) falls back to the unversioned text.
+    I18n.define(const Locale('en', 'US'));
+    var text = "There is a person";
+    expect(text.gender(Gender.male), "There is a man");
+    expect(text.gender(Gender.female), "There is a woman");
+    expect(text.gender(Gender.neutral), "There is a person");
+
+    I18n.define(const Locale('pt', 'BR'));
+    expect(text.gender(Gender.male), "Há um homem");
+    expect(text.gender(Gender.female), "Há uma mulher");
+    expect(text.gender(Gender.neutral), "Há uma pessoa");
+
+    // ---
+
+    // The neutral version, when defined, is used instead of the unversioned text.
+    I18n.define(const Locale('en', 'US'));
+    text = "Welcome";
+    expect(text.gender(Gender.male), "Welcome, sir");
+    expect(text.gender(Gender.female), "Welcome, madam");
+    expect(text.gender(Gender.neutral), "Welcome, friend");
+
+    I18n.define(const Locale('pt', 'BR'));
+    expect(text.gender(Gender.male), "Bem-vindo, senhor");
+    expect(text.gender(Gender.female), "Bem-vinda, senhora");
+    expect(text.gender(Gender.neutral), "Boas-vindas");
+
+    // ---
+
+    // Any gender without a version falls back to the unversioned text,
+    // which may be different for each locale.
+    I18n.define(const Locale('en', 'US'));
+    text = "Thank you";
+    expect(text.gender(Gender.male), "Thank you, sir");
+    expect(text.gender(Gender.female), "Thank you");
+    expect(text.gender(Gender.neutral), "Thank you");
+
+    I18n.define(const Locale('pt', 'BR'));
+    expect(text.gender(Gender.male), "Obrigado");
+    expect(text.gender(Gender.female), "Obrigada");
+    expect(text.gender(Gender.neutral), "Obrigado");
+
+    // A text without translation returns the key itself, for any gender.
+    expect("Missing".gender(Gender.male), "Missing");
+    expect("Missing".gender(Gender.female), "Missing");
+    expect("Missing".gender(Gender.neutral), "Missing");
+
+    // ---
+
+    // The gender versions are also available with `version` and `allVersions`.
+    I18n.define(const Locale('en', 'US'));
+    expect("There is a person".version("m"), "There is a man");
+    expect("There is a person".version("f"), "There is a woman");
+    expect("There is a person".allVersions(), {
+      null: "There is a person",
+      "m": "There is a man",
+      "f": "There is a woman",
+    });
+
+    // The `languageTag` parameter of `localizeGender` overrides the current locale.
+    expect(
+        localizeGender(Gender.female, "Thank you", Localization._t, languageTag: "pt-BR"),
+        "Obrigada");
+  });
+
+  test("Gender and plural combined.", () {
+    //
+    I18n.define(const Locale('en', 'US'));
+    var text = "There is a guest";
+
+    // The plural versions of the gender come first.
+    expect(text.plural(0, Gender.male), "There are no gentlemen");
+    expect(text.plural(3, Gender.female), "There are 3 ladies");
+
+    // For 1 element, the gender version is the singular of the gender.
+    expect(text.plural(1, Gender.male), "There is a gentleman");
+    expect(text.plural(1, Gender.female), "There is a lady");
+
+    // A gender without versions (here, neutral) uses the plural versions
+    // that don't depend on the gender, the same as no gender at all.
+    expect(text.plural(0, Gender.neutral), "There are no guests");
+    expect(text.plural(1, Gender.neutral), "There is a guest");
+    expect(text.plural(3, Gender.neutral), "There are 3 guests");
+    expect(text.plural(3), "There are 3 guests");
+
+    // The gender function alone returns the singular of the gender.
+    expect(text.gender(Gender.male), "There is a gentleman");
+
+    // The nested versions are encoded with the gender modifier prepended.
+    expect(text.allVersions()["m0"], "There are no gentlemen");
+    expect(text.allVersions()["fM"], "There are %d ladies");
+
+    I18n.define(const Locale('pt', 'BR'));
+    expect(text.plural(0, Gender.male), "Não há cavalheiros");
+    expect(text.plural(1, Gender.male), "Há um cavalheiro");
+    expect(text.plural(3, Gender.male), "Há 3 cavalheiros");
+    expect(text.plural(0, Gender.female), "Não há damas");
+    expect(text.plural(1, Gender.female), "Há uma dama");
+    expect(text.plural(3, Gender.female), "Há 3 damas");
+    expect(text.plural(1, Gender.neutral), "Há um convidado");
+    expect(text.plural(3, Gender.neutral), "Há 3 convidados");
+
+    // The `languageTag` parameter overrides the current locale.
+    expect(
+        localizePlural(2, "There is a guest", Localization._t,
+            languageTag: "en-US", gender: Gender.male),
+        "There are 2 gentlemen");
+
+    // When the gender has no plural versions, the gender version is the singular,
+    // and the plural versions without gender are used for the other numbers.
+    var t = Translations.byText("en-US") +
+        {
+          "en-US": "There is a person"
+              .male("There is a man")
+              .zero("There is nobody")
+              .many("There are %d people"),
+        };
+
+    String plural(int n, Gender gender) =>
+        localizePlural(n, "There is a person", t, languageTag: "en-US", gender: gender);
+
+    expect(plural(1, Gender.male), "There is a man");
+    expect(plural(0, Gender.male), "There is nobody");
+    expect(plural(3, Gender.male), "There are 3 people");
+    expect(plural(1, Gender.female), "There is a person");
+    expect(plural(3, Gender.female), "There are 3 people");
   });
 
   test("Czech variations.", () {
@@ -1186,28 +1315,72 @@ extension Localization on String {
             .many("Há %d itens."),
       } +
       {
-        "en-US": "There is a person"
-            .modifier(Gender.male, "There is a man")
-            .modifier(Gender.female, "There is a woman")
-            .modifier(Gender.they, "There is a person"),
-        "pt-BR": "Há uma pessoa"
-            .modifier(Gender.male, "Há um homem")
-            .modifier(Gender.female, "Há uma mulher")
-            .modifier(Gender.they, "Há uma pessoa"),
+        "en-US": "There is an animal"
+            .modifier(Animal.dog, "There is a dog")
+            .modifier(Animal.cat, "There is a cat")
+            .modifier(Animal.fish, "There is a fish"),
+        "pt-BR": "Há um animal"
+            .modifier(Animal.dog, "Há um cachorro")
+            .modifier(Animal.cat, "Há um gato")
+            .modifier(Animal.fish, "Há um peixe"),
+      } +
+      {
+        "en-US": "There is a person" //
+            .male("There is a man")
+            .female("There is a woman"),
+        "pt-BR": "Há uma pessoa" //
+            .male("Há um homem")
+            .female("Há uma mulher"),
+      } +
+      {
+        "en-US": "Welcome" //
+            .male("Welcome, sir")
+            .female("Welcome, madam")
+            .neutral("Welcome, friend"),
+        "pt-BR": "Bem-vindo" //
+            .male("Bem-vindo, senhor")
+            .female("Bem-vinda, senhora")
+            .neutral("Boas-vindas"),
+      } +
+      {
+        "en-US": "Thank you".male("Thank you, sir"),
+        "pt-BR": "Obrigado".female("Obrigada"),
+      } +
+      {
+        "en-US": "There is a guest"
+            .zero("There are no guests")
+            .many("There are %d guests")
+            .male("There is a gentleman"
+                .zero("There are no gentlemen")
+                .many("There are %d gentlemen"))
+            .female("There is a lady" //
+                .zero("There are no ladies")
+                .many("There are %d ladies")),
+        "pt-BR": "Há um convidado"
+            .zero("Não há convidados")
+            .many("Há %d convidados")
+            .male("Há um cavalheiro" //
+                .zero("Não há cavalheiros")
+                .many("Há %d cavalheiros"))
+            .female("Há uma dama" //
+                .zero("Não há damas")
+                .many("Há %d damas")),
       };
 
   String get i18n => localize(this, _t);
 
-  String? plural(value) => localizePlural(value, this, _t);
+  String? plural(value, [Gender? gender]) => localizePlural(value, this, _t, gender: gender);
 
   String version(Object modifier) => localizeVersion(modifier, this, _t);
 
   Map<String?, String> allVersions() => localizeAllVersions(this, _t);
 
-  String gender(Gender gnd) => localizeVersion(gnd, this, _t);
+  String gender(Gender gender) => localizeGender(gender, this, _t);
+
+  String animal(Animal animal) => localizeVersion(animal, this, _t);
 }
 
-enum Gender { they, female, male, x }
+enum Animal { dog, cat, fish, x }
 
 class SomeObj {
   final String value;

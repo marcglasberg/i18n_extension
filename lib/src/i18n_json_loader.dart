@@ -19,9 +19,9 @@ import 'i18n_loader.dart';
 ///
 /// A translation may also be an object with its versions, like plurals and
 /// genders, which works like the string modifiers `.zero()`, `.one()`,
-/// `.times()`, `.modifier()` etc. The `other` version is the text used when no
-/// other version applies, and is required. An integer version, like `12`, is the
-/// same as `.times(12)`:
+/// `.times()`, `.male()`, `.female()`, `.modifier()` etc. The `other` version is
+/// the text used when no other version applies, and is required. An integer
+/// version, like `12`, is the same as `.times(12)`:
 ///
 /// ```json
 /// {
@@ -39,7 +39,9 @@ import 'i18n_loader.dart';
 /// }
 /// ```
 ///
-/// See [I18nLoader.fromAssetDir] for the names of all the versions.
+/// See [I18nLoader.fromAssetDir] for the names of all the versions, and for how
+/// to combine gender and plural, by nesting the plural versions inside a gender
+/// version.
 ///
 class I18nJsonLoader extends I18nLoader {
   //

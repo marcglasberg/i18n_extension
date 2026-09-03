@@ -234,13 +234,57 @@ String localizeFill(Object? text, Object p1,
 /// 4) Other objects will be converted to a string (using the toString method), and then the above
 /// rules will apply.
 ///
+/// ---
+///
+/// If a [gender] is provided, the plural versions of that gender are tried first. Those
+/// are declared by nesting the plural modifiers inside the gender modifier, like this:
+///
+/// ```
+/// 'There is a person'
+///     .zero('There is nobody')
+///     .many('There are %d people')
+///     .male('There is a man'.zero('There are no men').many('There are %d men'))
+///     .female('There is a woman'.zero('There are no women').many('There are %d women'))
+/// ```
+///
+/// For 1 element, the gender version itself (like `.male('There is a man')`) is the
+/// singular of that gender. When the gender has no applicable version, the plural
+/// versions that don't depend on the gender are tried, and finally the unversioned
+/// text. In the example above:
+///
+/// - `localizePlural(3, key, t, gender: Gender.female)` returns `There are 3 women`.
+/// - `localizePlural(1, key, t, gender: Gender.male)` returns `There is a man`.
+/// - `localizePlural(0, key, t, gender: Gender.neutral)` returns `There is nobody`.
+///
 String localizePlural(
   Object? modifier,
   Object? key,
   Translations translations, {
   String? languageTag,
+  Gender? gender,
 }) =>
     core.localizePlural(modifier, key, translations,
+        locale: languageTag ?? I18n.languageTag, gender: gender);
+
+/// The [localizeGender] function returns the translated version for the given [gender],
+/// which is the version created with the `.male()`, `.female()` or `.neutral()` string
+/// modifiers.
+///
+/// If the text has no version for the given [gender], it returns the unversioned text.
+/// For example, `'Uma pessoa'.male('Um homem').female('Uma mulher')` returns
+/// `'Uma pessoa'` for [Gender.neutral]. This also means a text without versions is
+/// returned as is, for any gender.
+///
+/// If [languageTag] is not provided (it's `null`), it will use the default language tag
+/// found in [I18n.languageTag].
+///
+String localizeGender(
+  Gender gender,
+  Object? key,
+  Translations translations, {
+  String? languageTag,
+}) =>
+    core.localizeGender(gender, key, translations,
         locale: languageTag ?? I18n.languageTag);
 
 /// The [localizeVersion] function localizes a "translatable string" to the given
@@ -250,6 +294,11 @@ String localizePlural(
 /// You may use an object of any type as the [modifier], but it will do a `toString()`
 /// in it and use resulting String. So, make sure your object has a suitable
 /// string representation.
+///
+/// Note the plural and gender modifiers are encoded as `0`, `1`, `2`, ..., `M` and
+/// `m`, `f`, `n` (the same keys returned by [localizeAllVersions]), so
+/// `localizeVersion('m', ...)` returns the male version. But to select those, use
+/// [localizePlural] and [localizeGender], which also apply the fallback rules.
 ///
 /// If [languageTag] is not provided (it's `null`), it will use the default language tag
 /// found in [I18n.languageTag].

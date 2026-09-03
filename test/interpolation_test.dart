@@ -32,7 +32,7 @@ extension Localization on String {
 
   Map<String?, String> allVersions() => localizeAllVersions(this, _t);
 
-  String gender(Gender gnd) => localizeVersion(gnd, this, _t);
+  String animal(Animal animal) => localizeVersion(animal, this, _t);
 }
 
-enum Gender { they, female, male }
+enum Animal { dog, cat, fish }

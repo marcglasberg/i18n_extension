@@ -240,21 +240,42 @@ There is a person:
       });
     });
 
-    test('Throws if a version is not a String, or has a name that is not text',
-        () {
+    test('A version may be a map of versions of its own', () {
+      // The base loader checks where that's allowed (in a gender version, to
+      // combine gender and plural). Note the integer names become Strings.
+      expect(
+        loader.decode('''
+Key:
+  other: x
+  male:
+    other: y
+    zero: z
+    12: w
+'''),
+        {
+          'Key': {
+            'other': 'x',
+            'male': {'other': 'y', 'zero': 'z', '12': 'w'},
+          },
+        },
+      );
+
       expect(
         () => loader.decode('''
 Key:
   other: x
   male:
     other: y
+    zero: 123
 '''),
-        throwsA(isFormatException(allOf(
-          startsWith("Version 'male' of key 'Key' is not a String, but a map."),
-          contains('Versions can not be nested'),
-        ))),
+        throwsA(isFormatException(startsWith(
+            "Version 'zero' of version 'male' of key 'Key' is not a String, "
+            "but a number."))),
       );
+    });
 
+    test('Throws if a version is not a String, or has a name that is not text',
+        () {
       expect(
         () => loader.decode('''
 Key:
@@ -359,9 +380,74 @@ There is a person:
 
       expect(
         result['There is a person']!['es-ES'],
+        'Hay una persona'.male('Hay un hombre').female('Hay una mujer'),
+      );
+    });
+
+    test('A gender version may have plural versions, to combine gender and plural',
+        () async {
+      mockAssets({
+        '$dir/es-ES.yaml': '''
+There is a person:
+  other: Hay una persona
+  zero: No hay nadie
+  many: Hay %d personas
+  male:
+    other: Hay un hombre
+    zero: No hay hombres
+    many: Hay %d hombres
+  female:
+    other: Hay una mujer
+    zero: No hay mujeres
+    many: Hay %d mujeres
+''',
+      });
+
+      var result = await I18nYamlLoader().fromAssetDir(dir);
+
+      // The same as nesting the string modifiers in Dart.
+      expect(
+        result['There is a person']!['es-ES'],
         'Hay una persona'
-            .modifier('male', 'Hay un hombre')
-            .modifier('female', 'Hay una mujer'),
+            .zero('No hay nadie')
+            .many('Hay %d personas')
+            .male('Hay un hombre'.zero('No hay hombres').many('Hay %d hombres'))
+            .female('Hay una mujer'.zero('No hay mujeres').many('Hay %d mujeres')),
+      );
+
+      I18nTranslationsExtension.initLoadProcess();
+      var t = Translations.byFile('en-US', dir: dir);
+      await t.load();
+
+      String plural(int n, Gender gender) => localizePlural(
+          n, 'There is a person', t,
+          languageTag: 'es-ES', gender: gender);
+
+      expect(plural(0, Gender.male), 'No hay hombres');
+      expect(plural(1, Gender.male), 'Hay un hombre');
+      expect(plural(3, Gender.male), 'Hay 3 hombres');
+      expect(plural(1, Gender.female), 'Hay una mujer');
+      expect(plural(5, Gender.female), 'Hay 5 mujeres');
+      expect(plural(0, Gender.neutral), 'No hay nadie');
+      expect(plural(1, Gender.neutral), 'Hay una persona');
+      expect(plural(2, Gender.neutral), 'Hay 2 personas');
+    });
+
+    test('A plural version can not have versions of its own', () async {
+      mockAssets({
+        '$dir/es-ES.yaml': '''
+Hello:
+  other: x
+  zero:
+    other: y
+''',
+      });
+
+      await expectLater(
+        I18nYamlLoader().fromAssetDir(dir),
+        throwsA(isTranslationsException(contains(
+            "Version 'zero' of key 'Hello' is a map of versions, but a plural "
+            "version can't have versions of its own"))),
       );
     });
 

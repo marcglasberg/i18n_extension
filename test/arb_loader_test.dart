@@ -758,25 +758,221 @@ void main() {
       );
     });
 
-    test('Throws if a plural or select is inside another one', () {
-      const problem = 'inside a plural or select';
-
-      expect(
-        () => loader.decode(
-            '{"a": "{g, select, male{He has {n, plural, one{# item} other{# items}}} other{They have items}}"}'),
-        isMessageError('a', contains(problem)),
-      );
-
-      expect(
-        () => loader.decode(
-            '{"a": "{n, plural, one{{g, select, male{his item} other{their item}}} other{# items}}"}'),
-        isMessageError('a', contains(problem)),
-      );
-
+    test('Throws if a plural is inside a plural, or a select inside a select', () {
       expect(
         () => loader.decode(
             '{"a": "{n, plural, =0{none} other{{n, plural, one{one} other{many}}}}"}'),
-        isMessageError('a', contains(problem)),
+        isMessageError('a', contains('The message has a plural inside a plural')),
+      );
+
+      expect(
+        () => loader.decode(
+            '{"a": "{g, select, male{{f, select, formal{Sir} other{Man}}} other{Person}}"}'),
+        isMessageError('a', contains('The message has a select inside a select')),
+      );
+    });
+
+    test('Throws if a plural or select is nested too deeply', () {
+      expect(
+        () => loader.decode(
+            '{"a": "{g, select, male{{n, plural, one{{f, select, formal{Sir} other{Man}}} other{# men}}} other{People}}"}'),
+        isMessageError('a', contains('The message has a select nested too deeply')),
+      );
+    });
+
+    test('Throws if a case has more than one plural or select', () {
+      expect(
+        () => loader.decode(
+            '{"a": "{g, select, male{{n, plural, one{a} other{b}} {m, plural, one{c} other{d}}} other{e}}"}'),
+        isMessageError(
+            'a',
+            contains("The case 'male' of the select has more than one "
+                "plural or select")),
+      );
+    });
+  });
+
+  group('I18nArbLoader.decode: gender and plural', () {
+    //
+    const people = r'''
+{
+  "people": "{gender, select, male{{count, plural, =0{No men} one{One man} other{# men}}} female{{count, plural, =0{No women} one{One woman} other{# women}}} other{{count, plural, =0{Nobody} one{One person} other{# people}}}}"
+}
+''';
+
+    test('A plural inside a select becomes a version for each combination', () {
+      // The `one` case of a gender is the gender version itself (its singular),
+      // and its `other` case is the `many` version of the gender. The `other`
+      // gender gives the versions without gender, and its `other` case is the
+      // unversioned text. This is the same as, in Dart:
+      //
+      // '%d people'
+      //     .zero('Nobody')
+      //     .one('One person')
+      //     .male('One man'.zero('No men').many('%d men'))
+      //     .female('One woman'.zero('No women').many('%d women'))
+      //
+      expect(versionsOf('people', people), {
+        null: '%d people',
+        '0': 'Nobody',
+        '1': 'One person',
+        'm': 'One man',
+        'm0': 'No men',
+        'mM': '%d men',
+        'f': 'One woman',
+        'f0': 'No women',
+        'fM': '%d women',
+      });
+    });
+
+    test('The combinations work with the plural function and its gender', () {
+      var t = translationsFrom(people);
+
+      String plural(int n, Gender gender) =>
+          localizePlural(n, 'people', t, languageTag: 'en-US', gender: gender);
+
+      expect(plural(0, Gender.male), 'No men');
+      expect(plural(1, Gender.male), 'One man');
+      expect(plural(5, Gender.male), '5 men');
+      expect(plural(0, Gender.female), 'No women');
+      expect(plural(1, Gender.female), 'One woman');
+      expect(plural(2, Gender.female), '2 women');
+      expect(plural(0, Gender.neutral), 'Nobody');
+      expect(plural(1, Gender.neutral), 'One person');
+      expect(plural(7, Gender.neutral), '7 people');
+      expect(localizePlural(7, 'people', t, languageTag: 'en-US'), '7 people');
+    });
+
+    test('A select inside a plural gives the same versions', () {
+      const source = r'''
+{
+  "people": "{count, plural, =0{{gender, select, male{No men} female{No women} other{Nobody}}} one{{gender, select, male{One man} female{One woman} other{One person}}} other{{gender, select, male{# men} female{# women} other{# people}}}}"
+}
+''';
+      expect(versionsOf('people', source), {
+        null: '%d people',
+        '0': 'Nobody',
+        '1': 'One person',
+        'm': 'One man',
+        'm0': 'No men',
+        'mM': '%d men',
+        'f': 'One woman',
+        'f0': 'No women',
+        'fM': '%d women',
+      });
+    });
+
+    test('Inside a select inside a plural, # and the plural variable are the number',
+        () {
+      const source = r'''
+{
+  "a": "{n, plural, one{{g, select, male{# man} other{{n} person}}} other{{g, select, male{# men} other{{n} people}}}}"
+}
+''';
+      expect(versionsOf('a', source), {
+        null: '%d people',
+        '1': '%d person',
+        'm': '%d man',
+        'mM': '%d men',
+      });
+    });
+
+    test('The other case of a gender is also its singular, when it has no one case',
+        () {
+      const source = r'''
+{
+  "a": "{g, select, male{{n, plural, =0{No men} other{# men}}} other{{n, plural, =0{Nobody} other{# people}}}}"
+}
+''';
+      expect(versionsOf('a', source), {
+        null: '%d people',
+        '0': 'Nobody',
+        'm': '%d men',
+        'm0': 'No men',
+        'mM': '%d men',
+      });
+
+      var t = translationsFrom(source);
+      expect(localizePlural(1, 'a', t, languageTag: 'en-US', gender: Gender.male),
+          '1 men');
+      expect(localizePlural(1, 'a', t, languageTag: 'en-US'), '1 people');
+    });
+
+    test('A many case of a gender wins over its other case', () {
+      const source = r'''
+{
+  "a": "{g, select, male{{n, plural, one{One man} many{Many men} other{Some men}}} other{{n, plural, other{People}}}}"
+}
+''';
+      expect(versionsOf('a', source), {
+        null: 'People',
+        'm': 'One man',
+        'mM': 'Many men',
+      });
+    });
+
+    test('An exact case wins over a category, also inside a gender', () {
+      const source = r'''
+{
+  "a": "{g, select, male{{n, plural, one{a man} =1{one man} other{# men}}} other{{n, plural, other{# people}}}}"
+}
+''';
+      expect(versionsOf('a', source), {
+        null: '%d people',
+        'm': 'one man',
+        'mM': '%d men',
+      });
+    });
+
+    test('The nested plural may be part of a longer message, with placeholders',
+        () {
+      const source = r'''
+{
+  "kids": "{name} has {gender, select, male{{n, plural, one{# son} other{# sons}}} other{{n, plural, one{# child} other{# children}}}}."
+}
+''';
+      expect(versionsOf('kids', source), {
+        null: '{name} has %d children.',
+        '1': '{name} has %d child.',
+        'm': '{name} has %d son.',
+        'mM': '{name} has %d sons.',
+      });
+
+      var t = translationsFrom(source);
+      expect(
+        localizePlural(2, 'kids', t, languageTag: 'en-US', gender: Gender.male)
+            .args({'name': 'Ann'}),
+        'Ann has 2 sons.',
+      );
+      expect(
+        localizePlural(1, 'kids', t, languageTag: 'en-US', gender: Gender.female)
+            .args({'name': 'Ann'}),
+        'Ann has 1 child.',
+      );
+    });
+
+    test('Only some of the gender cases may have a plural', () {
+      const source = r'''
+{
+  "a": "{g, select, male{{n, plural, one{One man} other{# men}}} other{People}}"
+}
+''';
+      expect(versionsOf('a', source), {
+        null: 'People',
+        'm': 'One man',
+        'mM': '%d men',
+      });
+    });
+
+    test('Throws if two select cases mean the same, also with a nested plural',
+        () {
+      expect(
+        () => I18nArbLoader().decode(
+            '{"a": "{g, select, male{{n, plural, other{# men}}} m{{n, plural, other{# guys}}} other{People}}"}'),
+        isMessageError(
+            'a',
+            contains("The select has both the 'male' and the 'm' cases, "
+                "which mean the same")),
       );
     });
   });
@@ -792,34 +988,69 @@ void main() {
 }
 ''';
 
+      // The `male` and `female` cases are the gender versions, `m` and `f`,
+      // the same as the `.male()` and `.female()` string modifiers.
       expect(versionsOf('pronoun', source), {
         null: 'They',
-        'male': 'He',
-        'female': 'She',
+        'm': 'He',
+        'f': 'She',
       });
 
       expect(
         loader.decode(source),
-        {'pronoun': '${s1}They${s1}male${s2}He${s1}female${s2}She'},
+        {'pronoun': '${s1}They${s1}m${s2}He${s1}f${s2}She'},
       );
     });
 
-    test('A select works with the version function', () {
+    test('The male, female and neutral cases work with the gender function',
+        () {
       var t = translationsFrom(r'''
 {
-  "pronoun": "{gender, select, male{He} female{She} other{They}}"
+  "pronoun": "{gender, select, male{He} female{She} other{They}}",
+  "someone": "{gender, select, male{A man} female{A woman} neutral{A person} other{Someone}}"
+}
+''');
+
+      String gender(Gender gender, [String key = 'pronoun']) =>
+          localizeGender(gender, key, t, languageTag: 'en-US');
+
+      expect(gender(Gender.male), 'He');
+      expect(gender(Gender.female), 'She');
+
+      // The `other` case is the unversioned text, which is used for the
+      // genders that have no case.
+      expect(gender(Gender.neutral), 'They');
+      expect(localizeAllVersions('pronoun', t, languageTag: 'en-US')[null],
+          'They');
+
+      // The `neutral` case is the neutral version.
+      expect(gender(Gender.male, 'someone'), 'A man');
+      expect(gender(Gender.female, 'someone'), 'A woman');
+      expect(gender(Gender.neutral, 'someone'), 'A person');
+      expect(localizeAllVersions('someone', t, languageTag: 'en-US'), {
+        null: 'Someone',
+        'm': 'A man',
+        'f': 'A woman',
+        'n': 'A person',
+      });
+    });
+
+    test('Any other case works with the version function', () {
+      var t = translationsFrom(r'''
+{
+  "greeting": "{formality, select, formal{Good morning} informal{Hey} other{Hello}}"
 }
 ''');
 
       String version(Object modifier) =>
-          localizeVersion(modifier, 'pronoun', t, languageTag: 'en-US');
+          localizeVersion(modifier, 'greeting', t, languageTag: 'en-US');
 
-      expect(version('male'), 'He');
-      expect(version('female'), 'She');
+      expect(version('formal'), 'Good morning');
+      expect(version('informal'), 'Hey');
 
       // The `other` case is the unversioned text.
-      expect(localizeAllVersions('pronoun', t, languageTag: 'en-US')[null],
-          'They');
+      expect(localizeAllVersions('greeting', t, languageTag: 'en-US')[null],
+          'Hello');
     });
 
     test('A select may be part of a longer message, with placeholders', () {
@@ -831,19 +1062,19 @@ void main() {
 ''');
 
       expect(
-        localizeVersion('male', 'friend', t, languageTag: 'en-US')
+        localizeGender(Gender.male, 'friend', t, languageTag: 'en-US')
             .args({'name': 'Bob'}),
         'Bob is his friend',
       );
 
       expect(localizeAllVersions('title', t, languageTag: 'en-US'), {
         null: 'Dear Mx. {name},',
-        'male': 'Dear Mr. {name},',
-        'female': 'Dear Ms. {name},',
+        'm': 'Dear Mr. {name},',
+        'f': 'Dear Ms. {name},',
       });
 
       expect(
-        localizeVersion('female', 'title', t, languageTag: 'en-US')
+        localizeGender(Gender.female, 'title', t, languageTag: 'en-US')
             .args({'name': 'Ann'}),
         'Dear Ms. Ann,',
       );
@@ -887,6 +1118,16 @@ void main() {
         () => loader
             .decode('{"a": "{g, select, male{He} male{Him} other{They}}"}'),
         isMessageError('a', contains("The case 'male' is duplicated")),
+      );
+
+      // The `male` case is the `m` version, so both mean the same.
+      expect(
+        () => loader
+            .decode('{"a": "{g, select, male{He} m{Him} other{They}}"}'),
+        isMessageError(
+            'a',
+            contains("The select has both the 'male' and the 'm' cases, "
+                "which mean the same")),
       );
     });
   });
@@ -1224,6 +1465,144 @@ void main() {
 
         // The `en` translation is found for `en-US`, by the language.
         expect(localize('Hello', t, languageTag: 'en-US'), 'Hello');
+      });
+    });
+
+    test(
+        'Translations.byFile loads .arb files with genders, '
+        'and with gender and plural combined', () async {
+      mockAssets({
+        '$dir/app_en.arb': r'''
+{
+  "@@locale": "en-US",
+  "pronoun": "{gender, select, male{He} female{She} other{They}}",
+  "people": "{gender, select, male{{count, plural, =0{There are no men} one{There is a man} other{There are # men}}} female{{count, plural, =0{There are no women} one{There is a woman} other{There are # women}}} other{{count, plural, =0{There is nobody} one{There is a person} other{There are # people}}}}"
+}
+''',
+        '$dir/app_es.arb': r'''
+{
+  "@@locale": "es-ES",
+  "pronoun": "{gender, select, male{Él} female{Ella} other{Ellos}}",
+  "people": "{gender, select, male{{count, plural, =0{No hay hombres} one{Hay un hombre} other{Hay # hombres}}} female{{count, plural, =0{No hay mujeres} one{Hay una mujer} other{Hay # mujeres}}} other{{count, plural, =0{No hay nadie} one{Hay una persona} other{Hay # personas}}}}"
+}
+''',
+        // With the select inside the plural, which gives the same result.
+        '$dir/pt-BR.arb': r'''
+{
+  "pronoun": "{gender, select, male{Ele} female{Ela} other{Eles}}",
+  "people": "{count, plural, =0{{gender, select, male{Não há homens} female{Não há mulheres} other{Não há ninguém}}} one{{gender, select, male{Há um homem} female{Há uma mulher} other{Há uma pessoa}}} other{{gender, select, male{Há # homens} female{Há # mulheres} other{Há # pessoas}}}}"
+}
+''',
+      });
+
+      var t = Translations.byFile('en-US', dir: dir);
+      await t.load();
+
+      String gender(Gender g, String locale) =>
+          localizeGender(g, 'pronoun', t, languageTag: locale);
+
+      expect(gender(Gender.male, 'en-US'), 'He');
+      expect(gender(Gender.female, 'en-US'), 'She');
+      expect(gender(Gender.neutral, 'en-US'), 'They');
+      expect(gender(Gender.male, 'es-ES'), 'Él');
+      expect(gender(Gender.female, 'es-ES'), 'Ella');
+      expect(gender(Gender.neutral, 'es-ES'), 'Ellos');
+      expect(gender(Gender.male, 'pt-BR'), 'Ele');
+      expect(gender(Gender.female, 'pt-BR'), 'Ela');
+      expect(gender(Gender.neutral, 'pt-BR'), 'Eles');
+
+      String plural(int n, Gender g, String locale) =>
+          localizePlural(n, 'people', t, languageTag: locale, gender: g);
+
+      expect(plural(0, Gender.male, 'en-US'), 'There are no men');
+      expect(plural(1, Gender.male, 'en-US'), 'There is a man');
+      expect(plural(3, Gender.male, 'en-US'), 'There are 3 men');
+      expect(plural(1, Gender.female, 'en-US'), 'There is a woman');
+      expect(plural(5, Gender.female, 'en-US'), 'There are 5 women');
+      expect(plural(0, Gender.neutral, 'en-US'), 'There is nobody');
+      expect(plural(1, Gender.neutral, 'en-US'), 'There is a person');
+      expect(plural(2, Gender.neutral, 'en-US'), 'There are 2 people');
+
+      expect(plural(0, Gender.male, 'es-ES'), 'No hay hombres');
+      expect(plural(1, Gender.male, 'es-ES'), 'Hay un hombre');
+      expect(plural(3, Gender.male, 'es-ES'), 'Hay 3 hombres');
+      expect(plural(1, Gender.female, 'es-ES'), 'Hay una mujer');
+      expect(plural(5, Gender.female, 'es-ES'), 'Hay 5 mujeres');
+      expect(plural(0, Gender.neutral, 'es-ES'), 'No hay nadie');
+      expect(plural(2, Gender.neutral, 'es-ES'), 'Hay 2 personas');
+
+      expect(plural(0, Gender.male, 'pt-BR'), 'Não há homens');
+      expect(plural(1, Gender.male, 'pt-BR'), 'Há um homem');
+      expect(plural(3, Gender.male, 'pt-BR'), 'Há 3 homens');
+      expect(plural(1, Gender.female, 'pt-BR'), 'Há uma mulher');
+      expect(plural(5, Gender.female, 'pt-BR'), 'Há 5 mulheres');
+      expect(plural(0, Gender.neutral, 'pt-BR'), 'Não há ninguém');
+      expect(plural(1, Gender.neutral, 'pt-BR'), 'Há uma pessoa');
+      expect(plural(2, Gender.neutral, 'pt-BR'), 'Há 2 pessoas');
+
+      // Without a gender, the versions of the `other` select case are used.
+      expect(localizePlural(0, 'people', t, languageTag: 'es-ES'), 'No hay nadie');
+      expect(localizePlural(4, 'people', t, languageTag: 'es-ES'), 'Hay 4 personas');
+
+      // The versions are the same as the nested string modifiers in Dart.
+      expect(localizeAllVersions('people', t, languageTag: 'es-ES'), {
+        null: 'Hay %d personas',
+        '0': 'No hay nadie',
+        '1': 'Hay una persona',
+        'm': 'Hay un hombre',
+        'm0': 'No hay hombres',
+        'mM': 'Hay %d hombres',
+        'f': 'Hay una mujer',
+        'f0': 'No hay mujeres',
+        'fM': 'Hay %d mujeres',
+      });
+    });
+
+    test(
+        'Translations.byHttp loads .arb resources with genders, '
+        'and with gender and plural combined', () async {
+      const baseUrl = 'https://example.com/translations';
+
+      await withMockHttp({
+        '$baseUrl/app_en.arb': r'''
+{
+  "@@locale": "en-US",
+  "pronoun": "{gender, select, male{He} female{She} other{They}}",
+  "people": "{gender, select, male{{count, plural, one{There is a man} other{There are # men}}} other{{count, plural, one{There is a person} other{There are # people}}}}"
+}
+''',
+        '$baseUrl/app_es.arb': r'''
+{
+  "@@locale": "es-ES",
+  "pronoun": "{gender, select, male{Él} female{Ella} other{Ellos}}",
+  "people": "{gender, select, male{{count, plural, one{Hay un hombre} other{Hay # hombres}}} other{{count, plural, one{Hay una persona} other{Hay # personas}}}}"
+}
+''',
+      }, () async {
+        var t = Translations.byHttp(
+          'en-US',
+          url: baseUrl,
+          resources: ['app_en.arb', 'app_es.arb'],
+        );
+
+        await t.load();
+
+        expect(localizeGender(Gender.female, 'pronoun', t, languageTag: 'es-ES'),
+            'Ella');
+        expect(localizeGender(Gender.neutral, 'pronoun', t, languageTag: 'en-US'),
+            'They');
+
+        String plural(int n, Gender g, String locale) =>
+            localizePlural(n, 'people', t, languageTag: locale, gender: g);
+
+        expect(plural(1, Gender.male, 'es-ES'), 'Hay un hombre');
+        expect(plural(3, Gender.male, 'es-ES'), 'Hay 3 hombres');
+        expect(plural(1, Gender.male, 'en-US'), 'There is a man');
+        expect(plural(3, Gender.male, 'en-US'), 'There are 3 men');
+
+        // A gender with no cases (here, female) uses the versions without gender.
+        expect(plural(1, Gender.female, 'es-ES'), 'Hay una persona');
+        expect(plural(3, Gender.female, 'en-US'), 'There are 3 people');
       });
     });
 

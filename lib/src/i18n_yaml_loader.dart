@@ -24,9 +24,9 @@ import 'i18n_loader.dart';
 ///
 /// A translation may also be a map of its versions, like plurals and genders,
 /// which works like the string modifiers `.zero()`, `.one()`, `.times()`,
-/// `.modifier()` etc. The `other` version is the text used when no other version
-/// applies, and is required. An integer version, like `12`, is the same as
-/// `.times(12)`, and may be unquoted:
+/// `.male()`, `.female()`, `.modifier()` etc. The `other` version is the text
+/// used when no other version applies, and is required. An integer version, like
+/// `12`, is the same as `.times(12)`, and may be unquoted:
 ///
 /// ```yaml
 /// "You clicked the button %d times:":
@@ -40,7 +40,9 @@ import 'i18n_loader.dart';
 ///   female: Hay una mujer
 /// ```
 ///
-/// See [I18nLoader.fromAssetDir] for the names of all the versions.
+/// See [I18nLoader.fromAssetDir] for the names of all the versions, and for how
+/// to combine gender and plural, by nesting the plural versions inside a gender
+/// version.
 ///
 /// Keys and values must be Strings (except the integer versions). Note that in
 /// YAML, an unquoted `123`, `1.5`, `true`, `false` or `null` is read as a number,
@@ -70,7 +72,8 @@ class I18nYamlLoader extends I18nLoader {
   final String extension;
 
   /// Decodes the [source] text of a YAML file into a map of translations, where
-  /// each value is a String, or a map of versions (Strings to Strings).
+  /// each value is a String, or a map of versions (Strings to Strings, or to maps
+  /// of versions of their own, like the plural versions of a gender).
   ///
   /// Throws a [FormatException] if the source is not valid YAML, or if it doesn't
   /// contain a map of Strings to Strings or maps of versions. An empty file, or a
@@ -128,10 +131,15 @@ class I18nYamlLoader extends I18nLoader {
 
   /// Returns the map of versions of the translation [key], checking that each
   /// version is named with a String or an integer (YAML reads an unquoted `12` as
-  /// an integer), and that each version is a String. The integers become Strings,
-  /// so that the base loader can read the names.
-  static Map<String, String> _versions(String key, Map map) {
-    Map<String, String> versions = {};
+  /// an integer), and that each version is a String, or a map of versions of its
+  /// own (like the plural versions of a gender, see [I18nLoader.fromAssetDir]).
+  /// The integers become Strings, so that the base loader can read the names.
+  /// The [parent] is the name of the version whose nested versions these are.
+  static Map<String, dynamic> _versions(String key, Map map, {String? parent}) {
+    Map<String, dynamic> versions = {};
+
+    // Describes what's being read, for the error messages.
+    String what = (parent == null) ? "key '$key'" : "version '$parent' of key '$key'";
 
     for (var entry in map.entries) {
       Object? name = entry.key;
@@ -139,16 +147,24 @@ class I18nYamlLoader extends I18nLoader {
 
       if (name is! String && name is! int) {
         throw FormatException(
-            "Key '$key' has a version named '$name', which is "
-            "not a String, but ${_describe(name)}. ${_hint(name)}");
+            "${what[0].toUpperCase()}${what.substring(1)} has a version named "
+            "'$name', which is not a String, but ${_describe(name)}. ${_hint(name)}");
       }
 
-      if (text is! String) {
-        throw FormatException("Version '$name' of key '$key' is not a String, "
+      // Nested versions, like the plural versions of a gender. The base loader
+      // checks where they are allowed.
+      if (text is Map) {
+        versions[name.toString()] = _versions(key, text, parent: name.toString());
+      }
+      //
+      else if (text is! String) {
+        throw FormatException("Version '$name' of $what is not a String, "
             "but ${_describe(text)}. ${_hint(text)}");
       }
-
-      versions[name.toString()] = text;
+      //
+      else {
+        versions[name.toString()] = text;
+      }
     }
 
     return versions;
@@ -165,7 +181,8 @@ class I18nYamlLoader extends I18nLoader {
 
   static String _hint(Object? value) {
     if (value is Map) {
-      return 'Versions can not be nested: each version must be text.';
+      return 'A map is only allowed as the versions of a translation, or as the '
+          'plural versions inside a gender version.';
     }
     if (value is List) {
       return 'Lists are not supported: each value must be text, '

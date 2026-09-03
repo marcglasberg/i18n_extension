@@ -135,19 +135,16 @@ void main() {
       expect(result['c']!['en-US'], 'x'.times(12, 'twelve'));
     });
 
-    test('Any other name is a version, like .modifier()', () async {
+    test('The gender names are the same as .male(), .female() and .neutral()',
+        () async {
       var result = await load({
         enUs: r'''
 {
   "There is a person": {
     "other": "There is a person",
     "male": "There is a man",
-    "female": "There is a woman"
-  },
-  "Gender.enum": {
-    "other": "They",
-    "Gender.male": "He",
-    "Gender.female": "She"
+    "female": "There is a woman",
+    "neutral": "There is someone"
   }
 }
 ''',
@@ -156,13 +153,42 @@ void main() {
       expect(
         result['There is a person']!['en-US'],
         'There is a person'
-            .modifier('male', 'There is a man')
-            .modifier('female', 'There is a woman'),
+            .male('There is a man')
+            .female('There is a woman')
+            .neutral('There is someone'),
+      );
+    });
+
+    test('Any other name is a version, like .modifier()', () async {
+      var result = await load({
+        enUs: r'''
+{
+  "How are you?": {
+    "other": "How are you?",
+    "formal": "How do you do?",
+    "informal": "How's it going?"
+  },
+  "Formality.enum": {
+    "other": "Hi",
+    "Formality.formal": "Good morning",
+    "Formality.informal": "Hey"
+  }
+}
+''',
+      });
+
+      expect(
+        result['How are you?']!['en-US'],
+        'How are you?'
+            .modifier('formal', 'How do you do?')
+            .modifier('informal', "How's it going?"),
       );
 
       expect(
-        result['Gender.enum']!['en-US'],
-        'They'.modifier('Gender.male', 'He').modifier('Gender.female', 'She'),
+        result['Formality.enum']!['en-US'],
+        'Hi'
+            .modifier('Formality.formal', 'Good morning')
+            .modifier('Formality.informal', 'Hey'),
       );
     });
 
@@ -246,15 +272,24 @@ void main() {
 
       const person = 'There is a person';
 
-      expect(localizeVersion('male', person, t, languageTag: 'en-US'),
+      expect(localizeGender(Gender.male, person, t, languageTag: 'en-US'),
           'There is a man');
-      expect(localizeVersion('female', person, t, languageTag: 'es-ES'),
+      expect(localizeGender(Gender.female, person, t, languageTag: 'es-ES'),
           'Hay una mujer');
+      expect(localizeGender(Gender.neutral, person, t, languageTag: 'es-ES'),
+          'Hay una persona');
       expect(localizeAllVersions(person, t, languageTag: 'es-ES'), {
         null: 'Hay una persona',
-        'male': 'Hay un hombre',
-        'female': 'Hay una mujer',
+        'm': 'Hay un hombre',
+        'f': 'Hay una mujer',
       });
+
+      // The versions are stored as `m` and `f`, which the version function
+      // also finds (but not `male` and `female`, which are the names in the file).
+      expect(localizeVersion('m', person, t, languageTag: 'en-US'),
+          'There is a man');
+      expect(() => localizeVersion('male', person, t, languageTag: 'en-US'),
+          throwsA(isA<TranslationsException>()));
     });
 
     test('Also works with fromUrl', () async {
@@ -312,9 +347,8 @@ void main() {
             "'Hello' is not a String: '1'. Each version must be text.")),
       );
 
-      // Versions can't be nested.
       await expectLater(
-        load({esEs: '{"Hello": {"other": "x", "male": {"other": "y"}}}'}),
+        load({esEs: '{"Hello": {"other": "x", "male": ["y"]}}'}),
         throwsA(isTranslationsException(
             contains("Version 'male' of key 'Hello' is not a String"))),
       );
@@ -323,6 +357,114 @@ void main() {
         load({esEs: '{"Hello": {"other": null}}'}),
         throwsA(isTranslationsException(
             contains("Version 'other' of key 'Hello' is not a String"))),
+      );
+    });
+
+    test('A gender version may have plural versions, to combine gender and plural',
+        () async {
+      var result = await load({
+        enUs: r'''
+{
+  "There is a person": {
+    "other": "There is a person",
+    "zero": "There is nobody",
+    "many": "There are %d people",
+    "male": {
+      "other": "There is a man",
+      "zero": "There are no men",
+      "many": "There are %d men"
+    },
+    "female": {
+      "other": "There is a woman",
+      "zero": "There are no women",
+      "many": "There are %d women"
+    }
+  }
+}
+''',
+      });
+
+      // The same as nesting the string modifiers in Dart.
+      expect(
+        result['There is a person']!['en-US'],
+        'There is a person'
+            .zero('There is nobody')
+            .many('There are %d people')
+            .male('There is a man'
+                .zero('There are no men')
+                .many('There are %d men'))
+            .female('There is a woman'
+                .zero('There are no women')
+                .many('There are %d women')),
+      );
+
+      I18nTranslationsExtension.initLoadProcess();
+      var t = Translations.byFile('en-US', dir: dir);
+      await t.load();
+
+      String plural(int n, Gender gender) => localizePlural(
+          n, 'There is a person', t,
+          languageTag: 'en-US', gender: gender);
+
+      expect(plural(0, Gender.male), 'There are no men');
+      expect(plural(1, Gender.male), 'There is a man');
+      expect(plural(3, Gender.male), 'There are 3 men');
+      expect(plural(1, Gender.female), 'There is a woman');
+      expect(plural(5, Gender.female), 'There are 5 women');
+      expect(plural(0, Gender.neutral), 'There is nobody');
+      expect(plural(1, Gender.neutral), 'There is a person');
+      expect(plural(2, Gender.neutral), 'There are 2 people');
+    });
+
+    test('Throws if nested versions are used where they are not allowed',
+        () async {
+      // A plural version can't have versions of its own.
+      await expectLater(
+        load({esEs: '{"Hello": {"other": "x", "zero": {"other": "y"}}}'}),
+        throwsA(isTranslationsException(contains(
+            "Version 'zero' of key 'Hello' is a map of versions, but a plural "
+            "version can't have versions of its own"))),
+      );
+
+      // The other version must be text.
+      await expectLater(
+        load({esEs: '{"Hello": {"other": {"other": "y"}}}'}),
+        throwsA(isTranslationsException(
+            contains("Version 'other' of key 'Hello' is not a String"))),
+      );
+
+      // Only one level deep.
+      await expectLater(
+        load({
+          esEs:
+              '{"Hello": {"other": "x", "male": {"other": "y", "formal": {"other": "z"}}}}'
+        }),
+        throwsA(isTranslationsException(contains(
+            "Version 'formal' of version 'male' of key 'Hello' is a map of "
+            "versions, but versions can be nested only one level deep"))),
+      );
+
+      // The nested versions need their own other version.
+      await expectLater(
+        load({esEs: '{"Hello": {"other": "x", "male": {"zero": "y"}}}'}),
+        throwsA(isTranslationsException(contains(
+            "Version 'male' of key 'Hello' has versions, but no 'other' version"))),
+      );
+
+      // And can't mean the same.
+      await expectLater(
+        load({
+          esEs: '{"Hello": {"other": "x", "male": {"other": "y", "one": "a", "1": "b"}}}'
+        }),
+        throwsA(isTranslationsException(contains(
+            "Version 'male' of key 'Hello' has both the 'one' and the '1' versions"))),
+      );
+
+      // The nested versions must be text.
+      await expectLater(
+        load({esEs: '{"Hello": {"other": "x", "male": {"other": "y", "zero": 0}}}'}),
+        throwsA(isTranslationsException(contains(
+            "Version 'zero' of version 'male' of key 'Hello' is not a String: '0'"))),
       );
     });
 

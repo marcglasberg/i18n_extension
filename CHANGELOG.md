@@ -2,6 +2,163 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
 
+## 16.0.0
+
+* When defining your translations, you can now use the modifiers `.male()`, `.female()`
+  and `.neutral()`, and then declare a `gender` function that calls the provided
+  `localizeGender()`. For example:
+
+  ```dart
+  extension Localization on String {
+    static final _t = Translations.byText('en-US') +
+      {
+        'en-US': 'There is a person'
+            .male('There is a man')
+            .female('There is a woman'),
+        'pt-BR': 'Há uma pessoa'
+            .male('Há um homem')
+            .female('Há uma mulher'),
+      };
+
+    String gender(Gender gender) => localizeGender(gender, this, _t);
+  }
+  ```                
+
+  Then, the UI code can translate it like this:
+
+  ```dart
+  'There is a person'.gender(Gender.male); // There is a man
+  'There is a person'.gender(Gender.female); // There is a woman
+  'There is a person'.gender(Gender.neutral); // There is a person
+  ```    
+
+  A gender without a version falls back to the unversioned text, as `Gender.neutral`
+  does above. This means `.neutral()` is only needed when the neutral text is not the
+  unversioned text. See [Gender modifiers](README.md#gender-modifiers) in the README.
+
+* The default import `default.i18n.dart` now also provides `.gender()`, which returns
+  the string unchanged, as `.plural()` does.
+
+* Gender and plural can be combined. To declare all the combinations, nest the plural
+  modifiers inside the gender modifiers, and pass the gender to `.plural()`, since
+  `localizePlural()` now accepts an optional `gender` parameter:
+
+  ```dart
+  extension Localization on String {
+    static final _t = Translations.byText('en-US') +
+      {
+        'en-US': 'There is a person'
+            .zero('There is nobody')
+            .many('There are %d people')
+            .male('There is a man'
+                .zero('There are no men')
+                .many('There are %d men'))
+            .female('There is a woman'
+                .zero('There are no women')
+                .many('There are %d women')),
+        'pt-BR': 'Há uma pessoa'
+            .zero('Não há ninguém')
+            .many('Há %d pessoas')
+            .male('Há um homem'
+                .zero('Não há homens')
+                .many('Há %d homens'))
+            .female('Há uma mulher'
+                .zero('Não há mulheres')
+                .many('Há %d mulheres')),
+      };
+
+    String plural(value, [Gender? gender]) => localizePlural(value, this, _t, gender: gender);
+  }
+  ```
+
+  Use it like this:
+
+  ```dart
+  'There is a person'.plural(3, Gender.female); // There are 3 women
+  'There is a person'.plural(1, Gender.male); // There is a man
+  'There is a person'.plural(0, Gender.neutral); // There is nobody
+  ```
+
+  The plural versions of the given gender are tried first, then the gender version
+  itself (which is the singular, for 1 element), then the plural versions that don't
+  depend on the gender, and finally the unversioned text. So only the combinations that
+  actually differ need to be declared. See
+  [Combining gender and plural](README.md#combining-gender-and-plural) in the README, and
+  the example in `example/lib/11_gender_plural_example/main_gender_plural.dart`.
+
+  The file importers support it too. In `.json` and `.yaml` files, a gender version may
+  itself be a map of plural versions, with its own `other`:
+
+  ```json
+  "There is a person": {
+    "other": "Hay una persona",
+    "zero": "No hay nadie",
+    "many": "Hay %d personas",
+    "male": { "other": "Hay un hombre", "zero": "No hay hombres", "many": "Hay %d hombres" },
+    "female": { "other": "Hay una mujer", "zero": "No hay mujeres", "many": "Hay %d mujeres" }
+  }
+  ```    
+
+  And:
+
+  ```yaml
+  "There is a person":
+    other: "Hay una persona"
+    zero: "No hay nadie"
+    many: "Hay %d personas"
+    male:
+      other: "Hay un hombre"
+      zero: "No hay hombres"
+      many: "Hay %d hombres"
+    female:
+      other: "Hay una mujer"
+      zero: "No hay mujeres"
+      many: "Hay %d mujeres"
+  ```
+
+  In `.arb` files, a select and a plural may now be nested, one inside the other, which
+  is the ICU way of combining gender and number:
+
+  ```json
+  "people": "{gender, select, male{{count, plural, =0{No hay hombres} one{Hay un hombre} other{Hay # hombres}}} female{{count, plural, =0{No hay mujeres} one{Hay una mujer} other{Hay # mujeres}}} other{{count, plural, =0{No hay nadie} one{Hay una persona} other{Hay # personas}}}}"
+  ```
+
+  The `one` (or `=1`) case of a gender becomes the gender version itself (its singular),
+  and the `other` case of a gender becomes its `many` version (unless there's a `many`
+  case) and also its singular, when there's no `one` case. A plural inside a plural, a
+  select inside a select, and deeper nesting are still not supported.
+
+* In `.json` and `.yaml` files, the versions named `male`, `female` and `neutral` are
+  now the gender versions, the same as `.male()`, `.female()` and `.neutral()` in Dart,
+  for `.gender()`. Likewise, in `.arb` files, the `male`, `female` and `neutral` cases
+  of an ICU select are now the gender versions:
+
+  ```json
+  "pronoun": "{gender, select, male{él} female{ella} other{ellos}}"
+  ```
+
+  ```dart
+  'pronoun'.gender(Gender.male); // él
+  'pronoun'.gender(Gender.neutral); // ellos (the `other` case)
+  ```
+
+  The files themselves don't change. What changes is how you read those versions in
+  Dart: before, you'd use `.version('male')`, and now you use `.gender(Gender.male)`.
+  Versions and select cases with any other name still work with `.version()`, as before.
+
+* In `.po` files, the entries with the contexts `male`, `female` and `neutral` (like
+  `msgctxt "male"`) are now the gender versions of the entry with the same `msgid`, for
+  `.gender()`, and a gender entry may have `msgid_plural`, to combine gender and plural,
+  for `.plural(count, gender)`. Before, the contexts were ignored. Entries with any other
+  context are still read as if they had no context. See
+  [Plurals and genders in PO files](README.md#plurals-and-genders-in-po-files).
+
+* Fixed: `.times(10, text)` is now the same as `.ten(text)`. Before, `.plural(10)` didn't
+  find it, since it looks for the `ten` version.
+
+* Note: This is a major version because the new names are likely to clash with client
+  code that implemented its own gender modifiers.
+
 ## 15.3.2
 
 * Translations can now also be loaded from YAML files, with `Translations.byFile()` and
@@ -82,46 +239,48 @@ Sponsored by [MyText.ai](https://mytext.ai)
   }
   ```
 
-  * Placeholders like `{name}` or `{0}` are kept, to be filled with `.args()`.
-    Formatted placeholders, like `{price, number, currency}` or `{date, date, ::yMd}`,
-    become simple placeholders, like `{price}`, since the loader doesn't format values:
-    pass them already formatted to `.args()`.
+    * Placeholders like `{name}` or `{0}` are kept, to be filled with `.args()`.
+      Formatted placeholders, like `{price, number, currency}` or `{date, date, ::yMd}`,
+      become simple placeholders, like `{price}`, since the loader doesn't format values:
+      pass them already formatted to `.args()`.
 
-  * A plural becomes a translation with plural versions, for `.plural(count)`. Both `#`
-    and the plural variable become the number. The cases `=0`/`zero`, `=1`/`one`,
-    `=2`/`two`, `few`, `many`, `=N` and `other` become the versions `.zero()`, `.one()`,
-    `.two()`, `.twoThreeFour()`, `.many()`, `.times(N)` and the default text. The plural
-    may be part of a longer message, in which case each version contains the whole
-    message.
+    * A plural becomes a translation with plural versions, for `.plural(count)`. Both `#`
+      and the plural variable become the number. The cases `=0`/`zero`, `=1`/`one`,
+      `=2`/`two`, `few`, `many`, `=N` and `other` become the versions `.zero()`, `.one()`,
+      `.two()`, `.twoThreeFour()`, `.many()`, `.times(N)` and the default text. The plural
+      may be part of a longer message, in which case each version contains the whole
+      message.
 
-  * A select (like a gender) becomes a translation with versions, for `.version(case)`,
-    with `other` as the default text.
+    * A select (like a gender) becomes a translation with versions, for `.version(case)`,
+      with `other` as the default text.
 
-  * A message may contain a single plural or select, and not one inside the other, since
-    `.plural()` and `.version()` select a translation by a single value. Such messages,
-    and the plural `offset`, fail to load with an error that explains the problem.
+    * A message may contain a single plural or select, and not one inside the other, since
+      `.plural()` and `.version()` select a translation by a single value. Such messages,
+      and the plural `offset`, fail to load with an error that explains the problem.
 
-  * By default there's no escaping, as in `gen-l10n`: an apostrophe is just an apostrophe.
-    For files written with `use-escaping: true`, where `''` is an apostrophe and text
-    between single quotes is literal, use `I18nArbLoader(useEscaping: true)`:
+    * By default there's no escaping, as in `gen-l10n`: an apostrophe is just an
+      apostrophe.
+      For files written with `use-escaping: true`, where `''` is an apostrophe and text
+      between single quotes is literal, use `I18nArbLoader(useEscaping: true)`:
 
-    ```dart
-    I18n.loaders.removeWhere((loader) => loader() is I18nArbLoader);
-    I18n.loaders.add(() => I18nArbLoader(useEscaping: true));
-    ```
+      ```dart
+      I18n.loaders.removeWhere((loader) => loader() is I18nArbLoader);
+      I18n.loaders.add(() => I18nArbLoader(useEscaping: true));
+      ```
 
 * `Translations.byFile()` and `Translations.byHttp()` have two flags that control what
   happens when a single file or resource fails to load. Both default to `true`, which
   fails the whole load, so that no translations are loaded at all:
 
-  * `failOnMissingResource` applies to a file or resource that cannot be read: a 404 or
-    network error, or an asset that fails to load (which on the web is a download).
+    * `failOnMissingResource` applies to a file or resource that cannot be read: a 404 or
+      network error, or an asset that fails to load (which on the web is a download).
 
-  * `failOnInvalidResource` applies to a file or resource that was read, but cannot be
-    decoded (invalid JSON, YAML, ARB or ICU message), or has invalid content, like a
-    value that is not a String.
+    * `failOnInvalidResource` applies to a file or resource that was read, but cannot be
+      decoded (invalid JSON, YAML, ARB or ICU message), or has invalid content, like a
+      value that is not a String.
 
-  When a flag is `false`, that kind of failure is reported to `I18n.failedResourceCallback`
+  When a flag is `false`, that kind of failure is reported to
+  `I18n.failedResourceCallback`
   and skipped, while the other files or resources still load. The error is a
   `MissingTranslationsResourceException` or an `InvalidTranslationsResourceException`
   (both are `TranslationsException`s), which carry the `resource` that failed and the
@@ -156,7 +315,7 @@ Sponsored by [MyText.ai](https://mytext.ai)
   On the web, the default timeout of `load()` for `Translations.byFile()` is 1 second,
   the same as for `Translations.byHttp()`, instead of 0.5 seconds, since the files are
   downloaded. As before, if the timeout is reached, the load continues in the
-  background, and the widgets rebuild when it finishes.  
+  background, and the widgets rebuild when it finishes.
 
 ## 15.3.0
 
@@ -249,11 +408,11 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 ## 15.1.1
 
-* Fixed multi-locale fallback to properly handle device language preferences. 
-  The system now correctly checks all device locales (not just the first) 
-  against all supported locales. When a device has multiple language 
-  preferences (e.g., French primary, German secondary), and the primary 
-  language is not supported but a secondary language is, the app will now 
+* Fixed multi-locale fallback to properly handle device language preferences.
+  The system now correctly checks all device locales (not just the first)
+  against all supported locales. When a device has multiple language
+  preferences (e.g., French primary, German secondary), and the primary
+  language is not supported but a secondary language is, the app will now
   correctly use the first supported language from the device's preference list.
 
 ## 15.0.8
@@ -519,8 +678,8 @@ instructions below to upgrade your code.
 
 
 * New extension `String.asLanguageTag` can be used to try and normalize String language
-  tags to the BCP47 standard (which is compatible with the Unicode Locale Identifier
-  (ULI) syntax). It fixes casing (uppercase and lowercase), removes spaces, and turns
+  tags to the BCP47 standard (which is compatible with the Unicode Locale Identifier (ULI)
+  syntax). It fixes casing (uppercase and lowercase), removes spaces, and turns
   underscores into hyphens. As such, it can be used to convert the old format language
   tags to the new ones. For example: `'en_us'.asLanguageTag` returns `'en-US'`.
 
@@ -595,8 +754,8 @@ instructions below to upgrade your code.
     ...
   ```
 
-  This will automatically save changes to the locale in the device's storage
-  (shared preferences), and restore it when the app restarts.
+  This will automatically save changes to the locale in the device's storage (shared
+  preferences), and restore it when the app restarts.
   Note the locale is read asynchronously, which may result in a one frame flicker
   of the default system locale, before the saved locale is restored. If you want to avoid
   this flicker, you can explicitly preload the locale yourself by doing
@@ -993,7 +1152,7 @@ instructions below to upgrade your code.
 
 ## 1.3.5
 
-* Added fill() method to default.i18n.dart.
+* Added fill () method to default.i18n.dart.
 
 ## 1.3.4
 
@@ -1009,9 +1168,10 @@ instructions below to upgrade your code.
 
 ## 1.3.0
 
-* I18n.observeLocale() can be used to observe locale changes.
+* I18n.observeLocale () can be used to observe locale changes.
 
-* Breaking change: Accepts Locale('en", 'US'), but not Locale('en_US') anymore, which was
+* Breaking change: Accepts Locale ('en", 'US'), but not Locale ('en_US') anymore, which
+  was
   wrong. See "A quick recap of Dart locales" in the docs, for more details.
 
 ## 1.2.0

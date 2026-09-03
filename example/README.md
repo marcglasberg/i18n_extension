@@ -12,3 +12,4 @@ Please run `main.dart` in folders:
 * [8_manually_loading_files_example](lib/8_manually_loading_files_example)
 * [9_load_by_file_skip_errors_example](lib/9_load_by_file_skip_errors_example)
 * [10_load_by_http_skip_errors_example](lib/10_load_by_http_skip_errors_example)
+* [11_gender_plural_example](lib/11_gender_plural_example) (run `main_gender_plural.dart`)

@@ -10,15 +10,17 @@ import 'i18n_extension.dart';
 /// import 'package:i18n_extension/default.i18n.dart';
 /// ```
 ///
-/// This will allow you to add `.i18n` and `.plural()` to your strings,
+/// This will allow you to add `.i18n`, `.plural()` and `.gender()` to your strings,
 /// but won’t translate anything.
 ///
 extension Localization on String {
   //
   String get i18n => recordMissingKey(this);
 
-  String plural(Object? value) {
+  String plural(Object? value, [Gender? gender]) {
     recordMissingKey(this);
     return replaceAll("%d", value.toString());
   }
+
+  String gender(Gender gender) => recordMissingKey(this);
 }

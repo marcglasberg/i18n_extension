@@ -121,7 +121,7 @@ Widget build(BuildContext context) {
 
 ## Other features
 
-_Other `i18n_extension` features that will be later discussed in more detail include:_
+_Other features that will be later discussed in more detail include:_
 
 Providing different translations depending on modifiers, such as `plural` quantities:
 
@@ -131,13 +131,28 @@ Providing different translations depending on modifiers, such as `plural` quanti
 'There is 1 item'.plural(2); // There are 2 items
 ```
 
-Inventing your own modifiers according to any conditions. For example, for
-languages with genders, you can create `gender` versions for `Gender` modifiers:
+Providing different translations depending on the `gender`:
 
 ```dart
 'There is a person'.gender(Gender.male); // There is a man
 'There is a person'.gender(Gender.female); // There is a woman
-'There is a person'.gender(Gender.they); // There is a person
+'There is a person'.gender(Gender.neutral); // There is a person
+```
+
+Or even combining plural and gender:
+
+```dart
+'There is a person'.plural(3, Gender.female); // There are 3 women
+'There is a person'.plural(1, Gender.male); // There is a man
+```
+
+Inventing your own modifiers according to any conditions. For example, for languages
+that distinguish formal and informal speech, you can create `formality` versions for
+`Formality` modifiers:
+
+```dart
+'How are you?'.formality(Formality.formal); // How do you do?
+'How are you?'.formality(Formality.informal); // How's it going?
 ```
 
 Interpolating by replacing placeholders with values, with the `args` function:
@@ -821,19 +836,20 @@ Is the same as this Dart code:
       .one('Hiciste clic en el botón una vez:')
       .times(12, 'Hiciste clic en el botón una docena de veces:'),
   'There is a person': 'Hay una persona'
-      .modifier('male', 'Hay un hombre')
-      .modifier('female', 'Hay una mujer'),
+      .male('Hay un hombre')
+      .female('Hay una mujer'),
 }
 ```
 
 The plural versions, for `.plural()`, are `zero`, `one`, `two`, `three`, `four`, `five`,
 `six`, `ten`, `twoThreeFour`, `oneOrMore`, `zeroOne` and `many`, plus any integer, like
-`12`, which is the same as `.times(12)`. Any other name, like `male`, is a version for
-`.version()`, and must be the `toString()` of the modifier you pass to it (for an enum,
-use `.version(gender.name)`, or name the version `Gender.male`). This means the plural
-names above can't be the names of your own versions. Each version must be text, so
-versions can't be nested. A map without `other`, or with two versions that mean the same,
-like `one` and `1`, fails with a clear error.
+`12`, which is the same as `.times(12)`. The gender versions, for `.gender()`, are `male`,
+`female` and `neutral`. Any other name, like `formal`, is a version for `.version()`, and
+must be the `toString()` of the modifier you pass to it (for an enum, use
+`.version(formality.name)`, or name the version `Formality.formal`). This means the plural
+and gender names above can't be the names of your own versions. Each version must be text,
+except for the nesting described below. A map without `other`, or with two versions that
+mean the same, like `one` and `1`, fails with a clear error.
 
 In YAML, the same translation looks like this (the integer may be unquoted):
 
@@ -844,6 +860,70 @@ In YAML, the same translation looks like this (the integer may be unquoted):
   one: "Hiciste clic en el botón una vez:"
   12: "Hiciste clic en el botón una docena de veces:"
 ```
+
+To combine gender and plural (see [Combining gender and plural](#combining-gender-and-plural)),
+a gender version may itself be a map of plural versions, with its own `other`. This is
+the same as nesting the string modifiers in Dart, like
+`.male('Hay un hombre'.zero('No hay hombres').many('Hay %d hombres'))`:
+
+```yaml
+There is a person:
+  other: Hay una persona
+  zero: No hay nadie
+  many: Hay %d personas
+  male:
+    other: Hay un hombre
+    zero: No hay hombres
+    many: Hay %d hombres
+  female:
+    other: Hay una mujer
+    zero: No hay mujeres
+    many: Hay %d mujeres
+```
+
+Then, `'There is a person'.plural(3, Gender.female)` gives `Hay 3 mujeres`. In JSON, the
+gender versions are objects in the same way. Only the gender versions, and the versions
+with a name of your own, may have nested versions, and only one level deep. A plural
+version can't have versions of its own.
+
+### Plurals and genders in PO files
+
+In `.po` files, an entry with `msgid_plural` becomes a translation with plural versions,
+for `.plural()`: `msgstr[0]` is the singular and `msgstr[1]` is the plural, like `.one()`
+and `.many()` in Dart. Gettext has no genders, but its `msgctxt` (message context) is the
+usual way to tell them apart: the entries with the contexts `male`, `female` and `neutral`
+become the gender versions of the entry with the same `msgid`, for `.gender()`. A gender
+entry may also have `msgid_plural`, to combine gender and plural, for
+`.plural(count, gender)`:
+
+```po
+msgid "There is a person"
+msgid_plural "There are %d people"
+msgstr[0] "Hay una persona"
+msgstr[1] "Hay %d personas"
+
+msgctxt "male"
+msgid "There is a person"
+msgid_plural "There are %d people"
+msgstr[0] "Hay un hombre"
+msgstr[1] "Hay %d hombres"
+
+msgctxt "female"
+msgid "There is a person"
+msgid_plural "There are %d people"
+msgstr[0] "Hay una mujer"
+msgstr[1] "Hay %d mujeres"
+```
+
+```dart
+'There is a person'.gender(Gender.male); // Hay un hombre
+'There is a person'.plural(3, Gender.female); // Hay 3 mujeres
+'There is a person'.plural(3); // Hay 3 personas
+```
+
+The entry without context is the unversioned text, used when the gender has no version.
+If there is no such entry, the `msgid` itself is used. Entries with any other context are
+read as if they had no context.
 
 ### ARB files
 
@@ -879,20 +959,44 @@ Placeholders like `{name}` or `{0}` are kept, to be filled with `.args()`. Forma
 placeholders, like `{price, number, currency}` or `{date, date, ::yMd}`, become simple
 placeholders like `{price}`, since the loader doesn't format values: pass them already
 formatted to `.args()`. A plural becomes a translation with plural versions, for
-`.plural(count)`, where both `#` and the plural variable become the number. A select (like
-a gender) becomes a translation with versions, for `.version(case)`, with `other` as the
-default text:
+`.plural(count)`, where both `#` and the plural variable become the number. A select
+becomes a translation with versions, with `other` as the default text: the cases `male`,
+`female` and `neutral` are the gender versions, for `.gender()`, and any other case is a
+version with that name, for `.version(case)`:
 
 ```dart
 'welcome'.i18n.args({'name': 'Juan'}); // Bienvenido, Juan
 'itemCount'.plural(0); // Sin artículos
 'itemCount'.plural(5); // 5 artículos
-'pronoun'.version('female'); // ella
+'pronoun'.gender(Gender.female); // ella
+'pronoun'.gender(Gender.neutral); // ellos (the `other` case)
 ```
 
-Since `.plural()` and `.version()` select a translation by a single value, a message may
-contain a single plural or select, and not one inside the other. Such messages, and the
-plural `offset`, fail to load with an error that explains the problem.
+A select and a plural may also be nested, one inside the other, which is the ICU way of
+combining gender and number. This becomes a translation with a version for each
+combination, for `.plural(count, gender)` (see
+[Combining gender and plural](#combining-gender-and-plural)):
+
+```json
+{
+  "people": "{gender, select, male{{count, plural, =0{No hay hombres} one{Hay un hombre} other{Hay # hombres}}} female{{count, plural, =0{No hay mujeres} one{Hay una mujer} other{Hay # mujeres}}} other{{count, plural, =0{No hay nadie} one{Hay una persona} other{Hay # personas}}}}"
+}
+```
+
+```dart
+'people'.plural(0, Gender.male); // No hay hombres
+'people'.plural(1, Gender.female); // Hay una mujer
+'people'.plural(3, Gender.neutral); // Hay 3 personas
+```
+
+The `one` (or `=1`) case of a gender becomes the gender version itself, which is its
+singular, and the `other` case of a gender becomes its `many` version (unless there's a
+`many` case), and also its singular, when there's no `one` case.
+
+Apart from that, since `.plural()`, `.gender()` and `.version()` select a translation by a
+single value (or by a gender and a number), a message may contain a single plural or
+select: two plurals, two selects, or deeper nesting fail to load with an error that
+explains the problem, and so does the plural `offset`.
 
 By default, as in `gen-l10n`, there's no escaping: an apostrophe is just an apostrophe. If
 your files were written with `use-escaping: true` in `l10n.yaml` (where `''` is an
@@ -1567,17 +1671,102 @@ static var _t = Translations.byLocale('en-US') +
 > 4. Other objects will be converted to a string (using the `toString` method), and then
      the above rules will apply.
 
-## Custom modifiers
+## Gender modifiers
 
-You can actually create any modifiers you want. For example, some languages have different
-translations for different genders. So you could create `.gender()` that accepts `Gender`
-modifiers:
+Sometimes your translations depend on a **gender**. For example, in Portuguese, "thank
+you" is `Obrigado` when said by a man, and `Obrigada` when said by a woman.
+
+To allow for genders, instead of `.i18n` you can use `.gender()` and pass it a `Gender`,
+which is `Gender.male`, `Gender.female` or `Gender.neutral`. For example:
 
 ```dart
-enum Gender {they, female, male}
+var gender = Gender.female;
+return Text('Thank you'.gender(gender));
+```
 
-var gnd = Gender.female;
-return Text('There is a person'.gender(gnd));
+Then, your translations file should use the `.male()`, `.female()` and `.neutral()`
+modifiers, and `localizeGender()`, like this:
+
+```dart
+static var _t = Translations.byText('en-US') +
+  {
+    'en-US': 'There is a person'
+        .male('There is a man')
+        .female('There is a woman'),
+    'pt-BR': 'Há uma pessoa'
+        .male('Há um homem')
+        .female('Há uma mulher'),
+  } +
+  {
+    'en-US': 'Thank you',
+    'pt-BR': 'Obrigado'.female('Obrigada'),
+  };
+
+String gender(Gender gender) => localizeGender(gender, this, _t);
+```
+
+A gender without a version falls back to the unversioned string. In the example above,
+`'There is a person'.gender(Gender.neutral)` returns `There is a person` (or
+`Há uma pessoa`), and `'Thank you'.gender(Gender.male)` returns `Obrigado` in Portuguese.
+This means you only need `.neutral()` when the neutral text is different from the
+unversioned string, and that `.gender()` also works with strings that have no gender
+versions at all.
+
+The gender versions are encoded as `m`, `f` and `n`, so they are also available through
+`.version('m')` and `.allVersions()`.
+
+### Combining gender and plural
+
+A translation may depend on both the gender and the number. To declare all the
+combinations, nest the plural modifiers inside the gender modifiers, and pass the gender
+to `.plural()`:
+
+```dart
+static var _t = Translations.byText('en-US') +
+  {
+    'en-US': 'There is a person'
+        .zero('There is nobody')
+        .many('There are %d people')
+        .male('There is a man'.zero('There are no men').many('There are %d men'))
+        .female('There is a woman'.zero('There are no women').many('There are %d women')),
+    'pt-BR': 'Há uma pessoa'
+        .zero('Não há ninguém')
+        .many('Há %d pessoas')
+        .male('Há um homem'.zero('Não há homens').many('Há %d homens'))
+        .female('Há uma mulher'.zero('Não há mulheres').many('Há %d mulheres')),
+  };
+
+String plural(value, [Gender? gender]) => localizePlural(value, this, _t, gender: gender);
+```
+
+```dart
+'There is a person'.plural(3, Gender.female); // There are 3 women
+'There is a person'.plural(1, Gender.male); // There is a man
+'There is a person'.plural(0, Gender.neutral); // There is nobody
+'There is a person'.plural(2); // There are 2 people
+```
+
+The plural versions of the given gender are tried first, then the gender version itself
+(which is the singular, for 1 element), then the plural versions that don't depend on the
+gender, and finally the unversioned string. So you only need to declare the combinations
+that actually differ.
+
+Note that chaining, like `'There is a person'.gender(gender).plural(count)`, does not
+work, because `.gender()` already returns the translated text, which is not a translation
+key anymore. Pass the gender to `.plural()` instead, as above. For a complete example, see
+[main_gender_plural.dart](example/lib/11_gender_plural_example/main_gender_plural.dart).
+
+## Custom modifiers
+
+You can actually create any modifiers you want, besides the plural and gender ones. For
+example, some languages distinguish formal and informal speech, so you could create
+`.formality()` that accepts `Formality` modifiers:
+
+```dart
+enum Formality {formal, informal}
+
+var formality = Formality.formal;
+return Text('How are you?'.formality(formality));
 ```
 
 Then, your translations file should use `.modifier()` and `localizeVersion()` like this:
@@ -1585,18 +1774,19 @@ Then, your translations file should use `.modifier()` and `localizeVersion()` li
 ```dart
 static var _t = Translations.byText('en-US') +
   {
-    'en-US': 'There is a person'
-        .modifier(Gender.male, 'There is a man')
-        .modifier(Gender.female, 'There is a woman')
-        .modifier(Gender.they, 'There is a person'),
-    'pt-BR': 'Há uma pessoa'
-        .modifier(Gender.male, 'Há um homem')
-        .modifier(Gender.female, 'Há uma mulher')
-        .modifier(Gender.they, 'Há uma pessoa'),
+    'en-US': 'How are you?'
+        .modifier(Formality.formal, 'How do you do?')
+        .modifier(Formality.informal, "How's it going?"),
+    'de-DE': 'Wie geht es Ihnen?'
+        .modifier(Formality.formal, 'Wie geht es Ihnen?')
+        .modifier(Formality.informal, 'Wie geht es dir?'),
   };
 
-String gender(Gender gnd) => localizeVersion(gnd, this, _t);
+String formality(Formality formality) => localizeVersion(formality, this, _t);
 ```
+
+Note that `localizeVersion()` throws an error if the string has no version for the given
+modifier, unlike `.plural()` and `.gender()`, which fall back to the unversioned string.
 
 ## Direct use of translation objects
 
