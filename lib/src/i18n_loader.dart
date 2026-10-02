@@ -503,7 +503,7 @@ abstract class I18nLoader {
     //
     // Describes what's being encoded, for the error messages.
     String what = (parent == null) ? "key '$key'" : "version '$parent' of key '$key'";
-    String What = what[0].toUpperCase() + what.substring(1);
+    String _what = what[0].toUpperCase() + what.substring(1);
 
     String? defaultText;
     Map<String, String> textByModifier = {};
@@ -515,7 +515,7 @@ abstract class I18nLoader {
 
       if (name is! String) {
         throw FormatException(
-            "$What has a version named '$name', which is not a String.");
+            "$_what has a version named '$name', which is not a String.");
       }
 
       if (name == 'other') {
@@ -533,7 +533,7 @@ abstract class I18nLoader {
       String? previousName = nameByModifier[modifier];
       if (previousName != null) {
         throw FormatException(
-            "$What has both the '$previousName' and the '$name' versions, "
+            "$_what has both the '$previousName' and the '$name' versions, "
             "which mean the same.");
       }
       nameByModifier[modifier] = name;
@@ -569,7 +569,7 @@ abstract class I18nLoader {
 
     if (defaultText == null) {
       throw FormatException(
-          "$What has versions, but no 'other' version, which is the text "
+          "$_what has versions, but no 'other' version, which is the text "
           "used when no other version applies.");
     }
 

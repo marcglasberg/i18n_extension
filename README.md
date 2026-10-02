@@ -146,9 +146,7 @@ Or even combining plural and gender:
 'There is a person'.plural(1, Gender.male); // There is a man
 ```
 
-Inventing your own modifiers according to any conditions. For example, for languages
-that distinguish formal and informal speech, you can create `formality` versions for
-`Formality` modifiers:
+Inventing your own modifiers according to any conditions:
 
 ```dart
 'How are you?'.formality(Formality.formal); // How do you do?
