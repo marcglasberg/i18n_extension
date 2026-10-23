@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required to load translations by http (see examples 7 and 10). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="example"
         android:name="${applicationName}"
