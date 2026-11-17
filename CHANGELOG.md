@@ -1,8 +1,8 @@
 Sponsored by [MyText.ai](https://mytext.ai)
 
-[![](./example/SponsoredByMyTextAi.png)](https://mytext.ai)
+[![](./example/SponsoredByMyTextAi.jpg)](https://mytext.ai)
 
-## 16.0.1
+## 16.0.2
 
 * When defining your translations, you can now use the modifiers `.male()`, `.female()`
   and `.neutral()`, and then declare a `gender` function that calls the provided
