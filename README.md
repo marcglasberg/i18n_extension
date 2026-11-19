@@ -311,7 +311,8 @@ This is how your `main.dart` file could look like:
 
 ```dart    
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
        
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -350,7 +351,8 @@ Another alternative is declaring the `I18n` widget in the `runApp()` of `main` f
 
 ```dart    
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
        
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -382,13 +384,13 @@ class AppCore extends StatelessWidget {
 
 &nbsp;<br>
 
-**Note:** To be able to import `flutter_localizations.dart` you must add it as
+**Note:** Add the standalone design packages as
 a dependency in your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_localizations:
-    sdk: flutter
+  material_ui: ^1.11.1
+  cupertino_ui: ^1.1.7
 
   i18n_extension: ...
 ```

@@ -1,6 +1,6 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'main.i18n.dart';
 

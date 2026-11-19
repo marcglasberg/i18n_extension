@@ -2,6 +2,11 @@ Sponsored by [MyText.ai](https://mytext.ai)
 
 [![](./example/SponsoredByMyTextAi.jpg)](https://mytext.ai)
 
+## 16.0.3
+
+* Keep the I18n widget independent of Material and Cupertino libraries.
+* Migrate examples and tests to the standalone design packages and their localization delegates, preserving consumer-supplied delegates and locale resolution.
+
 ## 16.0.2
 
 * When defining your translations, you can now use the modifiers `.male()`, `.female()`

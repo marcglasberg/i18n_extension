@@ -2,9 +2,8 @@
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
 
 import 'package:example/1_translation_example/language_settings_page.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'main.i18n.dart';
 import 'my_screen.dart';
@@ -74,11 +73,7 @@ void main() async {
         const Locale('es', 'ES'), // Could also be 'es-ES'.asLocale,
         const Locale('fr', 'FR'), // Could also be 'fr-FR'.asLocale,
       ],
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       child: AppCore(),
     ),
   );

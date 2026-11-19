@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   const ptPT = Locale('pt', 'PT');

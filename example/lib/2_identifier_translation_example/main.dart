@@ -1,8 +1,7 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'my.i18n.dart';
 import 'my_screen.dart';
@@ -34,11 +33,7 @@ void main() async {
         const Locale('en', 'US'), // Could also be 'en-US'.asLocale,
         const Locale('pt', 'BR'), // Could also be 'pt-BR'.asLocale,
       ],
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       child: AppCore(),
     ),
   );

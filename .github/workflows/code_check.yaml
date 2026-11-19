@@ -21,10 +21,13 @@ jobs:
       # Check out repo
       - uses: actions/checkout@v2
       # Install FLutter
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.50.0'
       - name: Install dependencies
         run: flutter pub get
       - name: Run unit tests
         run: flutter test
       - name: Do static code analysis
-        run: flutter analyze lib
+        run: dart analyze

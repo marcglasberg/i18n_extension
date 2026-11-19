@@ -1,8 +1,8 @@
 // Developed by Marcelo Glasberg (2019) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
 import 'package:example/1_translation_example/language_settings_page.dart';
-import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'my_screen.i18n.dart';
 import 'my_widget.dart';

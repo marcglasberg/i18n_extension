@@ -1,8 +1,7 @@
 // Developed by Marcelo Glasberg (2026) https://glasberg.dev and https://github.com/marcglasberg
 // For more info, see: https://pub.dartlang.org/packages/i18n_extension
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// This example demonstrates how to combine the gender and plural modifiers, so that
 /// a single text depends on both the gender and the number of people.
@@ -28,11 +27,7 @@ void main() async {
         const Locale('es', 'ES'),
         const Locale('pt', 'BR'),
       ],
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       child: const AppCore(),
     ),
   );

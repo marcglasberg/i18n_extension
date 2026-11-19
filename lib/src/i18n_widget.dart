@@ -3,9 +3,8 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:intl/number_symbols.dart';
 import 'package:intl/number_symbols_data.dart';
@@ -33,13 +32,13 @@ typedef LocaleResolver = Locale Function(
 
 /// # Setup
 ///
-/// 1. Add a single [I18n] widget in your widget tree, above your [MaterialApp]
-/// (or [CupertinoApp]) widget.
+/// 1. Add a single [I18n] widget in your widget tree, above your `MaterialApp`
+/// (or `CupertinoApp`) widget.
 ///
 /// 3. Make sure the [I18n] widget is NOT declared in the same widget as the
-/// [MaterialApp] (or [CupertinoApp]) widget. It must be in a parent widget.
+/// `MaterialApp` (or `CupertinoApp`) widget. It must be in a parent widget.
 ///
-/// 3. Add `locale: I18n.locale` to your [MaterialApp] (or [CupertinoApp]) widget.
+/// 3. Add `locale: I18n.locale` to your `MaterialApp` (or `CupertinoApp`) widget.
 ///
 /// ## Example
 ///
@@ -67,8 +66,8 @@ typedef LocaleResolver = Locale Function(
 ///     ),
 /// ```
 ///
-/// Note that the [I18n] widget is above the [MaterialApp] widget, but declared
-/// in a parent widget. If you declare it in the same widget as the [MaterialApp]
+/// Note that the [I18n] widget is above the `MaterialApp` widget, but declared
+/// in a parent widget. If you declare it in the same widget as the `MaterialApp`
 /// widget, it will not work. This is WRONG:
 ///
 /// ```dart
@@ -119,7 +118,7 @@ class I18n extends StatefulWidget {
   /// settings, will be used.
   ///
   /// If you set the [initialLocale], you must add the line `locale: I18n.locale` to
-  /// your [MaterialApp] (or [CupertinoApp]) widget:
+  /// your `MaterialApp` (or `CupertinoApp`) widget:
   ///
   /// ```dart
   /// void main() async {
@@ -150,8 +149,8 @@ class I18n extends StatefulWidget {
   /// or `supportedLocales: ['en-US'.asLocale, 'es'.asLocale]`.
   ///
   /// If you set the [supportedLocales], you must add the line
-  /// `supportedLocales: I18n.supportedLocales` to your [MaterialApp]
-  /// (or [CupertinoApp]) widget:
+  /// `supportedLocales: I18n.supportedLocales` to your `MaterialApp`
+  /// (or `CupertinoApp`) widget:
   ///
   /// ```dart
   /// void main() {
@@ -234,8 +233,8 @@ class I18n extends StatefulWidget {
   /// Optionally, you can set the [localizationsDelegates] of your app.
   ///
   /// If you do that, you must add the line
-  /// `localizationsDelegates: I18n.localizationsDelegates` to your [MaterialApp]
-  /// (or [CupertinoApp]) widget:
+  /// `localizationsDelegates: I18n.localizationsDelegates` to your `MaterialApp`
+  /// (or `CupertinoApp`) widget:
   ///
   /// ```dart
   /// void main() {
@@ -290,13 +289,13 @@ class I18n extends StatefulWidget {
 
   /// # Setup
   ///
-  /// 1. Add a single [I18n] widget in your widget tree, above your [MaterialApp]
-  /// (or [CupertinoApp]) widget.
+  /// 1. Add a single [I18n] widget in your widget tree, above your `MaterialApp`
+  /// (or `CupertinoApp`) widget.
   ///
   /// 2. Make sure the [I18n] widget is NOT declared in the same widget as the
-  /// [MaterialApp] (or [CupertinoApp]) widget. It must be in a parent widget.
+  /// `MaterialApp` (or `CupertinoApp`) widget. It must be in a parent widget.
   ///
-  /// 3. Add `locale: I18n.locale` to your [MaterialApp] (or [CupertinoApp]) widget.
+  /// 3. Add `locale: I18n.locale` to your `MaterialApp` (or `CupertinoApp`) widget.
   ///
   /// ## Example
   ///
@@ -324,8 +323,8 @@ class I18n extends StatefulWidget {
   ///     ),
   /// ```
   ///
-  /// Note that the [I18n] widget is above the [MaterialApp] widget, but declared
-  /// in a parent widget. If you declare it in the same widget as the [MaterialApp]
+  /// Note that the [I18n] widget is above the `MaterialApp` widget, but declared
+  /// in a parent widget. If you declare it in the same widget as the `MaterialApp`
   /// widget, it will not work. This is WRONG:
   ///
   /// ```dart
@@ -547,7 +546,7 @@ class I18n extends StatefulWidget {
   /// [supportedLocales] is empty, it returns the first device locale, as is.
   ///
   /// This uses Flutter's [basicLocaleListResolution], which is the same algorithm
-  /// [MaterialApp] uses by default, so the locale used by the native Flutter widgets
+  /// `MaterialApp` uses by default, so the locale used by the native Flutter widgets
   /// is the same one used by your translations. See that function for all the
   /// details, including the country-only match it does as a last resort.
   ///

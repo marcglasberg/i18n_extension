@@ -1,6 +1,7 @@
 import 'package:example/1_translation_example/language_settings_page.i18n.dart';
-import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
+import 'package:material_ui/material_ui.dart';
+
 import 'my_widget.dart';
 
 const Widget space6 = SizedBox(width: 6, height: 6);

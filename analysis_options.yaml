@@ -9,6 +9,7 @@ analyzer:
   exclude:
     - 'bin/cache/**'
     - 'lib/src/http/**'
+    - build/**
 
 # https://github.com/dart-lang/linter/blob/master/example/all.yaml
 linter:
@@ -20,7 +21,7 @@ linter:
     - avoid_field_initializers_in_const_classes
     # - avoid_function_literals_in_foreach_calls
     - avoid_init_to_null
-    - avoid_null_checks_in_equality_operators
+
     - avoid_relative_lib_imports
     - avoid_renaming_method_parameters
     - avoid_return_types_on_setters
